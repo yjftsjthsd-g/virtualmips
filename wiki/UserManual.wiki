@@ -2,7 +2,7 @@
 #labels Featured
 = How to build and run VirtualMIPS =
 -----
-You need to download VirtualMIPS from sf.net. It includes the source code of VirtualMIPS and the linux 2.6.12 kernel for ADM5120.
+You need to download [http://virtualmips.googlecode.com/files/virtualmips-0.01.tar.gz VirtualMIPS] first. It includes the source code of VirtualMIPS and the linux 2.6.12 kernel for ADM5120.
 
 VirtualMIPS needs libelf to read elf kernel image. Please install it before compiling VirtualMIPS. In debian/ubuntu, type the following command to install libelf.
 
