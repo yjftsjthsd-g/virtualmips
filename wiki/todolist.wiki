@@ -2,7 +2,8 @@
 
 = Todo List =
 
- * add support of swarm board (BCM1250)
+ * add support of swarm board (BCM1250).
+ * add support of [http://www.linux-mips.org/wiki/Fulong fulong].
  * add support of au1200.
- * support of GodSon
+ * add support of [http://www.ingenic.cn JZ] Soc.
  * dynamic binary translation(JIT)
