@@ -1,5 +1,5 @@
 #labels Featured
-#UserManual
+#Current Development Status
 
 = How to build and run VirtualMIPS =
 -----
