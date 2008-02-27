@@ -3,9 +3,11 @@
 = Todo List =
 
 1. add support of swarm board (BCM1250)
+
 2. add support of au1200.
+
 3. support of GodSon?
+
 4. Dynamic binary translation 
-5. port igust
 
 
