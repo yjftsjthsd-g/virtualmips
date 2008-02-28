@@ -1,5 +1,9 @@
-#summary How to build VirtualMIPS V0.01 and linux kernel for ADM5120
+#summary How to build and run VirtualMIPS
 #labels Featured
+
+= Reference=
+[KernelForADM5120 Build linux kernel for ADM5120]
+
 = How to build and run VirtualMIPS =
 -----
 You need to download [http://virtualmips.googlecode.com/files/virtualmips-0.01.tar.gz VirtualMIPS] first. It includes the source code of VirtualMIPS and the linux 2.6.12 kernel for ADM5120.
