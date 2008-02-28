@@ -96,6 +96,6 @@ Enter 'help' for a list of built-in commands.
 / #
 }}}
 
-= Reference=
- # [KernelForADM5120 Build linux kernel for ADM5120]
- # [gdbinterface how to use gdb to debug kernel]
+= Links =
+ * [KernelForADM5120 Build linux kernel for ADM5120]
+ * [gdbinterface how to use gdb to debug kernel]
