@@ -1,0 +1,7 @@
+#summary ChangeLog of VirtualMIPS
+
+= 2008-02-28 =
+
+Init version of VirtualMIPS.
+  * support of ADM5120 without switch core emulation
+  * 4M byte flash emulation
