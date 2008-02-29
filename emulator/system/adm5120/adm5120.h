@@ -21,7 +21,6 @@ typedef m_uint32_t m_cp0_reg_t;
 
 
 #define  DATA_WIDTH 32 /*64*/
-#define  ADDRESS_WIDTH  32  /*64*/
 #define LL
 
 /*ADM5120 use soft fpu*/

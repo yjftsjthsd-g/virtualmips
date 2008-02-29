@@ -21,7 +21,6 @@
 extern char *mips64_cp0_reg_names[];
 
 m_cp0_reg_t mips64_cp0_get_reg(cpu_mips_t *cpu,u_int cp0_reg);
-m_cp0_reg_t  mips64_cp0_s1_get_reg(cpu_mips_t *cpu,u_int cp0_s1_reg);
 fastcall void mips64_cp0_exec_mfc0(cpu_mips_t *cpu,u_int gp_reg,u_int cp0_reg,u_int sel);
 fastcall void mips64_cp0_exec_mtc0(cpu_mips_t *cpu,u_int gp_reg,u_int cp0_reg);
 inline void mips64_cp0_set_reg(cpu_mips_t *cpu,u_int cp0_reg,

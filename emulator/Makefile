@@ -1,10 +1,11 @@
-PROGRAM := adm5120
+PROGRAM := pavo
 
 SRCDIRS := .
 SRCDIRS += ./device
 SRCDIRS += ./mips
 SRCDIRS += ./system
-SRCDIRS += ./system/adm5120
+SRCDIRS += ./system/jz/soc
+SRCDIRS += ./system/jz/pavo
 SRCDIRS += ./utils
 SRCDIRS += ./memory
 SRCDIRS += ./contrib
@@ -14,7 +15,8 @@ INCLUDE_DIR := -I.
 INCLUDE_DIR += -I./device
 INCLUDE_DIR += -I./mips
 INCLUDE_DIR += -I./system
-INCLUDE_DIR += -I./system/adm5120
+INCLUDE_DIR += -I./system/jz/soc
+INCLUDE_DIR += -I./system/jz/pavo
 INCLUDE_DIR += -I./utils
 INCLUDE_DIR += -I./memory
 INCLUDE_DIR += -I./contrib
@@ -24,7 +26,7 @@ INCLUDE_DIR += -I./gdb
 SRCEXTS :=  .c
 
 
-CFLAGS := -g -Wall -DSIM_ADM5120 -O3  -fomit-frame-pointer  $(INCLUDE_DIR)
+CFLAGS := -g -Wall -DSIM_PAVO -O3  -fomit-frame-pointer  $(INCLUDE_DIR)
 
 #enable to show emulation performance
 #CFLAGS+= -DDEBUG_MHZ
