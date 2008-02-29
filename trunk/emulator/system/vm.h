@@ -30,6 +30,7 @@
 enum {
    VM_TYPE_SWARM = 0,
    VM_TYPE_ADM5120 ,
+   VM_TYPE_PAVO ,
 };
 
 /* VM instance status */

@@ -101,23 +101,6 @@ m_cp0_reg_t mips64_cp0_get_reg(cpu_mips_t *cpu,u_int cp0_reg)
 	return(mips64_cp0_get_reg_fast(cpu,cp0_reg,0));
 }
 
-/* Get a cp0 "set 1" register () */
-m_cp0_reg_t  mips64_cp0_s1_get_reg(cpu_mips_t *cpu,u_int cp0_s1_reg)
-{
-	switch(cp0_s1_reg) {
-	case MIPS_CP0_CONFIG:
-		return(SOC_CONFIG1);
-
-	default:
-		/* undefined register */
-		cpu_log(cpu,"CP0_S1","trying to read unknown register %u PC %x\n",
-				cp0_s1_reg,cpu->pc);
-		return(0);
-	}
-}
-
-
-
 
 /* MFC0 */
 fastcall void mips64_cp0_exec_mfc0(cpu_mips_t *cpu,u_int gp_reg,u_int cp0_reg,u_int sel)

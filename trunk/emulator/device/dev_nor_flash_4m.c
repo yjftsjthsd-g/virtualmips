@@ -318,8 +318,8 @@ static int dev_flash_load(char * flash_file_name,m_uint32_t flash_len,unsigned c
 }
 
 
-/* Initialize a ROM zone */
-int dev_flash_init(vm_instance_t *vm,char *name)
+/* Initialize a NOR Flash zone */
+int dev_nor_flash_4m_init(vm_instance_t *vm,char *name)
 {
 	flash_data_t *d;
 	unsigned char *flash_data_hp;

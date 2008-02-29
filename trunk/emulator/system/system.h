@@ -14,6 +14,9 @@
 #include "adm5120.h"
 #endif
 
+#ifdef SIM_PAVO
+#include "pavo.h"
+#endif
 
 
 #endif

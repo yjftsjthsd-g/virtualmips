@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include "config.h"
 #include "types.h"
 #include "system.h"
 
