@@ -83,11 +83,11 @@ static int adm5120_init_platform(adm5120_t *adm5120)
 	vm_ram_init(vm,0x00000000ULL);
 
 	/* Initialize ROM */
-	if (vm->rom_size!=0)
+	/*if (vm->rom_size!=0)
 	{
 		if (dev_rom_init(vm, "ROM")==-1)
 			return (-1);
-	}
+	}*/
 	
     /* Initialize FLASH */
 	if (vm->flash_size!=0)
@@ -301,7 +301,7 @@ void adm5120_set_irq(vm_instance_t *vm,u_int irq)
 static void printf_configure(adm5120_t *adm5120)
 {
 	char *boot_method_string[2]={"Binary","ELF"};
-	char *boot_from_string[2]={"ROM","FLASH"};
+	char *boot_from_string[1]={"FLASH"};
 
 	vm_instance_t *vm=adm5120->vm;
 	PRINT_COMMON_COFING_OPTION;

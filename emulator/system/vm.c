@@ -291,7 +291,7 @@ void vm_free(vm_instance_t *vm)
    //   free(vm->sym_filename);
       //free(vm->ios_image);
      // free(vm->ios_config);
-      free(vm->rom_filename);
+      //free(vm->rom_filename);
       free(vm->name);
       free(vm);
    }
