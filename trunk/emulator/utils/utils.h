@@ -80,8 +80,7 @@ enum {
 };
 /* BOOT FROM */
 enum {
-	BOOT_FROM_ROM =1,
-	BOOT_FROM_FLASH=2,
+	BOOT_FROM_NOR_FLASH=1,
 };
 
 
