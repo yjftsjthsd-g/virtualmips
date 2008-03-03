@@ -81,6 +81,12 @@ enum {
 /* BOOT FROM */
 enum {
 	BOOT_FROM_NOR_FLASH=1,
+	BOOT_FROM_NAND_FLASH=2,
+};
+/* FLASH TYPE */
+enum {
+	FLASH_TYPE_NOR_FLASH=1,
+	FLASH_TYPE_NAND_FLASH=2,
 };
 
 

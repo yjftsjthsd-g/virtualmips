@@ -1317,36 +1317,6 @@ static fastcall int mips64_exec_LBU(cpu_mips_t *cpu,mips_insn_t insn)
 	return(mips64_exec_memop2(cpu,MIPS_MEMOP_LBU,base,offset,rt,TRUE));
 }
 
-/* LD (Load Double-Word) */
-static fastcall int mips64_exec_LD(cpu_mips_t *cpu,mips_insn_t insn)
-{
-	int base   = bits(insn,21,25);
-	int rt     = bits(insn,16,20);
-	int offset = bits(insn,0,15);
-
-	return(mips64_exec_memop2(cpu,MIPS_MEMOP_LD,base,offset,rt,TRUE));
-}
-
-/* LDL (Load Double-Word Left) */
-static fastcall int mips64_exec_LDL(cpu_mips_t *cpu,mips_insn_t insn)
-{
-	int base   = bits(insn,21,25);
-	int rt     = bits(insn,16,20);
-	int offset = bits(insn,0,15);
-
-	return(mips64_exec_memop2(cpu,MIPS_MEMOP_LDL,base,offset,rt,TRUE));
-}
-
-/* LDR (Load Double-Word Right) */
-static fastcall int mips64_exec_LDR(cpu_mips_t *cpu,mips_insn_t insn)
-{
-	int base   = bits(insn,21,25);
-	int rt     = bits(insn,16,20);
-	int offset = bits(insn,0,15);
-
-	return(mips64_exec_memop2(cpu,MIPS_MEMOP_LDR,base,offset,rt,TRUE));
-}
-
 /* LH (Load Half-Word) */
 static fastcall int mips64_exec_LH(cpu_mips_t *cpu,mips_insn_t insn)
 {
@@ -1689,35 +1659,6 @@ static fastcall int mips64_exec_SC(cpu_mips_t *cpu,mips_insn_t insn)
 	return(mips64_exec_memop2(cpu,MIPS_MEMOP_SC,base,offset,rt,TRUE));
 }
 
-/* SD (Store Double-Word) */
-static fastcall int mips64_exec_SD(cpu_mips_t *cpu,mips_insn_t insn)
-{
-	int base   = bits(insn,21,25);
-	int rt     = bits(insn,16,20);
-	int offset = bits(insn,0,15);
-
-	return(mips64_exec_memop2(cpu,MIPS_MEMOP_SD,base,offset,rt,FALSE));
-}
-
-/* SDL (Store Double-Word Left) */
-static fastcall int mips64_exec_SDL(cpu_mips_t *cpu,mips_insn_t insn)
-{
-	int base   = bits(insn,21,25);
-	int rt     = bits(insn,16,20);
-	int offset = bits(insn,0,15);
-
-	return(mips64_exec_memop2(cpu,MIPS_MEMOP_SDL,base,offset,rt,FALSE));
-}
-
-/* SDR (Store Double-Word Right) */
-static fastcall int mips64_exec_SDR(cpu_mips_t *cpu,mips_insn_t insn)
-{
-	int base   = bits(insn,21,25);
-	int rt     = bits(insn,16,20);
-	int offset = bits(insn,0,15);
-
-	return(mips64_exec_memop2(cpu,MIPS_MEMOP_SDR,base,offset,rt,FALSE));
-}
 
 /* SH (Store Half-Word) */
 static fastcall int mips64_exec_SH(cpu_mips_t *cpu,mips_insn_t insn)
@@ -2159,6 +2100,67 @@ static fastcall int mips64_exec_DSUBU(cpu_mips_t *cpu,mips_insn_t insn)
 	cpu->gpr[rd] = cpu->gpr[rs] - cpu->gpr[rt];
 	return(0);
 }
+/* LD (Load Double-Word) */
+static fastcall int mips64_exec_LD(cpu_mips_t *cpu,mips_insn_t insn)
+{
+	int base   = bits(insn,21,25);
+	int rt     = bits(insn,16,20);
+	int offset = bits(insn,0,15);
+
+	return(mips64_exec_memop2(cpu,MIPS_MEMOP_LD,base,offset,rt,TRUE));
+}
+
+/* LDL (Load Double-Word Left) */
+static fastcall int mips64_exec_LDL(cpu_mips_t *cpu,mips_insn_t insn)
+{
+	int base   = bits(insn,21,25);
+	int rt     = bits(insn,16,20);
+	int offset = bits(insn,0,15);
+
+	return(mips64_exec_memop2(cpu,MIPS_MEMOP_LDL,base,offset,rt,TRUE));
+}
+
+/* LDR (Load Double-Word Right) */
+static fastcall int mips64_exec_LDR(cpu_mips_t *cpu,mips_insn_t insn)
+{
+	int base   = bits(insn,21,25);
+	int rt     = bits(insn,16,20);
+	int offset = bits(insn,0,15);
+
+	return(mips64_exec_memop2(cpu,MIPS_MEMOP_LDR,base,offset,rt,TRUE));
+}
+
+
+/* SD (Store Double-Word) */
+static fastcall int mips64_exec_SD(cpu_mips_t *cpu,mips_insn_t insn)
+{
+	int base   = bits(insn,21,25);
+	int rt     = bits(insn,16,20);
+	int offset = bits(insn,0,15);
+
+	return(mips64_exec_memop2(cpu,MIPS_MEMOP_SD,base,offset,rt,FALSE));
+}
+
+/* SDL (Store Double-Word Left) */
+static fastcall int mips64_exec_SDL(cpu_mips_t *cpu,mips_insn_t insn)
+{
+	int base   = bits(insn,21,25);
+	int rt     = bits(insn,16,20);
+	int offset = bits(insn,0,15);
+
+	return(mips64_exec_memop2(cpu,MIPS_MEMOP_SDL,base,offset,rt,FALSE));
+}
+
+/* SDR (Store Double-Word Right) */
+static fastcall int mips64_exec_SDR(cpu_mips_t *cpu,mips_insn_t insn)
+{
+	int base   = bits(insn,21,25);
+	int rt     = bits(insn,16,20);
+	int offset = bits(insn,0,15);
+
+	return(mips64_exec_memop2(cpu,MIPS_MEMOP_SDR,base,offset,rt,FALSE));
+}
+
 
 #endif
 
@@ -2215,9 +2217,6 @@ static struct mips64_insn_exec_tag mips64_exec_tags[] = {
 		{ "jr"     , mips64_exec_JR      , 0xfc1ff83f , 0x00000008, 0, 13 },
 		{ "lb"     , mips64_exec_LB      , 0xfc000000 , 0x80000000, 1, 2 },
 		{ "lbu"    , mips64_exec_LBU     , 0xfc000000 , 0x90000000, 1, 2 },
-		{ "ld"     , mips64_exec_LD      , 0xfc000000 , 0xdc000000, 1, 2 },
-		{ "ldl"    , mips64_exec_LDL     , 0xfc000000 , 0x68000000, 1, 2 },
-		{ "ldr"    , mips64_exec_LDR     , 0xfc000000 , 0x6c000000, 1, 2 },
 		{ "lh"     , mips64_exec_LH      , 0xfc000000 , 0x84000000, 1, 2 },
 		{ "lhu"    , mips64_exec_LHU     , 0xfc000000 , 0x94000000, 1, 2 },
 		{ "ll"     , mips64_exec_LL      , 0xfc000000 , 0xc0000000, 1, 2 },
@@ -2248,9 +2247,6 @@ static struct mips64_insn_exec_tag mips64_exec_tags[] = {
 		{ "prefi"  , mips64_exec_PREFI   , 0xfc0007ff , 0x4c00000f, 1, 0 },
 		{ "sb"     , mips64_exec_SB      , 0xfc000000 , 0xa0000000, 1, 2 },
 		{ "sc"     , mips64_exec_SC      , 0xfc000000 , 0xe0000000, 1, 2 },
-		{ "sd"     , mips64_exec_SD      , 0xfc000000 , 0xfc000000, 1, 2 },
-		{ "sdl"    , mips64_exec_SDL     , 0xfc000000 , 0xb0000000, 1, 2 },
-		{ "sdr"    , mips64_exec_SDR     , 0xfc000000 , 0xb4000000, 1, 2 },
 		{ "sh"     , mips64_exec_SH      , 0xfc000000 , 0xa4000000, 1, 2 },
 		{ "sll"    , mips64_exec_SLL     , 0xffe0003f , 0x00000000, 1, 7 },
 		{ "sllv"   , mips64_exec_SLLV    , 0xfc0007ff , 0x00000004, 1, 4 },
@@ -2291,6 +2287,12 @@ static struct mips64_insn_exec_tag mips64_exec_tags[] = {
 		{ "dsrl32" , mips64_exec_DSRL32  , 0xffe0003f , 0x0000003e, 1, 7 },
 		{ "dsrlv"  , mips64_exec_DSRLV   , 0xfc0007ff , 0x00000016, 1, 4 },
 		{ "dsubu"  , mips64_exec_DSUBU   , 0xfc0007ff , 0x0000002f, 1, 3 },
+		{ "ld"     , mips64_exec_LD      , 0xfc000000 , 0xdc000000, 1, 2 },
+		{ "ldl"    , mips64_exec_LDL     , 0xfc000000 , 0x68000000, 1, 2 },
+		{ "ldr"    , mips64_exec_LDR     , 0xfc000000 , 0x6c000000, 1, 2 },
+       { "sd"     , mips64_exec_SD      , 0xfc000000 , 0xfc000000, 1, 2 },
+		{ "sdl"    , mips64_exec_SDL     , 0xfc000000 , 0xb0000000, 1, 2 },
+		{ "sdr"    , mips64_exec_SDR     , 0xfc000000 , 0xb4000000, 1, 2 },
 #endif
 #if SOFT_FPU
 		{ "fpu"   , mips64_exec_SOFTFPU   , 0xfc000000 , 0x44000000, 0, 1 },

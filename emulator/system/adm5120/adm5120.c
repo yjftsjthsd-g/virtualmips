@@ -90,7 +90,7 @@ static int adm5120_init_platform(adm5120_t *adm5120)
 	}*/
 	
     /* Initialize FLASH */
-	if (vm->flash_size!=0)
+	if ((vm->flash_size!=0)&&(vm->flash_type==FLASH_TYPE_NOR_FLASH))
 		if (dev_nor_flash_4m_init(vm, "NORFLASH4M")==-1)
 			return (-1);
 
@@ -296,17 +296,11 @@ void adm5120_set_irq(vm_instance_t *vm,u_int irq)
 
 
 }
-
-
+COMMON_CONFIG_INFO_ARRAY
 static void printf_configure(adm5120_t *adm5120)
 {
-	char *boot_method_string[2]={"Binary","ELF"};
-	char *boot_from_string[1]={"FLASH"};
-
 	vm_instance_t *vm=adm5120->vm;
 	PRINT_COMMON_COFING_OPTION;
-
-
 }
 static void adm5120_parse_configure(adm5120_t *adm5120)
 {
@@ -322,6 +316,13 @@ static void adm5120_parse_configure(adm5120_t *adm5120)
 	cfg_free(cfg);
 
 	VALID_COMMON_CONFIG_OPTION;
+
+    if (vm->boot_method==BOOT_BINARY)
+      {
+        ASSERT(vm->boot_from==1,"boot_from must be 1(NOR Flash)\n ADM5120 only can boot from NOR Flash.\n");   \
+      }
+	
+	
 
     /*Print the configure information*/
 	printf_configure(adm5120);

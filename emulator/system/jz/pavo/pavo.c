@@ -68,7 +68,11 @@ static int pavo_init_platform(pavo_t *pavo)
 	/* Initialize RAM */
 	vm_ram_init(vm,0x00000000ULL);
 
-
+	/*create nand flash*/
+	if ((vm->flash_size==0x400)&&(vm->flash_type=FLASH_TYPE_NAND_FLASH))
+	  if (dev_nand_flash_1g_init(vm,"NAND FLASH 1G",pavo->nand_flash)==-1)
+	    return (-1);
+	  
 
 	return(0);
 }
@@ -144,11 +148,9 @@ void pavo_set_irq(vm_instance_t *vm,u_int irq)
 
 }
 
-
+COMMON_CONFIG_INFO_ARRAY;
 static void printf_configure(pavo_t *pavo)
 {
-	char *boot_method_string[2]={"Binary","ELF"};
-	char *boot_from_string[2]={"ROM","FLASH"};
 
 	vm_instance_t *vm=pavo->vm;
 	PRINT_COMMON_COFING_OPTION;
