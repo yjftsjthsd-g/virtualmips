@@ -288,8 +288,8 @@ static inline m_tmcnt_t m_gettime_adj(void)
 #define SIM_DEBUG(arg1)
 #endif
 
-/* Add an element to a list */
-//m_list_t *m_list_add(m_list_t **head,void *data);
+/*return a file size*/
+unsigned int get_file_size(const char *filename);
 
 /* Dynamic sprintf */
 char *dyn_sprintf(const char *fmt,...);

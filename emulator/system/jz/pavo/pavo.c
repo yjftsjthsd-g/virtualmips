@@ -13,7 +13,7 @@
 #include "debug.h"
 
 #include "pavo.h"
-
+#include "device.h"
 
 
 
@@ -70,9 +70,8 @@ static int pavo_init_platform(pavo_t *pavo)
 
 	/*create nand flash*/
 	if ((vm->flash_size==0x400)&&(vm->flash_type=FLASH_TYPE_NAND_FLASH))
-	  if (dev_nand_flash_1g_init(vm,"NAND FLASH 1G",pavo->nand_flash)==-1)
+	  if (dev_nand_flash_1g_init(vm,"NAND FLASH 1G",&(pavo->nand_flash))==-1)
 	    return (-1);
-	  
 
 	return(0);
 }
