@@ -40,6 +40,24 @@
 extern FILE *log_file;
 
 
+unsigned int get_file_size(const char *file_path)
+
+{
+struct stat statbuf;
+if(stat(file_path,&statbuf)==-1)
+{
+	printf("Get stat on %s Error:%s\n",file_path,strerror(errno));
+	return(0);
+}
+if(S_ISDIR(statbuf.st_mode))
+	return(0);
+if(S_ISREG(statbuf.st_mode))
+	return(statbuf.st_size);
+
+return 0;
+}
+
+
 
 /* Dynamic sprintf */
 char *dyn_sprintf(const char *fmt,...)
