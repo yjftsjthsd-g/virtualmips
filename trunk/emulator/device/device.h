@@ -25,7 +25,7 @@
 #define VDEVICE_FLAG_NO_MTS_MMAP  0x01  /* Prevent MMAPed access by MTS */
 #define VDEVICE_FLAG_CACHING      0x02  /* Device does support caching */
 #define VDEVICE_FLAG_REMAP        0x04  /* Physical address remapping */
-
+//#define VDEVICE_FLAG_COW        0x08  /* Copy on write device  */
 
 #define VDEVICE_PTE_DIRTY  0x01
 

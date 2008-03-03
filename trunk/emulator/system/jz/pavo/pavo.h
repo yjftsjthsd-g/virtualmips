@@ -2,6 +2,7 @@
 #define __PAVO_H__
 
 #include "jz4740.h"
+#include "dev_nand_flash_1g.h"
 
 #define PAVO_DEFAULT_CONFIG_FILE     "pavo.conf"
 #define PAVO_DEFAULT_RAM_SIZE           16
@@ -23,6 +24,7 @@
 struct pavo_system {
    /* Associated VM instance */
    vm_instance_t *vm;
+   nand_flash_1g_data_t *nand_flash;
 };
 
 

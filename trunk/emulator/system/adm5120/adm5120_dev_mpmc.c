@@ -48,6 +48,7 @@ void dev_mpmc_init_defaultvalue()
 {
   
 }
+
 int dev_mpmc_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len)
 {
  	struct mpmc_data *d;
