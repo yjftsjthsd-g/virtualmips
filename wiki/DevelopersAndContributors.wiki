@@ -1,4 +1,4 @@
 #summary developers and contributors
 #labels Deprecated
 
-[http://home.ustc.edu.cn/~ncs YaJin Zhou]:project creator and the main developer.<yajin AT virtualmips.org>
+[http://home.ustc.edu.cn/~ncs YaJin Zhou]:project creator and the main developer.<yajinzhou AT gmail.com>
