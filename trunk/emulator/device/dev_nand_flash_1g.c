@@ -27,13 +27,220 @@ Please use tool/mknandflash to create init nand file of u-boot image.
 #include "mips64_memory.h"
 
 
+m_uint8_t  id_info[5]={0xec,0xd3,0x51,0x95,0x58};
+
+
+static int create_nand_flash_1g_file(m_uint32_t block_no,nand_flash_1g_data_t *d)
+{
+  	char file_path[64];
+  	char page[NAND_FLASH_1G_PAGE_SIZE];
+  	int i;
+  	/*create nand flash file when writing*/
+   snprintf(file_path,sizeof(file_path),"%s/%d",NAND_FLASH_1G_FILE_DIR,block_no);
+   fd=open(file_path,O_RDWR|O_CREAT);
+   assert(fd>=0);
+
+  
+
+   for (i=0;i<NAND_FLASH_1G_PAGES_PER_BLOCK;i++)
+    {
+       memset(page,0xff,NAND_FLASH_1G_PAGE_SIZE);
+      if ((i==0)||(i==1))
+        {
+          /*spare page*/
+          page[NAND_FLASH_1G_PAGE_DATA_SIZE]=0x00;
+          page[NAND_FLASH_1G_PAGE_DATA_SIZE+1]=0x00;
+        }
+      write(fd,page,NAND_FLASH_1G_PAGE_SIZE);
+    }
+
+   return fd;
+
+}
+static m_iptr_t * dev_nand_flash_1g_write_data(nand_flash_1g_data_t *d)
+{
+
+  
+  int fd;
+  m_uint32_t block_no = (d->row_addr)>>6;
+  m_uint32_t page_no = (d->row_addr)&0x3f;
+  assert(block_no<NAND_FLASH_1G_TOTAL_BLOCKS);
+  assert(d->col_addr<NAND_FLASH_1G_PAGE_SIZE);
+
+  
+  if ((*(d->flash_map+block_no))==NULL)
+    {
+      fd=create_nand_flash_1g_file(block_no,d);
+      *(d->flash_map+block_no)=(m_iptr_t)memzone_map_file(fd,NAND_FLASH_1G_BLOCK_SIZE);
+   }
+  memcpy(d->flash_map+block_no+page_no*NAND_FLASH_1G_PAGE_SIZE+d->col_addr,
+                d->write_buffer+d->col_addr,
+                NAND_FLASH_1G_PAGE_SIZE-d->col_addr);
+  
+
+}
+
+
+
+static m_iptr_t * dev_nand_flash_1g_page_ipr(nand_flash_1g_data_t *d)
+{
+  /*get pointer accoring to address*/
+  
+  m_uint32_t block_no = (d->row_addr)>>6;
+  m_uint32_t page_no = (d->row_addr)&0x3f;
+  assert(block_no<NAND_FLASH_1G_TOTAL_BLOCKS);
+  return (d->flash_map+block_no+page_no*NAND_FLASH_1G_PAGE_SIZE);
+}
+
+
 void *dev_nand_flash_1g_access(cpu_mips_t *cpu,struct vdevice *dev,
 		m_uint32_t offset,u_int op_size,u_int op_type,
 		m_uint32_t *data,m_uint8_t *has_set_value)
 {
-  
-}
+    nand_flash_1g_data_t *d = dev->priv_data;
+    
+   /*COMMAND PORT*/
+   if (offset==0x8000)
+    {
+      switch (d->state)
+        {
+          case STATE_INIT:
+             if (((*data)&0xff)==0x00)
+                d->state=STATE_READ_START;
+             else if (((*data)&0xff)==0x80)
+                d->state=STATE_WRITE_START;
+             else if  (((*data)&0xff)==0x05)
+              {
+                assert(d->has_issue_30h==1);
+                d->state=STATE_RANDOM_READ_START;
+                d->has_issue_30h=0;
+              }
+             else
+              assert(0);
+           break;
 
+           case STATE_READ_START:
+            if  (((*data)&0xff)==0x30)
+              {
+                d->has_issue_30h=1;
+                d->state=STATE_INIT;
+                d->data_port_ipr=dev_nand_flash_1g_page_ipr(d);
+                d->read_offset=d->col_addr;
+              }
+           else if  (((*data)&0xff)==0x35)
+              {
+                d->state=STATE_READ_PAGE_FOR_COPY_WRITE;
+                /*copy 1 page data to internal page for write*/
+                memcpy(d->internal_page,dev_nand_flash_1g_page_ipr(d),NAND_FLASH_1G_PAGE_SIZE);
+              }
+            else
+              assert(0);
+            break;
+
+          case STATE_RANDOM_READ_START:
+            if  (((*data)&0xff)==0xe0)
+              {
+                d->state=STATE_INIT;
+                d->data_port_ipr=dev_nand_flash_1g_page_ipr(d);
+                d->read_offset=d->col_addr;
+              }
+            else if  (((*data)&0xff)==0x05)
+              {
+                d->state=STATE_RANDOM_READ_START;
+              }
+            else
+              assert(0);
+            break;
+
+         case STATE_WRITE_START:
+            if  (((*data)&0xff)==0x10)
+              {
+                d->state=STATE_INIT;
+                dev_nand_flash_1g_write_data(d);
+              }
+           else if  (((*data)&0xff)==0x85)
+              {
+                d->write_offset=d->col_addr;
+                d->state=STATE_RANDOM_WRITE_START;
+              }
+            else
+              assert(0);
+            break;
+
+          case STATE_RANDOM_WRITE_START:
+               if  (((*data)&0xff)==0x10)
+              {
+                d->state=STATE_INIT;
+                dev_nand_flash_1g_write_data(d);
+              }
+              else if  (((*data)&0xff)==0x85)
+                {
+                  d->write_offset=d->col_addr;
+                  d->state=STATE_RANDOM_WRITE_START;
+                }
+              else
+              assert(0);
+            break;
+
+
+         case STATE_READ_PAGE_FOR_COPY_WRITE:
+           if  (((*data)&0xff)==0x85)
+            {
+              d->state=STATE_COPY_START;
+            }
+           else 
+            assert(0);
+           break;
+
+           case STATE_COPY_START:
+            if  (((*data)&0xff)==0x10)
+              {
+                d->state=STATE_INIT;
+                /*copy internal page to write buffer*/
+                memcpy(d->write_buffer,d->internal_page,NAND_FLASH_1G_PAGE_SIZE);
+                dev_nand_flash_1g_write_data(d);
+              }
+              else if  (((*data)&0xff)==0x85)
+                {
+                  d->write_offset=d->col_addr;
+                  d->state=STATE_RANDOM_WRITE_START;
+                }
+              else
+              assert(0);
+            break;
+
+         case 0x90:
+          d->data_port_ipr=&id_info[0];
+          d->read_offset=0;
+          break;
+
+         default:
+            assert(0);
+      }
+      return NULL;
+     *has_set_value=TRUE;
+      
+    }
+   else if (offset==0)
+    {
+      if (op_type==MTS_READ)
+        {
+          /*data port*/
+          return (void*)(d->data_port_ipr+d->read_offset);
+          d->read_offset++;
+        }
+      else if (op_type==MTS_WRITE)
+        {
+           return (void*)(d->write_buffer+d->write_offset);
+          d->write_offset++;
+        }
+      assert(0);
+      
+    }
+
+
+   
+}
 
 static int load_nand_flash_file(nand_flash_1g_data_t *d)
 {
@@ -111,7 +318,7 @@ err_flash_map_create:
 	
 }
 
-int dev_nand_flash_1g_init(vm_instance_t *vm,char *name,nand_flash_1g_data_t **nand_flash)
+int dev_nand_flash_1g_init(vm_instance_t *vm,char *name,m_pa_t phys_addr,m_uint32_t phys_len,nand_flash_1g_data_t **nand_flash)
 {
 	
 	nand_flash_1g_data_t *d;
@@ -126,11 +333,22 @@ int dev_nand_flash_1g_init(vm_instance_t *vm,char *name,nand_flash_1g_data_t **n
 		return (-1);
     
 	memset(d,0,sizeof(*d));
-	
+	d->state=STATE_INIT;
+	memset(d->internal_page,0xff,NAND_FLASH_1G_PAGE_SIZE);
+	memset(d->write_buffer,0xff,NAND_FLASH_1G_PAGE_SIZE);
+
 	if (!(d->dev = dev_create(name)))
 		goto err_dev_create;
 	d->dev->priv_data = d;
 	d->dev->handler   = dev_nand_flash_1g_access;
+	/*NAND COMMPORT AND DATA PORT ADDRESS*/
+	d->dev->phys_addr =phys_addr;
+	d->dev->phys_len  = phys_len;
+	d->dev->flags     = VDEVICE_FLAG_NO_MTS_MMAP;
+	/* Map this device to the VM */
+	vm_bind_device(vm,d->dev);
+	
+
 
 	*nand_flash=d;
 	

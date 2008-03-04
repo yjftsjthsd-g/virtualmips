@@ -54,8 +54,10 @@ typedef m_uint32_t m_cp0_reg_t;
 #endif
 
 
-
-
+/*------------------------REG DEFINE---------------------------------*/
+#define NAND_DATAPORT	0xb8000000
+#define NAND_ADDRPORT	0xb8010000
+#define NAND_COMMPORT	0xb8008000
 
 
 
