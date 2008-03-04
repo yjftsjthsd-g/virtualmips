@@ -68,9 +68,9 @@ static int pavo_init_platform(pavo_t *pavo)
 	/* Initialize RAM */
 	vm_ram_init(vm,0x00000000ULL);
 
-	/*create nand flash*/
+	/*create 1GB nand flash*/
 	if ((vm->flash_size==0x400)&&(vm->flash_type=FLASH_TYPE_NAND_FLASH))
-	  if (dev_nand_flash_1g_init(vm,"NAND FLASH 1G",&(pavo->nand_flash))==-1)
+	  if (dev_nand_flash_1g_init(vm,"NAND FLASH 1G",0xb8000000,0x10004,&(pavo->nand_flash))==-1)
 	    return (-1);
 
 	return(0);
@@ -116,6 +116,10 @@ static int pavo_boot(pavo_t *pavo)
 		pavo_reg_default_value(pavo);
 		cpu->pc=kernel_entry_point;
 	}
+	else if (vm->boot_method==BOOT_BINARY)
+	  {
+	  
+	  }
 
 	/* Launch the simulation */
 	printf("\nPAVO '%s': starting simulation (CPU0 PC=0x%"LL"x), "
@@ -175,6 +179,11 @@ static void pavo_parse_configure(pavo_t *pavo)
 	VALID_COMMON_CONFIG_OPTION;
 
 	/*add other configure information validation here*/
+	if (vm->boot_method==BOOT_BINARY)
+      {
+        ASSERT(vm->boot_from==2,"boot_from must be 2(NAND Flash)\n pavo only can boot from NAND Flash.\n");   \
+      }
+
 
     /*Print the configure information*/
 	printf_configure(pavo);
