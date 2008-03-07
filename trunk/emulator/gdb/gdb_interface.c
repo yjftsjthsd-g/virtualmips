@@ -550,7 +550,7 @@ Simdebug_run(vm_instance_t *vm, int sig)
 		if ((pkg_len = getpkt (vm->gdb_interact_sock, cmd_buf)) <= 0) goto errout;
 		ch = cmd_buf[i++];
 		SIM_DEBUG(('g', "gdb command %c \n",ch));
-		printf("---\n gdb command %s\n",cmd_buf);
+		//printf("---\n gdb command %s\n",cmd_buf);
 
 		switch (ch) 
 		{
@@ -775,7 +775,7 @@ Simdebug_run(vm_instance_t *vm, int sig)
 
 
 		}
-		printf("send %s\n",cmd_buf);
+		//printf("send %s\n",cmd_buf);
 		if (putpkt (vm->gdb_interact_sock, cmd_buf) < 0) goto errout;
 
 

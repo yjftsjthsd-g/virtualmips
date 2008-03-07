@@ -120,13 +120,6 @@ int main(int argc,char*argv[])
                 temp+=PAGE_DATA_SIZE;
                 
                 memset(&spare,0xff,sizeof(spare));
-                /*write spare data*/
-                if ((i==0)||(i==1))
-                {
-                        /*1 and 2 page contains non-ff data*/
-                        spare.spare_data[0]=0x00;
-                        spare.spare_data[1]=0x00;
-                }
                 /*2-4 bytes: 00 means valid page*/
                 spare.spare_data[2]=0x00;
                 spare.spare_data[3]=0x00;
@@ -169,12 +162,6 @@ int main(int argc,char*argv[])
         
                         memset(&spare,0xff,sizeof(spare));
                         /*write spare data*/
-                        if ((i==0)||(i==1))
-                        {
-                                /*1 and 2 page contains non-ff data*/
-                                spare.spare_data[0]=0x00;
-                                spare.spare_data[1]=0x00;
-                        }
                         fwrite(&spare,1,sizeof(spare),n_fp);
                 
                 

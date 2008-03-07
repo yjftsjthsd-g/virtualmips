@@ -81,12 +81,8 @@ static inline m_cp0_reg_t mips64_cp0_get_reg_fast(cpu_mips_t *cpu,u_int cp0_reg,
 	case MIPS_CP0_RANDOM:        
 		return(mips64_cp0_get_random_reg(cpu));
 	case MIPS_CP0_CONFIG:
-		if (sel==0)
-			return SOC_CONFIG0;
-		else if (sel==1)
-			return SOC_CONFIG1;
-		else
-			assert(0);
+	  ASSERT((1<<sel)&(cp0->config_usable),"Unimplemented configure register sel 0x%x\n",sel);
+	  return cp0->config_reg[sel];
 	case MIPS_CP0_STATUS:
 	default:
 		return(cp0->reg[cp0_reg]);
@@ -108,14 +104,14 @@ fastcall void mips64_cp0_exec_mfc0(cpu_mips_t *cpu,u_int gp_reg,u_int cp0_reg,u_
 	cpu->gpr[gp_reg] = sign_extend(mips64_cp0_get_reg_fast(cpu,cp0_reg,sel),32);
 
 }
-fastcall void mips64_cp0_exec_mtc0(cpu_mips_t *cpu,u_int gp_reg,u_int cp0_reg)
+fastcall void mips64_cp0_exec_mtc0(cpu_mips_t *cpu,u_int gp_reg,u_int cp0_reg,u_int sel)
 {
-	mips64_cp0_set_reg(cpu,cp0_reg,cpu->gpr[gp_reg] & 0xffffffff);
+	mips64_cp0_set_reg(cpu,cp0_reg,sel,cpu->gpr[gp_reg] & 0xffffffff);
 }
 
 
 /* Set a cp0 register */
-inline void mips64_cp0_set_reg(cpu_mips_t *cpu,u_int cp0_reg,
+inline void mips64_cp0_set_reg(cpu_mips_t *cpu,u_int cp0_reg,u_int sel,
 		m_uint32_t val)
 {
 	mips_cp0_t *cp0 = &cpu->cp0;
@@ -163,6 +159,10 @@ inline void mips64_cp0_set_reg(cpu_mips_t *cpu,u_int cp0_reg,
 	case MIPS_CP0_EPC:
 		cp0->reg[MIPS_CP0_EPC] = val;
 		break;
+    case MIPS_CP0_CONFIG:
+       ASSERT((1<<sel)&(cp0->config_usable),"Unimplemented configure register sel 0x%x\n",sel);
+	   cp0->config_reg[sel]=val;
+	   break;
 	case MIPS_CP0_WIRED:
 		/* read only registers */
 

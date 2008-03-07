@@ -30,14 +30,15 @@
 #include "mips64_cp0.h"
 #include "gdb_interface.h"
 
-void bad_memory_access(cpu_mips_t *cpu)
+void bad_memory_access(cpu_mips_t *cpu,m_va_t vaddr)
 {
-	printf("cpu->pc  %x\n",cpu->pc);
+	printf("cpu->pc  %x vaddr %x\n",cpu->pc,vaddr);
 	if (cpu->vm->mipsy_debug_mode)
 		bad_memory_access_gdb(cpu->vm);
 	else
 		assert(0);
 }
+
 
 /* MTS access with special access mask */
 void mips_access_special(cpu_mips_t *cpu,m_va_t vaddr,m_uint32_t mask,
@@ -46,18 +47,17 @@ void mips_access_special(cpu_mips_t *cpu,m_va_t vaddr,m_uint32_t mask,
 {
 	m_reg_t  vpn;
 	m_uint8_t exc_code;
+
+	
+			cpu_log(cpu,
+					"MTS","vaddr 0x%"LL"x at "
+					"pc=0x%"LL"x (size=%u) mask %x \n",vaddr,cpu->pc,op_size,mask);
+		
+		
 	switch(mask) {
 	case MTS_ACC_U:
 #if DEBUG_MTS_ACC_U
-		if (op_type == MTS_READ)
-			cpu_log(cpu,
-					"MTS","read  access to undefined address 0x%llx at "
-					"pc=0x%llx (size=%u)\n",vaddr,cpu->pc,op_size);
-		else
-			cpu_log(cpu,
-					"MTS","write access to undefined address 0x%llx at "
-					"pc=0x%llx, value=0x%8.8llx (size=%u)\n",
-					vaddr,cpu->pc,*data,op_size);
+		
 #endif
 		if (op_type == MTS_READ)
 			*data = 0;
@@ -290,7 +290,7 @@ fastcall u_int mips_mts64_lb(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(haddr != NULL)) data = *(m_uint8_t *)haddr;
 	if (likely(!exc)) cpu->gpr[reg] = sign_extend(data,8);
@@ -310,7 +310,7 @@ fastcall u_int mips_mts64_lbu(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(haddr != NULL)) data = *(m_uint8_t *)haddr;
 	if (likely(!exc)) cpu->gpr[reg] = data & 0xff;
@@ -330,7 +330,7 @@ fastcall u_int mips_mts64_lh(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(haddr != NULL)) data = vmtoh16(*(m_uint16_t *)haddr);
 	if (likely(!exc)) cpu->gpr[reg] = sign_extend(data,16);
@@ -350,7 +350,7 @@ fastcall u_int mips_mts64_lhu(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(haddr != NULL)) data = vmtoh16(*(m_uint16_t *)haddr);
 	if (likely(!exc)) cpu->gpr[reg] = data & 0xffff;
@@ -370,7 +370,7 @@ fastcall u_int mips_mts64_lw(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(haddr != NULL)) data = vmtoh32(*(m_uint32_t *)haddr);
 	if (likely(!exc)) cpu->gpr[reg] = sign_extend(data,32);
@@ -390,7 +390,7 @@ fastcall u_int mips_mts64_lwu(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(haddr != NULL)) data = vmtoh32(*(m_uint32_t *)haddr);
 	if (likely(!exc)) cpu->gpr[reg] = data & 0xffffffff;
@@ -410,7 +410,7 @@ fastcall u_int mips_mts64_ld(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(haddr != NULL)) data = (m_reg_t)(vmtoh64(*(m_uint64_t *)haddr));
 	if (likely(!exc)) cpu->gpr[reg] = data;
@@ -431,7 +431,7 @@ fastcall u_int mips_mts64_sb(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(haddr != NULL)) *(m_uint8_t *)haddr = data;
 	return(exc);
@@ -453,7 +453,7 @@ fastcall u_int mips_mts64_sh(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(haddr != NULL)) *(m_uint16_t *)haddr = htovm16(data);
 	return(exc);
@@ -473,7 +473,7 @@ fastcall u_int mips_mts64_sw(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(haddr != NULL)) *(m_uint32_t *)haddr = htovm32(data);
 	return(exc);
@@ -493,7 +493,7 @@ fastcall u_int mips_mts64_sd(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(haddr != NULL)) *(m_reg_t*)(m_uint64_t *)haddr = (m_reg_t)(htovm64(data));
 	return(exc);
@@ -510,7 +510,7 @@ fastcall u_int mips_mts64_ldc1(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
    haddr = mips_mts64_access(cpu,vaddr,MIPS_MEMOP_LDC1,8,MTS_READ,&data,&exc,&has_set_value);
    if ((haddr==NULL)&&(has_set_value==FALSE))  
     { 
-  	  bad_memory_access(cpu);
+  	  bad_memory_access(cpu,vaddr);
    }
    if (likely(haddr != NULL)) data = vmtoh64(*(m_uint64_t *)haddr);
    if (likely(!exc)) cpu->fpu.reg[reg] = data;
@@ -536,7 +536,7 @@ fastcall u_int mips_mts64_lwl(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 
 	if (likely(haddr != NULL))
@@ -570,7 +570,7 @@ fastcall u_int mips_mts64_lwr(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 
 	if (likely(haddr != NULL))
@@ -605,7 +605,7 @@ fastcall u_int mips_mts64_ldl(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 
 	if (likely(haddr != NULL))
@@ -638,7 +638,7 @@ fastcall u_int mips_mts64_ldr(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 
 	if (likely(haddr != NULL))
@@ -671,7 +671,7 @@ fastcall u_int mips_mts64_swl(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (unlikely(exc)) return(exc);
 
@@ -687,7 +687,7 @@ fastcall u_int mips_mts64_swl(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 	haddr = mips_mts64_access(cpu,naddr,MIPS_MEMOP_SWL,4,MTS_WRITE,&data,&exc,&has_set_value,0);
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(haddr != NULL)) *(m_uint32_t *)haddr = htovm32(data);
 	return(exc);
@@ -709,7 +709,7 @@ fastcall u_int mips_mts64_swr(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (unlikely(exc)) return(exc);
 
@@ -725,7 +725,7 @@ fastcall u_int mips_mts64_swr(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 	haddr = mips_mts64_access(cpu,naddr,MIPS_MEMOP_SWR,4,MTS_WRITE,&data,&exc,&has_set_value,0);
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(haddr != NULL)) *(m_uint32_t *)haddr = htovm32(data);
 	return(exc);
@@ -747,7 +747,7 @@ fastcall u_int mips_mts64_sdl(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (unlikely(exc)) return(exc);
 
@@ -763,7 +763,7 @@ fastcall u_int mips_mts64_sdl(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 	haddr = mips_mts64_access(cpu,naddr,MIPS_MEMOP_SDL,8,MTS_WRITE,&data,&exc,&has_set_value,0);
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(haddr != NULL)) *(m_reg_t*)(m_uint64_t *)haddr =(m_reg_t)( htovm64(data));
 	return(exc);
@@ -785,7 +785,7 @@ fastcall u_int mips_mts64_sdr(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (unlikely(exc)) return(exc);
 
@@ -801,7 +801,7 @@ fastcall u_int mips_mts64_sdr(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 	haddr = mips_mts64_access(cpu,naddr,MIPS_MEMOP_SDR,8,MTS_WRITE,&data,&exc,&has_set_value,0);
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(haddr != NULL)) *(m_reg_t*)(m_uint64_t *)haddr = (m_reg_t)(htovm64(data));
 	return(exc);
@@ -820,7 +820,7 @@ fastcall u_int mips_mts64_ll(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(haddr != NULL)) data = vmtoh32(*(m_uint32_t *)haddr);
 
@@ -848,7 +848,7 @@ fastcall u_int mips_mts64_sc(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 			return exc;
 		if ((haddr==NULL)&&(has_set_value==FALSE))  
 		{ 
-			bad_memory_access(cpu);
+			bad_memory_access(cpu,vaddr);
 		}
 		if (likely(haddr != NULL)) *(m_uint32_t *)haddr = htovm32(data);
 	}
@@ -871,7 +871,7 @@ fastcall u_int mips_mts64_sdc1(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
                              &data,&exc,&has_set_value);
    if ((haddr==NULL)&&(has_set_value==FALSE))  
     { 
-  	  bad_memory_access(cpu);
+  	  bad_memory_access(cpu,vaddr);
    }
    if (likely(haddr != NULL)) *(m_uint64_t *)haddr = htovm64(data);
    return(exc);*/
@@ -1181,6 +1181,7 @@ mips_mts32_map(cpu_mips_t *cpu,u_int op_type,mts_map_t *map,
 		return alt_entry;
 	}
 
+    cpu_log(cpu,"","dev->host_addr  %x dev name  %s \n",dev->host_addr,dev->name);
 	entry->gvpa  = map->vaddr;
 	entry->gppa  = map->paddr;
 	entry->hpa   = dev->host_addr + (map->paddr - dev->phys_addr);
@@ -1237,7 +1238,7 @@ fastcall u_int mips_mts32_lb(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 
 
@@ -1259,7 +1260,7 @@ fastcall u_int mips_mts32_lbu(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(has_set_value==FALSE)) data = *(m_uint8_t *)haddr;
 	if (likely(!exc)) cpu->gpr[reg] = data & 0xff;
@@ -1279,7 +1280,7 @@ fastcall u_int mips_mts32_lh(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(has_set_value==FALSE)) data = vmtoh16(*(m_uint16_t *)haddr);
 	if (likely(!exc)) cpu->gpr[reg] = sign_extend(data,16);
@@ -1300,7 +1301,7 @@ fastcall u_int mips_mts32_lhu(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(has_set_value==FALSE)) data = vmtoh16(*(m_uint16_t *)haddr);
 	if (likely(!exc)) cpu->gpr[reg] = data & 0xffff;
@@ -1319,9 +1320,10 @@ fastcall u_int mips_mts32_lw(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
-
+   if (cpu->pc==0x80100ed0)
+    printf("vaddr %x\n",vaddr);
 	if (likely(has_set_value==FALSE)) data = vmtoh32(*(m_uint32_t *)haddr);
 	if (likely(!exc)) cpu->gpr[reg] = sign_extend(data,32);
 
@@ -1343,7 +1345,7 @@ fastcall u_int mips_mts32_lwu(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(has_set_value==FALSE)) data = vmtoh32(*(m_uint32_t *)haddr);
 	if (likely(!exc)) cpu->gpr[reg] = data & 0xffffffff;
@@ -1364,7 +1366,7 @@ fastcall u_int mips_mts32_ld(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(has_set_value==FALSE)) data = vmtoh64(*(m_uint64_t *)haddr);
 	if (likely(!exc)) cpu->gpr[reg] = data;
@@ -1379,14 +1381,17 @@ fastcall u_int mips_mts32_sb(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 	u_int exc;
 	m_uint8_t has_set_value=FALSE;
 
-
+   if ((cpu->pc==0x83f12f90)||(cpu->pc==0x83f12f94))
+    cpu_log(cpu,"","b mips_mts32_sb vaddr %x exc %x\n",vaddr,exc);
 	data = cpu->gpr[reg] & 0xff;
 	haddr = mips_mts32_access(cpu,vaddr,MIPS_MEMOP_SB,1,MTS_WRITE,&data,&exc,&has_set_value,0);
+   if ((cpu->pc==0x83f12f90)||(cpu->pc==0x83f12f94))
+    cpu_log(cpu,"","mips_mts32_sb vaddr %x exc %x\n",vaddr,exc);
 	if (exc)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(has_set_value==FALSE)) *(m_uint8_t *)haddr = data;
 	return(exc);
@@ -1407,7 +1412,7 @@ fastcall u_int mips_mts32_sh(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(has_set_value==FALSE)) *(m_uint16_t *)haddr = htovm16(data);
 	return(exc);
@@ -1430,7 +1435,7 @@ fastcall u_int mips_mts32_sw(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(has_set_value==FALSE)) *(m_uint32_t *)haddr = htovm32(data);
 
@@ -1452,7 +1457,7 @@ fastcall u_int mips_mts32_sd(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(has_set_value==FALSE)) *(m_uint64_t *)haddr = htovm64(data);
 	return(exc);
@@ -1482,7 +1487,7 @@ fastcall u_int mips_mts32_lwl(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (has_set_value==FALSE)
 	{   
@@ -1553,7 +1558,7 @@ fastcall u_int mips_mts32_lwr(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 
 	if (has_set_value==FALSE)
@@ -1632,7 +1637,7 @@ fastcall u_int mips_mts32_ldl(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 
 	if (likely(haddr != NULL))
@@ -1666,7 +1671,7 @@ fastcall u_int mips_mts32_ldr(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 
 	if (likely(haddr != NULL))
@@ -1701,7 +1706,7 @@ fastcall u_int mips_mts32_swl(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 
 	if (has_set_value==FALSE)
@@ -1777,7 +1782,7 @@ fastcall u_int mips_mts32_swr(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (has_set_value==FALSE)
 	{
@@ -1853,7 +1858,7 @@ fastcall u_int mips_mts32_sdl(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (unlikely(exc)) return(exc);
 
@@ -1869,7 +1874,7 @@ fastcall u_int mips_mts32_sdl(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 	haddr = mips_mts32_access(cpu,naddr,MIPS_MEMOP_SDL,8,MTS_WRITE,&data,&exc,&has_set_value,0);
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(haddr != NULL)) *(m_reg_t*)(m_uint64_t *)haddr = (m_reg_t)(htovm64(data));
 	return(exc);
@@ -1892,7 +1897,7 @@ fastcall u_int mips_mts32_sdr(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (unlikely(exc)) return(exc);
 
@@ -1908,7 +1913,7 @@ fastcall u_int mips_mts32_sdr(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 	haddr = mips_mts32_access(cpu,naddr,MIPS_MEMOP_SDR,8,MTS_WRITE,&data,&exc,&has_set_value,0);
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(haddr != NULL)) *(m_reg_t*)(m_uint64_t *)haddr =(m_reg_t)( htovm64(data));
 	return(exc);
@@ -1928,7 +1933,7 @@ fastcall u_int mips_mts32_ll(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
 	{ 
-		bad_memory_access(cpu);
+		bad_memory_access(cpu,vaddr);
 	}
 	if (likely(haddr != NULL)) data = vmtoh32(*(m_uint32_t *)haddr);
 
@@ -1957,7 +1962,7 @@ fastcall u_int mips_mts32_sc(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 			return exc;
 		if ((haddr==NULL)&&(has_set_value==FALSE))  
 		{ 
-			bad_memory_access(cpu);
+			bad_memory_access(cpu,vaddr);
 		}
 		if (likely(haddr != NULL)) *(m_uint32_t *)haddr = htovm32(data);
 	}
@@ -1981,7 +1986,7 @@ fastcall u_int mips_mts32_sdc1(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
                              &data,&exc,&has_set_value);
    if ((haddr==NULL)&&(has_set_value==FALSE))  
     { 
-  	  bad_memory_access(cpu);
+  	  bad_memory_access(cpu,vaddr);
    }
    if (likely(haddr != NULL)) *(m_uint64_t *)haddr = htovm64(data);
    return(exc);*/
@@ -2354,6 +2359,7 @@ mips_mts32_slow_lookup(cpu_mips_t *cpu,m_uint64_t vaddr,
 
 	switch(zone) {
 	case 0x00 ... 0x03:   /* kuseg */
+	  cpu_log(cpu,"","useg pc %x vaddr %x\n",cpu->pc,vaddr);
 	/* trigger TLB exception if no matching entry found */
 	if (!mips64_cp0_tlb_lookup(cpu,vaddr,&map))
 		goto err_tlb;
@@ -2375,7 +2381,7 @@ mips_mts32_slow_lookup(cpu_mips_t *cpu,m_uint64_t vaddr,
 		map.paddr  = map.vaddr - (m_pa_t)0xFFFFFFFF80000000ULL;
 		map.mapped=FALSE;
 
-
+        //cpu_log(cpu,"","kseg0 map.vaddr %x map.paddr %x \n",map.vaddr,map.paddr);
 		if (!(entry = mips_mts32_map(cpu,op_type,&map,entry,alt_entry,is_fromgdb)))
 			goto err_undef;
 		return(entry);
@@ -2384,6 +2390,8 @@ mips_mts32_slow_lookup(cpu_mips_t *cpu,m_uint64_t vaddr,
 		map.vaddr  = vaddr & MIPS_MIN_PAGE_MASK;
 		map.paddr  = map.vaddr -(m_pa_t)0xFFFFFFFFA0000000ULL;
 		map.mapped=FALSE;
+      // cpu_log(cpu,"","kseg1 map.vaddr %x map.paddr %x \n",map.vaddr,map.paddr);
+
 		if (!(entry = mips_mts32_map(cpu,op_type,&map,entry,alt_entry,is_fromgdb)))
 			goto err_undef;
 		return(entry);
@@ -2498,6 +2506,7 @@ void *mips_mts32_access(cpu_mips_t *cpu,m_va_t vaddr,
 			return(dev_access_fast(cpu,dev_id,haddr,op_size,op_type,data,has_set_value));
 		}
 	}
+
 	/* Raw memory access */
 	haddr = entry->hpa + (vaddr & MIPS_MIN_PAGE_IMASK);
 #if MEMLOG_ENABLE

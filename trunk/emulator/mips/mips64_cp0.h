@@ -22,8 +22,8 @@ extern char *mips64_cp0_reg_names[];
 
 m_cp0_reg_t mips64_cp0_get_reg(cpu_mips_t *cpu,u_int cp0_reg);
 fastcall void mips64_cp0_exec_mfc0(cpu_mips_t *cpu,u_int gp_reg,u_int cp0_reg,u_int sel);
-fastcall void mips64_cp0_exec_mtc0(cpu_mips_t *cpu,u_int gp_reg,u_int cp0_reg);
-inline void mips64_cp0_set_reg(cpu_mips_t *cpu,u_int cp0_reg,
+fastcall void mips64_cp0_exec_mtc0(cpu_mips_t *cpu,u_int gp_reg,u_int cp0_reg,u_int sel);
+inline void mips64_cp0_set_reg(cpu_mips_t *cpu,u_int cp0_reg,u_int sel,
 		m_uint32_t val);
 forced_inline m_cp0_reg_t mips64_cp0_get_vpn2_mask(cpu_mips_t *cpu);
 fastcall void mips64_cp0_exec_tlbp(cpu_mips_t *cpu);

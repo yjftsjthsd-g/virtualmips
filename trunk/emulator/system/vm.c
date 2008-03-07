@@ -41,6 +41,9 @@ char *vm_get_type(vm_instance_t *vm)
        case VM_TYPE_ADM5120:
         machine = "ADM5120";
         break;
+      case VM_TYPE_PAVO:
+        machine = "PAVO";
+        break;
       default:
          machine = "unknown";
          break;

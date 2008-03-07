@@ -29,7 +29,6 @@ See flash datasheet for details.
 #include "device.h"
 #include "mips64_memory.h"
 
-
 #define ROM_INIT_STATE              0
 
 
