@@ -39,7 +39,7 @@ int dev_ram_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len)
 
 	memset(d,0,sizeof(*d));
 
-	if (!(d->dev = dev_create_ram(vm,name,paddr,len))) {
+	if (!(d->dev =dev_create_ram(vm,name,paddr,len))) {
 		fprintf(stderr,"RAM: unable to create device.\n");
 		goto err_dev_create;
 	}

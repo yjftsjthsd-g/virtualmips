@@ -37,35 +37,42 @@
 #define STATE_READ_PAGE_FOR_COPY_WRITE       0x5
 #define STATE_COPY_START                  0x6
 
-/*COMMAND_SET*/
+
+#define STATE_ERASE_START                  0x7
 
 
-
-
-
-
-
-
+#define NAND_DATAPORT_OFFSET	0x00000000
+#define NAND_ADDRPORT_OFFSET	0x00010000
+#define NAND_COMMPORT_OFFSET	0x00008000
 
 
 /* nand flash private data */
 struct nand_flash_1g_data {
 	struct vdevice *dev;
 	int state;
-	m_iptr_t *flash_map;
+	unsigned char *flash_map[NAND_FLASH_1G_TOTAL_BLOCKS];
+
+	unsigned char fake_block[NAND_FLASH_1G_BLOCK_SIZE];  
+
     m_uint32_t row_addr;
     m_uint32_t col_addr;
-    char internal_page[NAND_FLASH_1G_PAGE_SIZE];  //for copy back
-    char write_buffer[NAND_FLASH_1G_PAGE_SIZE];  //for copy back
+    
+    unsigned char write_buffer[NAND_FLASH_1G_PAGE_SIZE];  //for copy back
     m_uint32_t read_offset;
     m_uint32_t write_offset;
+    m_uint32_t addr_offset;
     m_uint8_t has_issue_30h;
-    //m_uint8_t has_issue_35h;
-    m_iptr_t * data_port_ipr;
+    /*for nand flash read*/
+    unsigned char  * data_port_ipr;
 	
 };
 typedef struct nand_flash_1g_data  nand_flash_1g_data_t;
 
+
+
+
+unsigned char* get_nand_flash_page_ptr(m_uint32_t row_addr,unsigned char *block_start);
 int dev_nand_flash_1g_init(vm_instance_t *vm,char *name,m_pa_t phys_addr,m_uint32_t phys_len,nand_flash_1g_data_t **nand_flash);
+
 
 #endif

@@ -63,6 +63,7 @@ void *dev_access_fast(cpu_mips_t *cpu,u_int dev_id,m_uint32_t offset,
 				dev_id,offset);
 		return NULL;
 	}
+	//cpu_log(cpu,"","pc %x name %s\n",cpu->pc,dev->name);
 	return(dev->handler(cpu,dev,offset,op_size,op_type,data,has_set_value));
 }
 

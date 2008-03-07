@@ -26,8 +26,11 @@ static char *flash_type_string[2]={"NOR FLASH","NAND FLASH"};
 	{   \
 	    printf("flash_type: %s \n",flash_type_string[vm->flash_type-1]);   \
 		printf("flash_size: %dM bytes \n",vm->flash_size);   \
-		printf("flash_file_name: %s \n",vm->flash_filename);   \
-		printf("flash_phy_address: 0x%x \n",vm->flash_address);   \
+		if (vm->flash_type==FLASH_TYPE_NOR_FLASH)   \
+		  {  \
+		  printf("flash_file_name: %s \n",vm->flash_filename);   \
+		  printf("flash_phy_address: 0x%x \n",vm->flash_address);   \
+		  } \
 	}   \
 	if (vm->boot_method==BOOT_BINARY)   \
 	{   \

@@ -15,7 +15,13 @@
 #include "pavo.h"
 #include "device.h"
 
-
+int dev_jz4740_gpio_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
+int dev_jz4740_uart_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len,vtty_t *vtty,int uart_index);
+int dev_jz4740_cpm_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
+int dev_jz4740_emc_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
+int dev_jz4740_rtc_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
+int dev_jz4740_wdt_tcu_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
+void forced_inline virtual_jz4740_timer(cpu_mips_t *cpu);
 
 /* Initialize default parameters for a adm5120 */
 static void pavo_init_defaults(pavo_t *pavo)
@@ -29,6 +35,35 @@ static void pavo_init_defaults(pavo_t *pavo)
 	vm->kernel_filename=strdup(PAVO_DEFAULT_KERNEL_FILENAME);
 }
 
+int jz4740_boot_from_nandflash(vm_instance_t *vm)
+{
+  struct vdevice * dev;
+  unsigned char * page_addr;
+  int i ;
+  
+  pavo_t *pavo;
+  if (vm->type==VM_TYPE_PAVO)
+    {
+      pavo=VM_PAVO(vm);
+    }
+  else
+    ASSERT(0,"Error vm type\n");
+
+
+  /*get ram device*/
+  dev=dev_lookup(vm,0x0);
+  assert(dev!=NULL);
+  assert(dev->host_addr!=0);
+  /*copy 8K nand flash data to 8K RAM*/
+  for (i=0;i<4;i++)
+  {
+    page_addr= get_nand_flash_page_ptr(i,pavo->nand_flash->flash_map[0]);
+    memcpy((unsigned char*)dev->host_addr+NAND_FLASH_1G_PAGE_DATA_SIZE*i,page_addr,NAND_FLASH_1G_PAGE_DATA_SIZE);
+  }
+
+  return (0);
+   
+}
 
 
 /* Initialize the PAVO Platform (MIPS) */
@@ -70,8 +105,22 @@ static int pavo_init_platform(pavo_t *pavo)
 
 	/*create 1GB nand flash*/
 	if ((vm->flash_size==0x400)&&(vm->flash_type=FLASH_TYPE_NAND_FLASH))
-	  if (dev_nand_flash_1g_init(vm,"NAND FLASH 1G",0xb8000000,0x10004,&(pavo->nand_flash))==-1)
+	  if (dev_nand_flash_1g_init(vm,"NAND FLASH 1G",NAND_DATAPORT,0x10004,&(pavo->nand_flash))==-1)
 	    return (-1);
+   if (dev_jz4740_gpio_init(vm,"JZ4740 GPIO",JZ4740_GPIO_BASE,JZ4740_GPIO_SIZE)==-1)
+    return (-1);
+   	if  (dev_jz4740_uart_init(vm,"JZ4740 UART 0",JZ4740_UART0_BASE,JZ4740_UART0_SIZE,vm->vtty_con1,0)==-1)
+		return (-1);
+	if  (dev_jz4740_uart_init(vm,"JZ4740 UART 1",JZ4740_UART0_BASE,JZ4740_UART0_SIZE,vm->vtty_con2,0)==-1)
+		return (-1);
+	   if (dev_jz4740_cpm_init(vm,"JZ4740 CPM",JZ4740_CPM_BASE,JZ4740_CPM_SIZE)==-1)
+    return (-1);
+  if (dev_jz4740_emc_init(vm,"JZ4740 EMC",JZ4740_EMC_BASE,JZ4740_EMC_SIZE)==-1)
+    return (-1);
+    if (dev_jz4740_rtc_init(vm,"JZ4740 RTC",JZ4740_RTC_BASE,JZ4740_RTC_SIZE)==-1)
+    return (-1);
+   if (dev_jz4740_wdt_tcu_init(vm,"JZ4740 WDT/TCU",JZ4740_WDT_TCU_BASE,JZ4740_WDT_TCU_SIZE)==-1)
+    return (-1);
 
 	return(0);
 }
@@ -103,6 +152,12 @@ static int pavo_boot(pavo_t *pavo)
 	cpu = (vm->boot_cpu);
 	mips64_reset(cpu);
 
+	/*set configure register*/
+	cpu->cp0.config_usable=0x83; /* configure sel 0 1 7 is valid*/
+   cpu->cp0.config_reg[0]=PAVO_CONFIG0;
+   cpu->cp0.config_reg[1]=PAVO_CONFIG1;
+   cpu->cp0.config_reg[7]=PAVO_CONFIG7;
+
 	/*set PC and PRID*/
 	cpu->cp0.reg[MIPS_CP0_PRID] = PAVO_PRID;
 	cpu->cp0.tlb_entries =  PAVO_DEFAULT_TLB_ENTRYNO;
@@ -117,9 +172,10 @@ static int pavo_boot(pavo_t *pavo)
 		cpu->pc=kernel_entry_point;
 	}
 	else if (vm->boot_method==BOOT_BINARY)
-	  {
-	  
-	  }
+   {
+	  if (jz4740_boot_from_nandflash(vm)==-1)
+	    return (-1);
+	}
 
 	/* Launch the simulation */
 	printf("\nPAVO '%s': starting simulation (CPU0 PC=0x%"LL"x), "
@@ -250,7 +306,7 @@ int init_instance(vm_instance_t *vm)
 }
 void forced_inline virtual_pavo_timer(cpu_mips_t *cpu)
 {
-
+    virtual_jz4740_timer(cpu);
 }
 void forced_inline virtual_timer(cpu_mips_t *cpu)
 {

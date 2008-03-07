@@ -26,7 +26,7 @@ INCLUDE_DIR += -I./gdb
 SRCEXTS :=  .c
 
 
-CFLAGS := -g -Wall -DSIM_PAVO -O3  -fomit-frame-pointer  $(INCLUDE_DIR)
+CFLAGS := -g -Wall -DSIM_PAVO   -fomit-frame-pointer  $(INCLUDE_DIR)
 
 #enable to show emulation performance
 #CFLAGS+= -DDEBUG_MHZ
@@ -51,7 +51,7 @@ $(patsubst %$(x),%.d,$(filter %$(x),$(SOURCES))))
 
 
 
-.PHONY : all objs clean cleanall rebuild  
+.PHONY : all objs clean cleanall rebuild   u-boot
 
 all : $(PROGRAM)
 
@@ -77,6 +77,10 @@ clean :
 cleanall: clean
 	@$(RM) $(PROGRAM) $(PROGRAM).exe *.txt vmlinuz pad
 
-
+u-boot:
+	rm -rf nandflash1GB/
+	cp ../../jzsrc/u-boot-1.1.6/u-boot-nand.bin .
+	../tool/mknandflash -b u-boot-nand.bin
+	
 
 

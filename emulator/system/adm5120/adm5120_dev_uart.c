@@ -22,7 +22,7 @@
 
  m_uint32_t uart_table[2][UART_INDEX_MAX];
 
-/* RAM private data */
+
 struct uart_data {
    struct vdevice *dev;
    m_uint8_t *uart_ptr;

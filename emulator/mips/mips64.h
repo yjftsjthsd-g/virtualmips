@@ -256,6 +256,10 @@ MIPS INTERRUPT
 /* Number of registers in CP0 */
 #define MIPS64_CP0_REG_NR   32
 
+/*8 configure register in cp0. sel:0-7*/
+#define MIPS64_CP0_CONFIG_REG_NR  8
+
+
 /* Number of registers in CP1 */
 #define MIPS64_CP1_REG_NR   32
 
@@ -342,6 +346,11 @@ typedef struct {
 /* System Coprocessor (CP0) definition */
 typedef struct {
 	m_cp0_reg_t reg[MIPS64_CP0_REG_NR];
+	/*because configure has sel 0-7, seperate it to reg*/
+	m_cp0_reg_t config_reg[MIPS64_CP0_CONFIG_REG_NR];
+	m_uint8_t config_usable;  /*if configure register sel N is useable, set the bit in config_usable to 1*/
+
+	
 	tlb_entry_t tlb[MIPS64_TLB_MAX_ENTRIES];
 
 	/* Number of TLB entries */
