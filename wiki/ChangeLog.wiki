@@ -1,6 +1,13 @@
 #summary ChangeLog of VirtualMIPS
 #labels Featured
 
+= 2008-03-11 =
+
+VirtualMIPS v0.02 RC1.
+  * add support of jz 4740 soc(without LCD)
+  * 1GB nand flash emulation
+  * change the configure option
+
 = 2008-02-28 =
 
 Init version of VirtualMIPS.
