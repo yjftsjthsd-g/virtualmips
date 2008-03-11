@@ -3,7 +3,7 @@
 
 = How to build VirtualMIPS =
 -----
-You need to download VirtualMIPS first. The latest version is v0.02 release candidate. 
+You need to download VirtualMIPS first. The latest version is v0.02 release candidate 1. 
 
 Supported systems:
  * JZ [http://www.ingenic.cn/pfwebplus/productServ/kfyd/Hardware/pffaqQuestionContent.aspx?Category=2&Question=3 Pavo demo borad](without LCD controller).
