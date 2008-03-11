@@ -201,3 +201,4 @@ Enter 'help' for a list of built-in commands.
 = Links =
  * [KernelForADM5120 Build linux kernel for ADM5120]
  * [gdbinterface how to use gdb to debug kernel]
+ * [ubootForPavo  How to build u-boot for pavo borad]
