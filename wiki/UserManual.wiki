@@ -6,7 +6,7 @@
 You need to download VirtualMIPS first. The latest version is v0.02 release candidate. 
 
 Supported systems:
- * JZ Pavo demo borad emulation(without LCD controller).
+ * JZ [http://www.ingenic.cn/pfwebplus/productServ/kfyd/Hardware/pffaqQuestionContent.aspx?Category=2&Question=3 Pavo demo borad](without LCD controller).
  * ADM5120
 
 VirtualMIPS needs libelf to read elf kernel image. Please install it before compiling VirtualMIPS. In debian/ubuntu, type the following command to install libelf.
