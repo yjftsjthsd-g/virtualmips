@@ -19,7 +19,7 @@ sudo apt-get install libelf-dev
 After installing libelf,you can compile VirtualMIPS.
 
 {{{
-tar -zxvf virtualmips-V0.02-RC1.tar.bz2
+tar -jxvf virtualmips-V0.02-RC1.tar.bz2
 cd virtualmips-V0.02-RC1/run
 make
 }}}
