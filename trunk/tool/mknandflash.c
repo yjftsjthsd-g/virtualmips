@@ -1,8 +1,23 @@
+ /*
+ * Copyright (C) yajin 2008 <yajinzhou@gmail.com >
+ *     
+ * This file is part of the virtualmips distribution. 
+ * See LICENSE file for terms of the license. 
+ *
+ */
+ 
+
 /*make u-boot into a nand flash.
-for K9K8G nand flash device
-*/
-/*
-we will write 1G bytes nand flash into 8192 files, 128k bytes data and 4k bytes spare data per file
+for K9K8G nand flash device.
+
+Useage:
+  mknandflash -b u-boot image file name
+
+Example:
+  mknandflash -b u-boot-nand.bin
+
+we will write 1G bytes nand flash into 8192 files, 1 block per file.
+
 */
 
 #include <stdio.h>

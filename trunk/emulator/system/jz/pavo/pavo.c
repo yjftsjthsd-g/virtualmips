@@ -1,4 +1,17 @@
+ /*
+ * Copyright (C) yajin 2008 <yajinzhou@gmail.com >
+ *     
+ * This file is part of the virtualmips distribution. 
+ * See LICENSE file for terms of the license. 
+ *
+ */
 
+
+ /*Pavo emulation
+http://www.ingenic.cn/pfwebplus/productServ/kfyd/Hardware/pffaqQuestionContent.aspx?Category=2&Question=3
+ */
+
+ 
 #define _GNU_SOURCE
 #include<string.h>
 #include <assert.h>
@@ -286,8 +299,6 @@ vm_instance_t *create_instance(char *configure_filename)
 }
 
 
-
-
 int init_instance(vm_instance_t *vm)
 {
 	pavo_t *pavo=VM_PAVO(vm);
@@ -304,12 +315,5 @@ int init_instance(vm_instance_t *vm)
 	return(pavo_boot(pavo));
 
 }
-void forced_inline virtual_pavo_timer(cpu_mips_t *cpu)
-{
-    virtual_jz4740_timer(cpu);
-}
-void forced_inline virtual_timer(cpu_mips_t *cpu)
-{
-	virtual_pavo_timer(cpu);
-}
+
 

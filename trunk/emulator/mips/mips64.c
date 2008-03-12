@@ -338,7 +338,6 @@ static forced_inline int mips64_update_irq_flag_fast(cpu_mips_t *cpu)
 
 		imask = cp0->reg[MIPS_CP0_STATUS] & MIPS_CP0_STATUS_IMASK;
 		if (unlikely(cp0->reg[MIPS_CP0_CAUSE] & imask)) {
-		    cpu_log(cpu,"","pc %x cause %x \n",cpu->pc,cp0->reg[MIPS_CP0_CAUSE] );
 			cpu->irq_pending = TRUE;
 			return(TRUE);
 		}
@@ -360,7 +359,6 @@ void mips64_trigger_exception(cpu_mips_t *cpu,u_int exc_code,int bd_slot)
 	m_uint64_t new_pc;
 	m_reg_t cause;
 
-   cpu_log(cpu,"","exc. pc %x exc_code %x cause %x\n",cpu->pc,exc_code,cp0->reg[MIPS_CP0_CAUSE] );
 	/* we don't set EPC if EXL is set */
 	if (!(cp0->reg[MIPS_CP0_STATUS] & MIPS_CP0_STATUS_EXL))
 	{
@@ -401,9 +399,11 @@ void mips64_trigger_exception(cpu_mips_t *cpu,u_int exc_code,int bd_slot)
 				new_pc= 0xffffffffbfc00400ULL;
 			else
 				new_pc= 0xffffffffbfc00380ULL;
+				
 		}
 		else
 			new_pc= 0xffffffffbfc00380ULL;
+			
 	}
 	else
 	{

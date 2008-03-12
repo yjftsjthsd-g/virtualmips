@@ -1,3 +1,11 @@
+ /*
+ * Copyright (C) yajin 2008 <yajinzhou@gmail.com >
+ *     
+ * This file is part of the virtualmips distribution. 
+ * See LICENSE file for terms of the license. 
+ *
+ */
+ 
 #ifndef __DEV_NAND_FLASH_1G_H__
 #define __DEV_NAND_FLASH_1G_H__
 
@@ -39,6 +47,7 @@
 
 
 #define STATE_ERASE_START                  0x7
+//#define STATE_READ_STATUS                  0x8
 
 
 #define NAND_DATAPORT_OFFSET	0x00000000

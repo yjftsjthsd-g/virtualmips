@@ -1,3 +1,13 @@
+ /*
+ * Copyright (C) yajin 2008 <yajinzhou@gmail.com >
+ *     
+ * This file is part of the virtualmips distribution. 
+ * See LICENSE file for terms of the license. 
+ *
+ */
+
+ 
+
 #define _GNU_SOURCE
 #include <stdlib.h>
 #include <stdio.h>
@@ -12,7 +22,7 @@
 #include "cpu.h"
 #include "jz4740.h"
 
-/*set to 0 to improve performance*/
+/*set to 0 to improve performance. set to 1 to debug gpio*/
 #define VALIDE_GPIO_OPERATION 1
 
  m_uint32_t jz4740_gpio_table[JZ4740_GPIO_INDEX_MAX];
@@ -159,6 +169,7 @@ void *dev_jz4740_gpio_access(cpu_mips_t *cpu,struct vdevice *dev,
 	  }
 #endif
 
+
 if (op_type==MTS_READ)
 {
 
@@ -174,7 +185,6 @@ if (op_type==MTS_READ)
     else
       temp |=  0x40000000;
     jz4740_gpio_table[GPIO_PXPIN(2)/4]=temp;
-    cpu_log(cpu,"","pc %x jz4740_gpio_table[GPIO_PXPIN(2)/4] %x\n",cpu->pc,jz4740_gpio_table[GPIO_PXPIN(2)/4]);
   }
 #endif
 
@@ -182,6 +192,22 @@ if (op_type==MTS_READ)
 }
 else if (op_type==MTS_WRITE)
 {
+ switch (op_size)
+      {
+      case 1:
+        mask=0xff;
+        break;
+      case 2:
+        mask=0xffff;
+        break;
+      case 4:
+        mask=0xffffffff;
+        break;
+      default:
+        assert(0);
+    }
+
+ 
   switch (offset)
 	  {
 	     case GPIO_PXDATS(0):
@@ -189,7 +215,6 @@ else if (op_type==MTS_WRITE)
 	     case GPIO_PXDATS(2):
 	     case GPIO_PXDATS(3):
 	      group=offset/0x100;
-	      mask = (1<<(op_size*8))-1;
 	      mask_data = (*data)&mask;
 	      jz4740_gpio_table[GPIO_PXDAT(group)/4] |= mask_data;
 	      break;
@@ -199,7 +224,6 @@ else if (op_type==MTS_WRITE)
 	     case GPIO_PXDATC(2):
 	     case GPIO_PXDATC(3):
 	      group=offset/0x100;
-	      mask = (1<<(op_size*8))-1;
 	      mask_data = (*data)&mask;
 	      mask_data= ~(mask_data);
 	      jz4740_gpio_table[GPIO_PXDAT(group)/4]  &= mask_data;
@@ -210,7 +234,6 @@ else if (op_type==MTS_WRITE)
 	     case GPIO_PXIMS(2):
 	     case GPIO_PXIMS(3):
 	      group=offset/0x100;
-	      mask = (1<<(op_size*8))-1;
 	      mask_data = (*data)&mask;
 	      jz4740_gpio_table[GPIO_PXIM(group)/4] |= mask_data;
 	      break;
@@ -220,7 +243,6 @@ else if (op_type==MTS_WRITE)
 	     case GPIO_PXIMC(2):
 	     case GPIO_PXIMC(3):
 	      group=offset/0x100;
-	      mask = (1<<(op_size*8))-1;
 	      mask_data = (*data)&mask;
 	      mask_data= ~(mask_data);
 	      jz4740_gpio_table[GPIO_PXIM(group)/4]  &= mask_data;
@@ -231,7 +253,6 @@ else if (op_type==MTS_WRITE)
 	     case GPIO_PXPES(2):
 	     case GPIO_PXPES(3):
 	      group=offset/0x100;
-	      mask = (1<<(op_size*8))-1;
 	      mask_data = (*data)&mask;
 	      jz4740_gpio_table[GPIO_PXPE(group)/4] |= mask_data;
 	      break;
@@ -241,7 +262,6 @@ else if (op_type==MTS_WRITE)
 	     case GPIO_PXPEC(2):
 	     case GPIO_PXPEC(3):
 	      group=offset/0x100;
-	      mask = (1<<(op_size*8))-1;
 	      mask_data = (*data)&mask;
 	      mask_data= ~(mask_data);
 	      jz4740_gpio_table[GPIO_PXPE(group)/4]  &= mask_data;
@@ -253,7 +273,6 @@ else if (op_type==MTS_WRITE)
 	     case GPIO_PXFUNS(2):
 	     case GPIO_PXFUNS(3):
 	      group=offset/0x100;
-	      mask = (1<<(op_size*8))-1;
 	      mask_data = (*data)&mask;
 	      jz4740_gpio_table[GPIO_PXFUN(group)/4] |= mask_data;
 	      break;
@@ -263,7 +282,6 @@ else if (op_type==MTS_WRITE)
 	     case GPIO_PXFUNC(2):
 	     case GPIO_PXFUNC(3):
 	      group=offset/0x100;
-	      mask = (1<<(op_size*8))-1;
 	      mask_data = (*data)&mask;
 	      mask_data= ~(mask_data);
 	      jz4740_gpio_table[GPIO_PXFUN(group)/4]  &= mask_data;
@@ -275,7 +293,6 @@ else if (op_type==MTS_WRITE)
 	     case GPIO_PXSELS(2):
 	     case GPIO_PXSELS(3):
 	      group=offset/0x100;
-	      mask = (1<<(op_size*8))-1;
 	      mask_data = (*data)&mask;
 	      jz4740_gpio_table[GPIO_PXSEL(group)/4] |= mask_data;
 	      break;
@@ -285,7 +302,6 @@ else if (op_type==MTS_WRITE)
 	     case GPIO_PXSELC(2):
 	     case GPIO_PXSELC(3):
 	      group=offset/0x100;
-	      mask = (1<<(op_size*8))-1;
 	      mask_data = (*data)&mask;
 	      mask_data= ~(mask_data);
 	      jz4740_gpio_table[GPIO_PXSEL(group)/4]  &= mask_data;
@@ -297,7 +313,6 @@ else if (op_type==MTS_WRITE)
 	     case GPIO_PXDIRS(2):
 	     case GPIO_PXDIRS(3):
 	      group=offset/0x100;
-	      mask = (1<<(op_size*8))-1;
 	      mask_data = (*data)&mask;
 	      jz4740_gpio_table[GPIO_PXDIR(group)/4] |= mask_data;
 	      break;
@@ -307,7 +322,6 @@ else if (op_type==MTS_WRITE)
 	     case GPIO_PXDIRC(2):
 	     case GPIO_PXDIRC(3):
 	      group=offset/0x100;
-	      mask = (1<<(op_size*8))-1;
 	      mask_data = (*data)&mask;
 	      mask_data= ~(mask_data);
 	      jz4740_gpio_table[GPIO_PXDIR(group)/4]  &= mask_data;
@@ -318,7 +332,6 @@ else if (op_type==MTS_WRITE)
 	     case GPIO_PXTRGS(2):
 	     case GPIO_PXTRGS(3):
 	      group=offset/0x100;
-	      mask = (1<<(op_size*8))-1;
 	      mask_data = (*data)&mask;
 	      jz4740_gpio_table[GPIO_PXTRG(group)/4] |= mask_data;
 	      break;
@@ -328,7 +341,6 @@ else if (op_type==MTS_WRITE)
 	     case GPIO_PXTRGC(2):
 	     case GPIO_PXTRGC(3):
 	      group=offset/0x100;
-	      mask = (1<<(op_size*8))-1;
 	      mask_data = (*data)&mask;
 	      mask_data= ~(mask_data);
 	      jz4740_gpio_table[GPIO_PXTRG(group)/4]  &= mask_data;
@@ -340,7 +352,6 @@ else if (op_type==MTS_WRITE)
 	     case GPIO_PXFLGC(2):
 	     case GPIO_PXFLGC(3):
 	      group=offset/0x100;
-	      mask = (1<<(op_size*8))-1;
 	      mask_data = (*data)&mask;
 	      mask_data= ~(mask_data);
 	      jz4740_gpio_table[GPIO_PXFLG(group)/4]  &= mask_data;

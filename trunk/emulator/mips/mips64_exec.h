@@ -27,7 +27,7 @@ struct mips64_insn_exec_tag {
 };
 
 /* Initialize instruction lookup table */
-void mips64_exec_create_ilt(void);
+void mips64_exec_create_ilt(char *ilt_name);
 
 /* Dump statistics */
 void mips64_dump_stats(cpu_mips_t *cpu);

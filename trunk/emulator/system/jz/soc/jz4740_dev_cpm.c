@@ -1,6 +1,16 @@
+ /*
+ * Copyright (C) yajin 2008 <yajinzhou@gmail.com >
+ *     
+ * This file is part of the virtualmips distribution. 
+ * See LICENSE file for terms of the license. 
+ *
+ */
 
+ 
 
-/*Just a dummy cpm for JZ4740*/
+/*Just a dummy cpm for JZ4740
+I need document!!!
+*/
 
 
 #define _GNU_SOURCE

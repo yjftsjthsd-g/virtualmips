@@ -157,7 +157,8 @@ static int adm5120_boot(adm5120_t *adm5120)
    cpu->cp0.config_usable=0x3; /*only configure sel 0 and 1 is valid*/
    cpu->cp0.config_reg[0]=ADM5120_CONFIG0;
    cpu->cp0.config_reg[1]=ADM5120_CONFIG1;
-   
+
+ 
 	/*set PC and PRID*/
 	cpu->cp0.reg[MIPS_CP0_PRID] = ADM5120_PRID;
 	cpu->cp0.tlb_entries = ADM5120_DEFAULT_TLB_ENTRYNO;

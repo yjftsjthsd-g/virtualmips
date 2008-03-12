@@ -1,4 +1,13 @@
+ /*
+ * Copyright (C) yajin 2008 <yajinzhou@gmail.com >
+ *     
+ * This file is part of the virtualmips distribution. 
+ * See LICENSE file for terms of the license. 
+ *
+ */
 
+
+ 
 /*
 1G bytes nand flash emulation. Samsung K9F8G08 1GB
 1G bytes nand flash are stored in file nandflash8g.0-nandflash8g.8191(8192 blocks).
@@ -41,10 +50,25 @@ supported operation:
 #include "mips64_memory.h"
 #include "dev_nand_flash_1g.h"
 
-//#define NAND_FLASH_READ  0
-//#define NAND_FLASH_WRITE  1
+
 
 m_uint8_t  id_info[5]={0xec,0xd3,0x51,0x95,0x58};
+#define NAND_STATUS_READY       0x40
+#define NAND_STATUS_WP            0x80
+
+/*status ready & not wirte protected*/
+/*I am always ready. haha. Better than real nand flash :)*/
+m_uint8_t  nand_status=NAND_STATUS_READY|NAND_STATUS_WP ;
+
+#ifdef CPU_LOG
+#undef CPU_LOG
+#endif
+
+#ifdef DEBUG_FLASH_ACCESS
+#define CPU_LOG(arg1) cpu_log(arg1)
+#else
+#define CPU_LOG(arg1) 
+#endif
 
 /*Create nand flash file. 1 block 1 file.*/
 static unsigned char * create_nand_flash_file(m_uint32_t block_no)
@@ -56,8 +80,8 @@ static unsigned char * create_nand_flash_file(m_uint32_t block_no)
   	unsigned char *ret;
   	
   	/*create nand flash file when writing*/
-   snprintf(file_path,sizeof(file_path),"%s/%d",NAND_FLASH_1G_FILE_DIR,block_no);
-   fd=open(file_path,O_RDWR|O_CREAT);
+   snprintf(file_path,sizeof(file_path),"%s/%s.%d",NAND_FLASH_1G_FILE_DIR,NAND_FLASH_1G_FILE_PREFIX,block_no);
+   fd=open(file_path,O_RDWR|O_CREAT,755);
    assert(fd>=0);
 
    for (i=0;i<NAND_FLASH_1G_PAGES_PER_BLOCK;i++)
@@ -77,7 +101,6 @@ unsigned char* get_nand_flash_page_ptr(m_uint32_t row_addr,unsigned char *block_
   
    m_uint32_t block_no = row_addr>>6;
   m_uint32_t page_no =row_addr&0x3f;
-  //printf("block_start %x block_no %x page_no %x \n",block_start,block_no,page_no);
  assert(block_no<NAND_FLASH_1G_TOTAL_BLOCKS);
  assert(block_start!=NULL);
  return (block_start+page_no*NAND_FLASH_1G_PAGE_SIZE);
@@ -89,12 +112,6 @@ unsigned char* get_nand_flash_page_ptr(m_uint32_t row_addr,unsigned char *block_
 static void nand_flash_erase_block(unsigned char *block_start)
 {
     memset(block_start,0xff,NAND_FLASH_1G_BLOCK_SIZE);
-    /*set first and second page spare page*/
-    *(block_start+NAND_FLASH_1G_PAGE_DATA_SIZE)=0X0;
-    *(block_start+NAND_FLASH_1G_PAGE_DATA_SIZE+1)=0X0;
-    *(block_start+NAND_FLASH_1G_PAGE_SIZE+NAND_FLASH_1G_PAGE_DATA_SIZE)=0X0;
-    *(block_start+NAND_FLASH_1G_PAGE_SIZE+NAND_FLASH_1G_PAGE_DATA_SIZE+1)=0X0;
-
 }
 
 
@@ -105,7 +122,6 @@ static void write_nand_fiash_page_file(m_uint32_t row_addr,unsigned char *block_
    int i;
       
    page_ptr =get_nand_flash_page_ptr(row_addr,block_start);
-
    /*we only copy different data into page*/
    for (i=0;i<NAND_FLASH_1G_PAGE_SIZE;i++)
     {
@@ -142,7 +158,6 @@ void *dev_nand_flash_1g_access(cpu_mips_t *cpu,struct vdevice *dev,
    /*COMMAND PORT*/
    if (offset==NAND_COMMPORT_OFFSET )
     {
-      cpu_log(cpu,"","NAND_COMMPORT_OFFSET pc %x command %x state %s \n",cpu->pc,*data,state_string[d->state]);
       /*clear addr offset*/
        d->addr_offset=0;  
       switch (d->state)
@@ -177,9 +192,18 @@ void *dev_nand_flash_1g_access(cpu_mips_t *cpu,struct vdevice *dev,
             {
               /*ERASE */
               d->state=STATE_ERASE_START;
+              /*erase only need row address. adjust addr_offset*/
+              d->addr_offset=2;
+            }
+            else if  (((*data)&0xff)==0x70)
+            {
+              /*READ STATUS */
+             d->state=STATE_INIT;
+             d->read_offset=0;
+             d->data_port_ipr=&nand_status;  
             }
              else
-              assert(0);
+              ASSERT(0,"*data %x\n",*data);
            break;
 
            case STATE_ERASE_START:
@@ -187,6 +211,8 @@ void *dev_nand_flash_1g_access(cpu_mips_t *cpu,struct vdevice *dev,
               {
                 //erase blcok
                 block_no = (d->row_addr)>>6;
+                 if (d->flash_map[block_no]==NULL)
+                  d->flash_map[block_no]=create_nand_flash_file(block_no);
                 nand_flash_erase_block(d->flash_map[block_no]);
                 d->state=STATE_INIT;
               }
@@ -201,14 +227,14 @@ void *dev_nand_flash_1g_access(cpu_mips_t *cpu,struct vdevice *dev,
                 block_no = (d->row_addr)>>6;
                 if (d->flash_map[block_no]==NULL)
                 {
-                  cpu_log(cpu,"","block_no %x is null. redirect to fake page.",block_no);
+                  CPU_LOG((cpu,"","block_no %x is null. redirect to fake page.",block_no));
                   d->data_port_ipr=get_nand_flash_page_ptr(d->row_addr,d->fake_block);
                 }
                 else
                   d->data_port_ipr=get_nand_flash_page_ptr(d->row_addr,d->flash_map[block_no]);
                 
                 d->read_offset=d->col_addr;
-               //  cpu_log(cpu,"","d->read_offset %x d->col_addr %x.",d->read_offset,d->col_addr);
+                CPU_LOG((cpu,"","d->read_offset %x d->col_addr %x.",d->read_offset,d->col_addr));
               }
            else if  (((*data)&0xff)==0x35)
               {
@@ -233,7 +259,7 @@ void *dev_nand_flash_1g_access(cpu_mips_t *cpu,struct vdevice *dev,
                 block_no = (d->row_addr)>>6;
                 if (d->flash_map[block_no]==NULL)
                 {
-                  cpu_log(cpu,"","block_no %x is null. redirect to fake page.",block_no);
+                  CPU_LOG((cpu,"","block_no %x is null. redirect to fake page.",block_no));
                   d->data_port_ipr=get_nand_flash_page_ptr(d->row_addr,d->fake_block);
                 }
                 else
@@ -255,6 +281,7 @@ void *dev_nand_flash_1g_access(cpu_mips_t *cpu,struct vdevice *dev,
                 block_no = (d->row_addr)>>6;
                 if (d->flash_map[block_no]==NULL)
                   d->flash_map[block_no]=create_nand_flash_file(block_no);
+
                 write_nand_fiash_page_file(d->row_addr,d->flash_map[block_no],d->write_buffer);
                 d->write_offset=0;
               }
@@ -321,7 +348,7 @@ void *dev_nand_flash_1g_access(cpu_mips_t *cpu,struct vdevice *dev,
             assert(0);
       }
       
-     cpu_log(cpu,""," state %s\n",state_string[d->state]);
+     CPU_LOG((cpu,""," state %s\n",state_string[d->state]));
       
     }
    else if (offset==NAND_DATAPORT_OFFSET)
@@ -330,7 +357,7 @@ void *dev_nand_flash_1g_access(cpu_mips_t *cpu,struct vdevice *dev,
       if (op_type==MTS_READ)
         {
           /*data port*/
-          //cpu_log(cpu,"","pc %x data %x d->read_offset %x d->data_port_ipr %x \n",cpu->pc,*(d->data_port_ipr+d->read_offset),d->read_offset,d->data_port_ipr);
+          CPU_LOG((cpu,"","pc %x data %x d->read_offset %x d->data_port_ipr %x \n",cpu->pc,*(d->data_port_ipr+d->read_offset),d->read_offset,d->data_port_ipr));
           ret = (void*)(d->data_port_ipr+d->read_offset);
           d->read_offset++;
           return ret;
@@ -341,6 +368,7 @@ void *dev_nand_flash_1g_access(cpu_mips_t *cpu,struct vdevice *dev,
         {
            ret = (void*)(d->write_buffer+d->col_addr+d->write_offset);
            d->write_offset++;
+
            return ret;
         }
       assert(0);
@@ -348,7 +376,7 @@ void *dev_nand_flash_1g_access(cpu_mips_t *cpu,struct vdevice *dev,
     }
  else if (offset==NAND_ADDRPORT_OFFSET)
    {   
-      cpu_log(cpu,"","ADDRESS  pc %x d->addr_offset %x *data %x \n",cpu->pc, d->addr_offset,*data);
+      CPU_LOG((cpu,"","ADDRESS  pc %x d->addr_offset %x *data %x \n",cpu->pc, d->addr_offset,*data));
         /*ADDRESS PORT*/
         assert(op_type==MTS_WRITE);
         *has_set_value=TRUE;
@@ -372,7 +400,7 @@ void *dev_nand_flash_1g_access(cpu_mips_t *cpu,struct vdevice *dev,
            default:
               assert(0);
           }
-        cpu_log(cpu,"","col_addr  %x row_addr %x\n",d->col_addr,d->row_addr);
+        CPU_LOG((cpu,"","col_addr  %x row_addr %x\n",d->col_addr,d->row_addr));
         d->addr_offset++; 
    }
 
@@ -393,7 +421,6 @@ static int load_nand_flash_file(nand_flash_1g_data_t *d)
     //nand_flash_1g_data_t *d=*nand_flash;
 	
 	memset(d->flash_map,0x0,NAND_FLASH_1G_TOTAL_BLOCKS*sizeof(d->flash_map[0]));
-    //printf("01 %x\n",(unsigned int)&(d->flash_map[0]));
 	p_dir=opendir(NAND_FLASH_1G_FILE_DIR);
 	if (NULL==p_dir)
 	{
@@ -427,9 +454,6 @@ static int load_nand_flash_file(nand_flash_1g_data_t *d)
 		file_name=strdup(ent->d_name);
 		//get the block number
 		strncpy(block_number,file_name+i+1,strlen(file_name)-i-1);
-		//printf("strlen(file_name) %d i %d",strlen(file_name),i); 
-       //printf("file_name %s\n",file_name); 
-		//printf("block_number %s\n",block_number);
 		block_number[strlen(file_name)-i-1]='\0';
 		i = atoi(block_number);
 		fd=open(file_path,O_RDWR);
@@ -440,8 +464,6 @@ static int load_nand_flash_file(nand_flash_1g_data_t *d)
 			goto err_map_flash_file;
 		close(fd);
 		free(file_name);
-		printf("%x\n",(unsigned int)d->flash_map[i]);
-		//printf("i %x %x\n",i,(unsigned int)&(d->flash_map[i]));
 		j++;
 		
 	}
@@ -474,7 +496,7 @@ int dev_nand_flash_1g_init(vm_instance_t *vm,char *name,m_pa_t phys_addr,m_uint3
 		return (-1);
     /*set fake_page
      We only create nand flash file when writing to a blcok.
-     When reading from a block which has not been written, redict it to fake_page.
+     When reading from a block which has not been written, give it the fake_page.
     */
     memset(d->fake_block,0xff,NAND_FLASH_1G_BLOCK_SIZE);
     

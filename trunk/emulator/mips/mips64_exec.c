@@ -56,14 +56,14 @@ static int mips64_exec_chk_hi(struct mips64_insn_exec_tag *tag,int value)
 }
 
 /* Initialize instruction lookup table */
-void mips64_exec_create_ilt(void)
+void mips64_exec_create_ilt(char*ilt_name)
 {
 	int i,count;
 
 	for(i=0,count=0;mips64_exec_tags[i].exec;i++)
 		count++;
 
-	ilt = ilt_create("mips64e",count,
+	ilt = ilt_create(ilt_name,count,
 			(ilt_get_insn_cbk_t)mips64_exec_get_insn,
 			(ilt_check_cbk_t)mips64_exec_chk_lo,
 			(ilt_check_cbk_t)mips64_exec_chk_hi);
@@ -336,16 +336,6 @@ static forced_inline int mips64_exec_fetch(cpu_mips_t *cpu,m_va_t pc,
    
 	offset = (pc & MIPS_MIN_PAGE_IMASK) >> 2;
 	*insn = vmtoh32(cpu->njm_exec_ptr[offset]);
-	if (cpu->pc==0x83f26268)
-	  {
-	  ttt=1;
-	  }
-	//if ((ttt==1)&&(cpu->pc!=0x83f29308)&&(cpu->pc!=0x83f29304)&&(cpu->pc!=0x83f29300)
-    // &&(cpu->pc!=0x83f12f00) &&(cpu->pc!=0x83f12f04) &&(cpu->pc!=0x83f12f08) &&(cpu->pc!=0x83f12f0c) &&(cpu->pc!=0x83f12f10)
-//	)
-//if (ttt==1)
-//	cpu_log(cpu,"","pc %x ins %x \n",cpu->pc,*insn);
-
 
 	return(0);
 }
@@ -552,10 +542,7 @@ static fastcall int mips64_exec_ADDIU(cpu_mips_t *cpu,mips_insn_t insn)
 	res = (m_uint32_t)cpu->gpr[rs] + val;
 	cpu->gpr[rt] = sign_extend(res,32);
 	
-//	if ((cpu->pc==0x83f29e14)&&(ttt==1))
-//	  {
-//	    cpu_log(cpu,"","rs %x rt %x val %x cpu->gpr[rs]  %x cpu->gpr[rt]  %x\n",rs,rt,val,cpu->gpr[rs] ,cpu->gpr[rt] );
-//	  }
+
 	return(0);
 }
 
@@ -1527,7 +1514,51 @@ static fastcall int mips64_exec_MOVEZ(cpu_mips_t *cpu,mips_insn_t insn)
 	return(0);
 }
 
+static fastcall int mips64_exec_MSUB(cpu_mips_t *cpu,mips_insn_t insn)
+{
+	int rs = bits(insn,21,25);
+	int rt = bits(insn,16,20);
+	m_int64_t val,temp;
 
+	val = (m_int32_t)(m_int32_t)cpu->gpr[rs];
+	val *= (m_int32_t)(m_int32_t)cpu->gpr[rt];
+
+	temp= cpu->hi;
+	temp = temp<<32;
+	temp += cpu->lo;
+
+	temp -= val;
+	//val += temp;
+
+	cpu->lo = sign_extend(temp,32);
+	cpu->hi = sign_extend(temp >> 32,32);
+	return(0);
+
+	
+}
+
+static fastcall int mips64_exec_MSUBU(cpu_mips_t *cpu,mips_insn_t insn)
+{
+	int rs = bits(insn,21,25);
+	int rt = bits(insn,16,20);
+	m_int64_t val,temp;
+
+	val = (m_uint32_t)(m_uint32_t)cpu->gpr[rs];
+	val *= (m_uint32_t)(m_uint32_t)cpu->gpr[rt];
+
+	temp= cpu->hi;
+	temp = temp<<32;
+	temp += cpu->lo;
+
+	temp -= val;
+	//val += temp;
+
+	cpu->lo = sign_extend(temp,32);
+	cpu->hi = sign_extend(temp >> 32,32);
+	return(0);
+
+	
+}
 
 /* MTC0 */
 static fastcall int mips64_exec_MTC0(cpu_mips_t *cpu,mips_insn_t insn)
@@ -1535,6 +1566,7 @@ static fastcall int mips64_exec_MTC0(cpu_mips_t *cpu,mips_insn_t insn)
 	int rt = bits(insn,16,20);
 	int rd = bits(insn,11,15);
    int sel = bits(insn,0,2);
+   //printf("cpu->pc %x insn %x\n",cpu->pc,insn);
 	mips64_cp0_exec_mtc0(cpu,rt,rd,sel);
 	return(0);
 }
@@ -1661,10 +1693,7 @@ static fastcall int mips64_exec_SB(cpu_mips_t *cpu,mips_insn_t insn)
 	int rt     = bits(insn,16,20);
 	int offset = bits(insn,0,15);
 	
-//if ((cpu->pc==0x83f29e10)&&(ttt==1))
-//	  {
-//	    cpu_log(cpu,"","base %x rt %x offset %x vaddr %x\n",base,rt,offset,cpu->gpr[base] + sign_extend(offset,16));
-//	  }
+
 
 	return(mips64_exec_memop2(cpu,MIPS_MEMOP_SB,base,offset,rt,FALSE));
 }
@@ -2253,6 +2282,8 @@ static struct mips64_insn_exec_tag mips64_exec_tags[] = {
 		{ "move"   , mips64_exec_MOVE    , 0xfc1f07ff , 0x00000021, 1, 15 },
 		{ "moven" , mips64_exec_MOVEN    , 0xfc0007ff , 0x0000000b, 1, 15 },
 		{ "movez" , mips64_exec_MOVEZ    , 0xfc0007ff , 0x0000000a, 1, 15 },
+		{ "msub"   , mips64_exec_MSUB,   0xfc00ffff , 0x70000004, 1, 18 }, 
+		{ "msubu"   , mips64_exec_MSUBU, 0xfc00ffff , 0x70000005, 1, 18 }, 
 		{ "mtc0"   , mips64_exec_MTC0    , 0xffe007f8 , 0x40800000, 1, 18 },
 		{ "mthi"   , mips64_exec_MTHI    , 0xfc1fffff , 0x00000011, 1, 13 },
 		{ "mtlo"   , mips64_exec_MTLO    , 0xfc1fffff , 0x00000013, 1, 13 },
