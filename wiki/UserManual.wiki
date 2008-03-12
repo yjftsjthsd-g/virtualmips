@@ -25,6 +25,10 @@ make
 }}}
 
 If everything goes well, file 'adm5120' and 'pavo' will be created. 
+Some version of gcc has problem with __attribute__((always_inline)). If you get the following error message, the [http://virtualmips.googlecode.com/files/virtualmips-V0.02-RC1-inline.patch patch] may fix the problem.
+{{{
+./mips/mips64_cp0.h:28: sorry, unimplemented: inlining failed ......
+}}}
 
 There are some other files in direcotry virtualmips-V0.02-RC1/run.
  * adm5120.conf:configure file for adm5120 emulation
