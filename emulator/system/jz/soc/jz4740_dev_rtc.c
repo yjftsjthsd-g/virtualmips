@@ -1,3 +1,12 @@
+ /*
+ * Copyright (C) yajin 2008 <yajinzhou@gmail.com >
+ *     
+ * This file is part of the virtualmips distribution. 
+ * See LICENSE file for terms of the license. 
+ *
+ */
+ 
+
 /*RTC. */
 
 #define _GNU_SOURCE
@@ -30,7 +39,6 @@ void *dev_jz4740_rtc_access(cpu_mips_t *cpu,struct vdevice *dev,
 {
 
 	struct jz4740_rtc_data *d = dev->priv_data;
-   cpu_log(cpu,"","rtc offset %x\n",offset);
 	if (offset >= d->jz4740_rtc_size) {
       *data = 0;
       return NULL;

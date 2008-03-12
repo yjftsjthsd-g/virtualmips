@@ -481,7 +481,6 @@ insn_lookup_t *ilt_create(char *table_name,
 
 	/* Try to load a cached table from disk */
 	if ((ilt = ilt_cache_load(table_name))) {
-		//printf("ILT: loaded table \"%s\" from cache.\n",table_name);
 		return ilt;
 	}
 

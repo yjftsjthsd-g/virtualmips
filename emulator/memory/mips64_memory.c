@@ -1181,7 +1181,6 @@ mips_mts32_map(cpu_mips_t *cpu,u_int op_type,mts_map_t *map,
 		return alt_entry;
 	}
 
-    cpu_log(cpu,"","dev->host_addr  %x dev name  %s \n",dev->host_addr,dev->name);
 	entry->gvpa  = map->vaddr;
 	entry->gppa  = map->paddr;
 	entry->hpa   = dev->host_addr + (map->paddr - dev->phys_addr);
@@ -1322,8 +1321,7 @@ fastcall u_int mips_mts32_lw(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 	{ 
 		bad_memory_access(cpu,vaddr);
 	}
-   if (cpu->pc==0x80100ed0)
-    printf("vaddr %x\n",vaddr);
+
 	if (likely(has_set_value==FALSE)) data = vmtoh32(*(m_uint32_t *)haddr);
 	if (likely(!exc)) cpu->gpr[reg] = sign_extend(data,32);
 
@@ -1381,12 +1379,8 @@ fastcall u_int mips_mts32_sb(cpu_mips_t *cpu,m_va_t vaddr,u_int reg)
 	u_int exc;
 	m_uint8_t has_set_value=FALSE;
 
-   if ((cpu->pc==0x83f12f90)||(cpu->pc==0x83f12f94))
-    cpu_log(cpu,"","b mips_mts32_sb vaddr %x exc %x\n",vaddr,exc);
 	data = cpu->gpr[reg] & 0xff;
 	haddr = mips_mts32_access(cpu,vaddr,MIPS_MEMOP_SB,1,MTS_WRITE,&data,&exc,&has_set_value,0);
-   if ((cpu->pc==0x83f12f90)||(cpu->pc==0x83f12f94))
-    cpu_log(cpu,"","mips_mts32_sb vaddr %x exc %x\n",vaddr,exc);
 	if (exc)
 		return exc;
 	if ((haddr==NULL)&&(has_set_value==FALSE))  
@@ -2359,7 +2353,6 @@ mips_mts32_slow_lookup(cpu_mips_t *cpu,m_uint64_t vaddr,
 
 	switch(zone) {
 	case 0x00 ... 0x03:   /* kuseg */
-	  cpu_log(cpu,"","useg pc %x vaddr %x\n",cpu->pc,vaddr);
 	/* trigger TLB exception if no matching entry found */
 	if (!mips64_cp0_tlb_lookup(cpu,vaddr,&map))
 		goto err_tlb;
@@ -2381,7 +2374,6 @@ mips_mts32_slow_lookup(cpu_mips_t *cpu,m_uint64_t vaddr,
 		map.paddr  = map.vaddr - (m_pa_t)0xFFFFFFFF80000000ULL;
 		map.mapped=FALSE;
 
-        //cpu_log(cpu,"","kseg0 map.vaddr %x map.paddr %x \n",map.vaddr,map.paddr);
 		if (!(entry = mips_mts32_map(cpu,op_type,&map,entry,alt_entry,is_fromgdb)))
 			goto err_undef;
 		return(entry);
@@ -2390,7 +2382,6 @@ mips_mts32_slow_lookup(cpu_mips_t *cpu,m_uint64_t vaddr,
 		map.vaddr  = vaddr & MIPS_MIN_PAGE_MASK;
 		map.paddr  = map.vaddr -(m_pa_t)0xFFFFFFFFA0000000ULL;
 		map.mapped=FALSE;
-      // cpu_log(cpu,"","kseg1 map.vaddr %x map.paddr %x \n",map.vaddr,map.paddr);
 
 		if (!(entry = mips_mts32_map(cpu,op_type,&map,entry,alt_entry,is_fromgdb)))
 			goto err_undef;
@@ -2492,6 +2483,7 @@ void *mips_mts32_access(cpu_mips_t *cpu,m_va_t vaddr,
                      )
                   )
      )*/
+
 	if (unlikely(mips_mts32_check_tlbcache(cpu,vaddr,op_type,entry)==0))
 	{
 		entry = mips_mts32_slow_lookup(cpu,vaddr,op_code,op_size,op_type,

@@ -28,7 +28,7 @@
 
 
 
-#define LOG_ENABLE 1
+#define LOG_ENABLE 0
 /* Log a message for a CPU */
 void cpu_log(cpu_mips_t *cpu,char *module,char *format,...)
 {
@@ -42,7 +42,6 @@ void cpu_log(cpu_mips_t *cpu,char *module,char *format,...)
 	va_end(ap);
 #endif
 }
-
 
 
 

@@ -87,7 +87,7 @@ int main(int argc,char *argv[])
 	/* Periodic tasks initialization */ 
 	if (ptask_init (0) == -1)
 		exit (EXIT_FAILURE);
-	mips64_exec_create_ilt ();
+	mips64_exec_create_ilt (vm->name);
 
 	if (init_instance(vm)<0)
 	{

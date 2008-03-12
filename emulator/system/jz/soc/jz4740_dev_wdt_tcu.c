@@ -1,3 +1,19 @@
+ /*
+ * Copyright (C) yajin 2008 <yajinzhou@gmail.com >
+ *     
+ * This file is part of the virtualmips distribution. 
+ * See LICENSE file for terms of the license. 
+ *
+ */
+
+ /* Watch dog and timer of JZ4740.
+TODO:
+1. watch dog
+2. timer1-5
+3.interrupt
+ */
+
+
 #define _GNU_SOURCE
 #include <stdlib.h>
 #include <stdio.h>
@@ -22,31 +38,8 @@ struct jz4740_wdt_tcu_data {
    m_uint32_t jz4740_wdt_tcu_size;
 };
 
-m_uint32_t   past_instructions=0;
-#define COUNT_PER_INSTRUCTION   0X5
-/*JUST TIMER 0*/
-void forced_inline virtual_jz4740_timer(cpu_mips_t *cpu)
-{
-  
-  if (jz4740_wdt_tcu_table[TCU_TSR/4]&0x01)
-    {
-    
-    return;
-    }
-if (jz4740_wdt_tcu_table[TCU_TER/4]&0x01)
-{
-  //allow counter
-  past_instructions++;
-  if (past_instructions==COUNT_PER_INSTRUCTION)
-    {
-      jz4740_wdt_tcu_table[TCU_TCNT0/4] +=1 ;
-      cpu_log(cpu,"","jz4740_wdt_tcu_table[TCU_TCNT0/4]  %x\n",jz4740_wdt_tcu_table[TCU_TCNT0/4] );
-      /*TODO: INTERRUPT*/
-    }
-}
 
-  
-}
+
 
 void *dev_jz4740_wdt_tcu_access(cpu_mips_t *cpu,struct vdevice *dev,
                      m_uint32_t offset,u_int op_size,u_int op_type,
@@ -78,37 +71,52 @@ else if (op_type==MTS_READ)
    ASSERT(offset!=TCU_TMSR,"Read write only register in TCU. offset %x\n",offset);
    ASSERT(offset!=TCU_TMCR,"Read write only register in TCU. offset %x\n",offset);
 }
+else
+  assert(0);
+
+ switch (op_size)
+      {
+      case 1:
+        mask=0xff;
+        break;
+      case 2:
+        mask=0xffff;
+        break;
+      case 4:
+        mask=0xffffffff;
+        break;
+      default:
+        assert(0);
+    }
    switch(offset)
     {
-     
 
+    
+         
       case TCU_TSSR:  /*set*/
-          printf("I AM asdf\n");
+         
           assert (op_type==MTS_WRITE);
-          mask = (1<<(op_size*8))-1;
 	      mask_data = (*data)&mask;
 	      jz4740_wdt_tcu_table[TCU_TSR/4] |= mask_data;
 	      *has_set_value=TRUE;
 	      break;
 	  case TCU_TSCR: /*clear*/
           assert (op_type==MTS_WRITE);
-          mask = (1<<(op_size*8))-1;
 	      mask_data = (*data)&mask;
 	      mask_data= ~(mask_data);
 	       jz4740_wdt_tcu_table[TCU_TSR/4]  &= mask_data;
+	       
 	       *has_set_value=TRUE;
 	      break;
 
 	       case TCU_TESR:  /*set*/
           assert (op_type==MTS_WRITE);
-          mask = (1<<(op_size*8))-1;
 	      mask_data = (*data)&mask;
 	      jz4740_wdt_tcu_table[TCU_TER/4] |= mask_data;
 	      *has_set_value=TRUE;
 	      break;
 	  case TCU_TECR: /*clear*/
           assert (op_type==MTS_WRITE);
-          mask = (1<<(op_size*8))-1;
 	      mask_data = (*data)&mask;
 	      mask_data= ~(mask_data);
 	       jz4740_wdt_tcu_table[TCU_TER/4]  &= mask_data;
@@ -117,14 +125,12 @@ else if (op_type==MTS_READ)
       
              case TCU_TFSR:  /*set*/
           assert (op_type==MTS_WRITE);
-          mask = (1<<(op_size*8))-1;
 	      mask_data = (*data)&mask;
 	      jz4740_wdt_tcu_table[TCU_TFR/4] |= mask_data;
 	      *has_set_value=TRUE;
 	      break;
 	  case TCU_TFCR: /*clear*/
           assert (op_type==MTS_WRITE);
-          mask = (1<<(op_size*8))-1;
 	      mask_data = (*data)&mask;
 	      mask_data= ~(mask_data);
 	       jz4740_wdt_tcu_table[TCU_TFR/4]  &= mask_data;
@@ -133,14 +139,12 @@ else if (op_type==MTS_READ)
 
       case TCU_TMSR:  /*set*/
           assert (op_type==MTS_WRITE);
-          mask = (1<<(op_size*8))-1;
 	      mask_data = (*data)&mask;
 	      jz4740_wdt_tcu_table[TCU_TMR/4] |= mask_data;
 	      *has_set_value=TRUE;
 	      break;
 	  case TCU_TMCR: /*clear*/
           assert (op_type==MTS_WRITE);
-          mask = (1<<(op_size*8))-1;
 	      mask_data = (*data)&mask;
 	      mask_data= ~(mask_data);
 	       jz4740_wdt_tcu_table[TCU_TMR/4]  &= mask_data;
@@ -196,6 +200,38 @@ int dev_jz4740_wdt_tcu_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t
 
 
    
+/*-------------Virtual Timer----------------------*/
+m_uint32_t   past_instructions=0;
+/*TODO:need to adjust*/
+#define COUNT_PER_INSTRUCTION   0X180
+
+/*JUST TIMER 0*/
+void forced_inline virtual_jz4740_timer(cpu_mips_t *cpu)
+{
+  
+  if (jz4740_wdt_tcu_table[TCU_TSR/4]&0x01)
+    {
+    return;
+    }
+if (jz4740_wdt_tcu_table[TCU_TER/4]&0x01)
+{
+  //allow counter
+  past_instructions++;
+  if (past_instructions==COUNT_PER_INSTRUCTION)
+    {
+      jz4740_wdt_tcu_table[TCU_TCNT0/4] +=1 ;
+      past_instructions=0;
+      /*TODO: INTERRUPT*/
+    }
+}
+
+  
+}
+
+void forced_inline virtual_timer(cpu_mips_t *cpu)
+{
+	virtual_jz4740_timer(cpu);
+}
 
 
    

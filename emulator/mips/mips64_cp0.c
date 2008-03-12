@@ -82,7 +82,7 @@ static inline m_cp0_reg_t mips64_cp0_get_reg_fast(cpu_mips_t *cpu,u_int cp0_reg,
 		return(mips64_cp0_get_random_reg(cpu));
 	case MIPS_CP0_CONFIG:
 	  ASSERT((1<<sel)&(cp0->config_usable),"Unimplemented configure register sel 0x%x\n",sel);
-	  return cp0->config_reg[sel];
+	 return cp0->config_reg[sel];
 	case MIPS_CP0_STATUS:
 	default:
 		return(cp0->reg[cp0_reg]);
@@ -161,7 +161,17 @@ inline void mips64_cp0_set_reg(cpu_mips_t *cpu,u_int cp0_reg,u_int sel,
 		break;
     case MIPS_CP0_CONFIG:
        ASSERT((1<<sel)&(cp0->config_usable),"Unimplemented configure register sel 0x%x\n",sel);
-	   cp0->config_reg[sel]=val;
+       ASSERT(((sel!=1)&&(sel!=2)&&(sel!=3)),"Writing to read only configure register sel 0x%x\n",sel);
+       if (sel==0)
+        {
+          /*only bit 0:2 is writable*/
+          val &= 0x3;
+          cp0->config_reg[sel] &= 0xfffffffc;
+          cp0->config_reg[sel] += val;
+        }
+       else
+          cp0->config_reg[sel]=val;
+	  
 	   break;
 	case MIPS_CP0_WIRED:
 		/* read only registers */
