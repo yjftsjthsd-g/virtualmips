@@ -9,6 +9,12 @@ This article describles how to build u-boot for pavo board.
 
 Follow [ftp://ftp.ingenic.cn/3sw/01linux/08doc/mips_toolchain_guide.pdf mipsel toolchain guide] to build the toolchain. Add it to $PATH.
 
+In ubuntu system, you need to change the default shell program to build the toolchain.
+{{{
+sudo dpkg-reconfigure dash
+}}}
+See [https://wiki.ubuntu.com/DashAsBinSh DashAsBinSh] for more information.
+
 = Build u-boot =
 
 1. Download [ftp://ftp.ingenic.cn/3sw/01linux/01loader/u-boot/u-boot-1.1.6.tar.bz2 u-boot source] code and [ftp://ftp.ingenic.cn/3sw/01linux/01loader/u-boot/u-boot-1.1.6-jz-20080226.patch.gz patch] first.
