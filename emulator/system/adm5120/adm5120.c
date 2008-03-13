@@ -352,7 +352,7 @@ vm_instance_t *create_instance(char *configure_filename)
 		fprintf(stderr,"ADM5120 : unable to create VM instance!\n");
 		goto err_vm;
 	}
-
+   free(name);
 	if (configure_filename!=NULL)
 		adm5120->vm->configure_filename=strdup(configure_filename);
 	adm5120_init_defaults(adm5120);

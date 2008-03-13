@@ -87,15 +87,15 @@ char *dyn_sprintf(const char *fmt,...)
 			size = n + 1;
 		else
 			size *= 2;
-
-		if ((p2 = realloc(p,size)) == NULL) {
+       free(p);
+		if ((p2 = malloc(size)) == NULL) {
 			perror("dyn_sprintf: realloc");
-			free(p);
 			return NULL;
 		}
 
 		p = p2;
 	}
+	free(p2);
 }
 
 /* Split a string */
@@ -240,7 +240,7 @@ void m_flog(FILE *fd,char *module,char *fmt,va_list ap)
 		fflush(fd);
 	}
 }
-
+#if 0
 /* Logging function */
 void m_log(char *module,char *fmt,...)
 {
@@ -250,7 +250,7 @@ void m_log(char *module,char *fmt,...)
 	m_flog(log_file,module,fmt,ap);
 	va_end(ap);
 }
-
+#endif
 /* Returns a line from specified file (remove trailing '\n') */
 char *m_fgets(char *buffer,int size,FILE *fd)
 {

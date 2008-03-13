@@ -14,7 +14,8 @@
 #include <error.h>
 #include<errno.h> 
 #include<time.h>
-
+ #include<signal.h>
+ 
 #include  "utils.h"
 #include  "mips64.h"
 #include "device.h"
@@ -24,11 +25,12 @@
 
 
 
-char *log_file_name = NULL;
-FILE * log_file = NULL;
-#define LOGFILE_DEFAULT_NAME  "sim.txt"
+//char *log_file_name = NULL;
+//FILE * log_file = NULL;
+//#define LOGFILE_DEFAULT_NAME  "sim.txt"
 char sw_version_tag[] = "20071220";
-
+#define VERSION  "0.02"
+#if 0
 /* Create general log file */ 
 static void create_log_file (void) 
 {
@@ -63,12 +65,52 @@ close_log_file (void)
 }
 
 
+#endif
+
+void signal_gen_handler(int sig)
+{
+   switch(sig) {
+      case SIGHUP:
+         /* For future use */
+         break;
+
+      case SIGQUIT:
+         printf("\nStop emulation\n");
+         /*do not worry, exit will release all resource*/
+         exit(EXIT_SUCCESS);
+         break;
+
+      case SIGINT:
+      /* In theory, this shouldn't happen thanks to VTTY settings */
+      break;
+         
+      default:
+         fprintf(stderr,"Unhandled signal %d\n",sig);
+   }
+}
+
+
+/* Setups signals */
+static void setup_signals(void)
+{
+   struct sigaction act;
+
+   memset(&act,0,sizeof(act));
+   act.sa_handler = signal_gen_handler;
+   act.sa_flags = SA_RESTART;
+   sigaction(SIGHUP,&act,NULL);
+   sigaction(SIGQUIT,&act,NULL);
+   sigaction(SIGINT,&act,NULL);
+}
+
+
+
 int main(int argc,char *argv[])
 {
 	vm_instance_t *vm;
 	char *configure_filename=NULL;
 
-	printf("VirtualMIPS (version %s)\n","0.01");
+	printf("VirtualMIPS (version %s)\n",VERSION);
 	printf("Copyright (c) 2008 yajin.\n");
 	printf("Build date: %s %s\n\n",__DATE__,__TIME__);
 
@@ -82,22 +124,23 @@ int main(int argc,char *argv[])
 	/*set seed for random value */ 
 	srand ((int) time (0));
 	/* Create general log file */ 
-	create_log_file ();
+	//create_log_file ();
 
 	/* Periodic tasks initialization */ 
 	if (ptask_init (0) == -1)
 		exit (EXIT_FAILURE);
 	mips64_exec_create_ilt (vm->name);
-
+    setup_signals();
 	if (init_instance(vm)<0)
 	{
 		fprintf(stderr,"Unable to initialize instance.\n");
+		/*exit will release all the resource!do not worry*/
 		exit(EXIT_FAILURE);
 	}
 
 	vm_monitor (vm);
-	close_log_file ();
-	return 1;
+	//close_log_file ();
+	return (0);
 
 }
 

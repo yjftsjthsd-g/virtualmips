@@ -81,7 +81,7 @@ static unsigned char * create_nand_flash_file(m_uint32_t block_no)
   	
   	/*create nand flash file when writing*/
    snprintf(file_path,sizeof(file_path),"%s/%s.%d",NAND_FLASH_1G_FILE_DIR,NAND_FLASH_1G_FILE_PREFIX,block_no);
-   fd=open(file_path,O_RDWR|O_CREAT,755);
+   fd=open(file_path,O_RDWR|O_CREAT, S_IREAD|S_IWRITE| S_IRGRP|  S_IWGRP| S_IROTH| S_IWOTH );
    assert(fd>=0);
 
    for (i=0;i<NAND_FLASH_1G_PAGES_PER_BLOCK;i++)
@@ -451,6 +451,7 @@ static int load_nand_flash_file(nand_flash_1g_data_t *d)
 		{
 			continue;
 		}
+		free(file_name);
 		file_name=strdup(ent->d_name);
 		//get the block number
 		strncpy(block_number,file_name+i+1,strlen(file_name)-i-1);
@@ -467,7 +468,7 @@ static int load_nand_flash_file(nand_flash_1g_data_t *d)
 		j++;
 		
 	}
-
+    closedir(p_dir);
 	printf("\nloaded %d nand flash file from directory \"%s\". \n",j,NAND_FLASH_1G_FILE_DIR);
 	return (0);
 err_map_flash_file:
