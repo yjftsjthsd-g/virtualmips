@@ -1,5 +1,6 @@
 
- /*
+
+/*
  * Copyright (C) yajin 2008 <yajinzhou@gmail.com >
  *     
  * This file is part of the virtualmips distribution. 
