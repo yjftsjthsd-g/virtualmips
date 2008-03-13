@@ -1180,7 +1180,7 @@ mips_mts32_map(cpu_mips_t *cpu,u_int op_type,mts_map_t *map,
 		alt_entry->mapped=map->mapped;
 		return alt_entry;
 	}
-
+   ASSERT(dev->host_addr!=0,"dev->host_addr can not be null\n");
 	entry->gvpa  = map->vaddr;
 	entry->gppa  = map->paddr;
 	entry->hpa   = dev->host_addr + (map->paddr - dev->phys_addr);
@@ -1190,7 +1190,7 @@ mips_mts32_map(cpu_mips_t *cpu,u_int op_type,mts_map_t *map,
 	entry->dirty_bit=map->dirty;
 	entry->mapped=map->mapped;
 	return entry;
-		}
+}
 
 /* MTS lookup */
 static void *mips_mts32_lookup(cpu_mips_t *cpu,m_va_t vaddr)

@@ -276,7 +276,8 @@ vm_instance_t *create_instance(char *configure_filename)
 		fprintf(stderr,"PAVO : unable to create VM instance!\n");
 		goto err_vm;
 	}
-
+   free(name);
+   
 	if (configure_filename!=NULL)
 		pavo->vm->configure_filename=strdup(configure_filename);
 	pavo_init_defaults(pavo);
@@ -291,6 +292,7 @@ vm_instance_t *create_instance(char *configure_filename)
 
 
 	err_vm:
+	free(name);
 	free(pavo);
 	return NULL;
 

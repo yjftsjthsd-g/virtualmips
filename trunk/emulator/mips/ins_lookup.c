@@ -448,7 +448,7 @@ static insn_lookup_t *ilt_cache_load(char *table_name)
 	}
 
 	ilt = ilt_load_table(fd);
-
+   free(filename);
 	fclose(fd);
 	return ilt;
 }

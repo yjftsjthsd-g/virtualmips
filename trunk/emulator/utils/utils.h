@@ -310,7 +310,7 @@ void mem_dump(FILE *f_output,u_char *pkt,u_int len);
 void m_flog(FILE *fd,char *module,char *fmt,va_list ap);
 
 /* Logging function */
-void m_log(char *module,char *fmt,...);
+//void m_log(char *module,char *fmt,...);
 
 /* Returns a line from specified file (remove trailing '\n') */
 char *m_fgets(char *buffer,int size,FILE *fd);
