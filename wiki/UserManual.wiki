@@ -203,6 +203,10 @@ Enter 'help' for a list of built-in commands.
 / #
 }}}
 
+= How to stop emulation =
+
+press *CTRL+\* to stop emulation. CTRL+C is sent to guest.
+
 = Links =
  * [KernelForADM5120 Build linux kernel for ADM5120]
  * [gdbinterface how to use gdb to debug kernel]
