@@ -56,6 +56,13 @@ void dev_jz4740_rtc_init_defaultvalue()
 jz4740_rtc_table[RTC_RCR/4] |= 0x80;
     
 }
+
+void dev_jz4740_rtc_reset(cpu_mips_t *cpu,struct vdevice *dev)
+{
+  dev_jz4740_rtc_init_defaultvalue();
+}
+
+
 int dev_jz4740_rtc_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len)
 {
  	struct jz4740_rtc_data *d;
@@ -75,6 +82,7 @@ int dev_jz4740_rtc_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len
    d->jz4740_rtc_ptr = (m_uint8_t*)(&jz4740_rtc_table[0]);
    d->jz4740_rtc_size = len;
    d->dev->handler   = dev_jz4740_rtc_access;
+    d->dev->reset_handler   = dev_jz4740_rtc_reset;
    d->dev->flags     = VDEVICE_FLAG_NO_MTS_MMAP;
    
 	vm_bind_device(vm,d->dev);

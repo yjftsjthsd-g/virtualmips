@@ -76,3 +76,9 @@ void forced_inline virtual_adm5120_timer(cpu_mips_t *cpu)
     }
 }
 
+void forced_inline virtual_timer(cpu_mips_t *cpu)
+{
+	virtual_adm5120_timer(cpu);
+}
+
+

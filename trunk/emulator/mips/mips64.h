@@ -333,7 +333,7 @@ enum {
 //typedef struct cpu_mips cpu_mips_t;
 
 /* Memory operation function prototype */
-typedef fastcall u_int (*mips_memop_fn)(cpu_mips_t *cpu,m_va_t vaddr,u_int reg);
+typedef    u_int (*mips_memop_fn)(cpu_mips_t *cpu,m_va_t vaddr,u_int reg);
 
 /* TLB entry definition */
 typedef struct {
@@ -377,6 +377,9 @@ struct cpu_mips {
 	pthread_t cpu_thread;
 	int cpu_thread_running;
 
+   /*when wdt reset cpu, this flag is set*/
+//	int reset_flag;
+
 
 	/* VM instance */
 	vm_instance_t *vm;
@@ -398,7 +401,7 @@ struct cpu_mips {
 	//void (*get_idling_pc)(cpu_mips_t *cpu);   
 	void (*mts_rebuild)(cpu_mips_t *cpu);
 	void (*mts_show_stats)(cpu_mips_t *cpu);
-	fastcall u_int (*mips_mts_gdb_lb)(cpu_mips_t *cpu,m_va_t vaddr,void * cur);
+	   u_int (*mips_mts_gdb_lb)(cpu_mips_t *cpu,m_va_t vaddr,void * cur);
 
 	/* Memory access log for fault debugging */
 	//u_int memlog_pos;
@@ -422,7 +425,7 @@ struct cpu_mips {
 	m_reg_t lo,hi;
 
 	/* Virtual address to physical page translation */
-	fastcall int (*translate)(cpu_mips_t *cpu,m_va_t vaddr,
+	   int (*translate)(cpu_mips_t *cpu,m_va_t vaddr,
 			m_uint32_t *phys_page);
 
 	/* Memory access functions */
@@ -490,12 +493,12 @@ int mips64_load_elf_image(cpu_mips_t *cpu,char *filename,
 void mips64_delete(cpu_mips_t *cpu);
 int mips64_update_irq_flag(cpu_mips_t *cpu);
 void mips64_trigger_exception(cpu_mips_t *cpu,u_int exc_code,int bd_slot);
-fastcall void mips64_exec_soft_fpu(cpu_mips_t *cpu);
-fastcall void mips64_exec_eret(cpu_mips_t *cpu);
-fastcall void mips64_exec_break(cpu_mips_t *cpu,u_int code);
-fastcall void mips64_trigger_trap_exception(cpu_mips_t *cpu);
-fastcall void mips64_exec_syscall(cpu_mips_t *cpu);
-fastcall void  mips64_trigger_irq(cpu_mips_t *cpu);
+   void mips64_exec_soft_fpu(cpu_mips_t *cpu);
+   void mips64_exec_eret(cpu_mips_t *cpu);
+   void mips64_exec_break(cpu_mips_t *cpu,u_int code);
+   void mips64_trigger_trap_exception(cpu_mips_t *cpu);
+   void mips64_exec_syscall(cpu_mips_t *cpu);
+   void  mips64_trigger_irq(cpu_mips_t *cpu);
 void mips64_set_irq(cpu_mips_t *cpu,m_uint8_t irq);
 void mips64_clear_irq(cpu_mips_t *cpu,m_uint8_t irq);
 

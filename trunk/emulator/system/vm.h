@@ -86,6 +86,8 @@ struct vm_instance {
 
 
 
+
+
    /* Console  VTTY type and parameters */
    int vtty_con1_type,vtty_con2_type;
    int vtty_con1_tcp_port,vtty_con2_tcp_port;
@@ -127,6 +129,7 @@ int vm_suspend(vm_instance_t *vm);
 int vm_resume(vm_instance_t *vm);
 int vm_stop(vm_instance_t *vm);
 void vm_monitor(vm_instance_t *vm);
+
 
 #endif
 

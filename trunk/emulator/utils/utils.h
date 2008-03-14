@@ -67,7 +67,6 @@
 #define unlikely(x)  (x)
 #endif
 
-#define fastcall 
 
 
 #define ASSERT(a,format,args...)  do{ if ((format!=NULL)&&(!(a)))   fprintf(stderr,format, ##args); assert((a));} while(0) 

@@ -32,9 +32,11 @@
 
 
 /*device handler */
-typedef void *(*dev_handler_t)(cpu_mips_t *cpu,vdevice_t *dev,
+typedef void* (*dev_handler_t)(cpu_mips_t *cpu,vdevice_t *dev,
 		m_uint32_t offset,u_int op_size,u_int op_type, 
 		m_reg_t *data, m_uint8_t *has_set_value);
+
+typedef void (*dev_reset_handler_t)(cpu_mips_t *cpu,vdevice_t *dev);
 
 /* Virtual Device */
 struct vdevice {
@@ -47,6 +49,7 @@ struct vdevice {
 	int flags;
 	int fd;
 	dev_handler_t handler;
+	dev_reset_handler_t reset_handler;
 	//m_iptr_t *sparse_map;
 	struct vdevice *next,**pprev;
 };
@@ -72,7 +75,7 @@ struct vdevice *dev_lookup(vm_instance_t *vm,m_pa_t phys_addr);
 void dev_init(struct vdevice *dev);
 struct vdevice *dev_create(char *name);
 struct vdevice *dev_create_ram(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
-
+void dev_reset_all(vm_instance_t *vm);
 
 #endif
 
