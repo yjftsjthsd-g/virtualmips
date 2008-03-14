@@ -412,7 +412,7 @@ int dev_jz4740_gpio_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t le
    d->dev->flags     = VDEVICE_FLAG_NO_MTS_MMAP;
    
 	vm_bind_device(vm,d->dev);
-	dev_jz4740_gpio_init_defaultvalue();
+	//dev_jz4740_gpio_init_defaultvalue();
 	
 	return  (0);
 
