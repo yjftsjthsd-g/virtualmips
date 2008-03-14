@@ -96,7 +96,9 @@ typedef struct adm5120_system adm5120_t;
 
 vm_instance_t *create_instance(char *conf);
 int init_instance(vm_instance_t *vm);
-void  virtual_timer(cpu_mips_t *cpu);
+
+void virtual_timer(cpu_mips_t *cpu);
+
 
 
 
