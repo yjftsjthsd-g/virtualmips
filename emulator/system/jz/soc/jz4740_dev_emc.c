@@ -26,6 +26,8 @@
 
 
  m_uint32_t jz4740_emc_table[JZ4740_EMC_INDEX_MAX];
+m_uint32_t emc_sdram0;/*configure register for sdram0*/
+/*In order to save space, set emc sdram0  seperately.*/
 
 struct jz4740_emc_data {
    struct vdevice *dev;
@@ -39,7 +41,12 @@ void *dev_jz4740_emc_access(cpu_mips_t *cpu,struct vdevice *dev,
 {
 
 	struct jz4740_emc_data *d = dev->priv_data;
-	if (offset >= d->jz4740_emc_size) {
+
+    /*EMC SDRAM0 is in seperate space*/
+    if (offset==EMC_SDMR0)
+      return (void *)(&emc_sdram0);
+	 
+	if ((offset >= d->jz4740_emc_size)) {
       *data = 0;
       return NULL;
    }
@@ -51,7 +58,8 @@ void *dev_jz4740_emc_access(cpu_mips_t *cpu,struct vdevice *dev,
     {
       jz4740_emc_table[EMC_NFINTS/4] |= 0xc;
     }
-  return((void *)(d->jz4740_emc_ptr + offset));
+ 
+    return((void *)(d->jz4740_emc_ptr + offset));
 
 }
 
@@ -65,6 +73,13 @@ void dev_jz4740_emc_init_defaultvalue()
 #endif
     
 }
+
+void dev_jz4740_emc_reset(cpu_mips_t *cpu,struct vdevice *dev)
+{
+  dev_jz4740_emc_init_defaultvalue();
+}
+
+
 int dev_jz4740_emc_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len)
 {
  	struct jz4740_emc_data *d;
@@ -84,6 +99,7 @@ int dev_jz4740_emc_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len
    d->jz4740_emc_ptr = (m_uint8_t*)(&jz4740_emc_table[0]);
    d->jz4740_emc_size = len;
    d->dev->handler   = dev_jz4740_emc_access;
+   d->dev->reset_handler   = dev_jz4740_emc_reset;
    d->dev->flags     = VDEVICE_FLAG_NO_MTS_MMAP;
    
 	vm_bind_device(vm,d->dev);

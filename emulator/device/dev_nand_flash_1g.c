@@ -480,6 +480,15 @@ err_flash_map_create:
 	
 }
 
+void dev_nand_flash_1g_reset(cpu_mips_t *cpu,struct vdevice *dev)
+{
+  nand_flash_1g_data_t *d = dev->priv_data;
+  memset(d->fake_block,0xff,NAND_FLASH_1G_BLOCK_SIZE);
+  d->state=STATE_INIT;
+  memset(d->write_buffer,0xff,NAND_FLASH_1G_PAGE_SIZE);
+  
+}
+
 int dev_nand_flash_1g_init(vm_instance_t *vm,char *name,m_pa_t phys_addr,m_uint32_t phys_len,nand_flash_1g_data_t **nand_flash)
 {
 	
@@ -508,6 +517,7 @@ int dev_nand_flash_1g_init(vm_instance_t *vm,char *name,m_pa_t phys_addr,m_uint3
 		goto err_dev_create;
 	d->dev->priv_data = d;
 	d->dev->handler   = dev_nand_flash_1g_access;
+	d->dev->reset_handler   = dev_nand_flash_1g_reset;
 	/*NAND COMMPORT AND DATA PORT ADDRESS*/
 	d->dev->phys_addr =phys_addr;
 	d->dev->phys_len  = phys_len;

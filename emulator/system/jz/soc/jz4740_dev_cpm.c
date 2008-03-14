@@ -56,6 +56,12 @@ void dev_jz4740_cpm_init_defaultvalue()
 {
 
 }
+void dev_jz4740_cpm_reset(cpu_mips_t *cpu,struct vdevice *dev)
+{
+  dev_jz4740_cpm_init_defaultvalue();
+}
+
+
 int dev_jz4740_cpm_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len)
 {
  	struct jz4740_cpm_data *d;
@@ -75,6 +81,8 @@ int dev_jz4740_cpm_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len
    d->jz4740_cpm_ptr = (m_uint8_t*)(&jz4740_cpm_table[0]);
    d->jz4740_cpm_size = len;
    d->dev->handler   = dev_jz4740_cpm_access;
+   d->dev->reset_handler   = dev_jz4740_cpm_reset;
+   
    d->dev->flags     = VDEVICE_FLAG_NO_MTS_MMAP;
    
 	vm_bind_device(vm,d->dev);

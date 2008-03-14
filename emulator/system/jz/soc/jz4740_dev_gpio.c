@@ -381,6 +381,14 @@ void dev_jz4740_gpio_init_defaultvalue()
   //jz4740_gpio_table[GPIO_PXPIN(2)/4]=0x40000000;
   
 }
+
+
+
+void dev_jz4740_gpio_reset(cpu_mips_t *cpu,struct vdevice *dev)
+{
+  dev_jz4740_gpio_init_defaultvalue();
+}
+
 int dev_jz4740_gpio_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len)
 {
  	struct jz4740_gpio_data *d;
@@ -400,6 +408,7 @@ int dev_jz4740_gpio_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t le
    d->jz4740_gpio_ptr = (m_uint8_t*)(&jz4740_gpio_table[0]);
    d->jz4740_gpio_size = len;
    d->dev->handler   = dev_jz4740_gpio_access;
+   d->dev->reset_handler   = dev_jz4740_gpio_reset;
    d->dev->flags     = VDEVICE_FLAG_NO_MTS_MMAP;
    
 	vm_bind_device(vm,d->dev);

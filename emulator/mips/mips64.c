@@ -436,7 +436,7 @@ void mips64_trigger_exception(cpu_mips_t *cpu,u_int exc_code,int bd_slot)
 
 
 /* Execute fpu instruction */
-fastcall void mips64_exec_soft_fpu(cpu_mips_t *cpu)
+   void mips64_exec_soft_fpu(cpu_mips_t *cpu)
 {
 	mips_cp0_t *cp0 = &cpu->cp0;
 	cp0->reg[MIPS_CP0_CAUSE] |= 0x10000000; //CE=1
@@ -448,7 +448,7 @@ fastcall void mips64_exec_soft_fpu(cpu_mips_t *cpu)
 }
 
 /* Execute ERET instruction */
-fastcall void mips64_exec_eret(cpu_mips_t *cpu)
+   void mips64_exec_eret(cpu_mips_t *cpu)
 {
 	mips_cp0_t *cp0 = &cpu->cp0;
 
@@ -468,7 +468,7 @@ fastcall void mips64_exec_eret(cpu_mips_t *cpu)
 }
 
 /* Execute BREAK instruction */
-fastcall void mips64_exec_break(cpu_mips_t *cpu,u_int code)
+   void mips64_exec_break(cpu_mips_t *cpu,u_int code)
 {
 	mips64_dump_regs(cpu);
 	printf("exec break cpu->pc %x\n",cpu->pc);
@@ -478,7 +478,7 @@ fastcall void mips64_exec_break(cpu_mips_t *cpu,u_int code)
 
 }
 /* Trigger a Trap Exception */
-fastcall void mips64_trigger_trap_exception(cpu_mips_t *cpu)
+   void mips64_trigger_trap_exception(cpu_mips_t *cpu)
 {  
 	/* XXX TODO: Branch Delay slot */
 	printf("MIPS64: TRAP exception, CPU=%p\n",cpu);
@@ -486,7 +486,7 @@ fastcall void mips64_trigger_trap_exception(cpu_mips_t *cpu)
 }
 
 /* Execute SYSCALL instruction */
-fastcall void mips64_exec_syscall(cpu_mips_t *cpu)
+   void mips64_exec_syscall(cpu_mips_t *cpu)
 {
 #if DEBUG_SYSCALL
 	printf("MIPS: SYSCALL at PC=0x%"LL"x (RA=0x%"LL"x)\n"
@@ -504,7 +504,7 @@ fastcall void mips64_exec_syscall(cpu_mips_t *cpu)
 }
 
 /* Trigger IRQs */
-fastcall void forced_inline mips64_trigger_irq(cpu_mips_t *cpu)
+   void forced_inline mips64_trigger_irq(cpu_mips_t *cpu)
 {
 	if (mips64_update_irq_flag(cpu))
 		mips64_trigger_exception(cpu,MIPS_CP0_CAUSE_INTERRUPT,0);

@@ -18,19 +18,7 @@
 #define PAVO_DEFAULT_KERNEL_FILENAME     "vmlinux"
 #define PAVO_ADDR_BUS_MASK   0xffffffff   /*32bit phy address*/
 
-#define PAVO_CONFIG0  0x80000082
-#define PAVO_CONFIG1 0x3E613080  /*CACHE (128SET*32 BYTES*2 WAY)= 8K*/
-#define PAVO_CONFIG7 0x0              
 
-
-//#define SOC_CONFIG0 PAVO_CONFIG0
-//#define SOC_CONFIG1 PAVO_CONFIG1
-//#define SOC_CONFIG7 PAVO_CONFIG7
-
-
-#define PAVO_ROM_PC  0x80000004
-#define PAVO_PRID    0x0001800b  
-#define PAVO_DEFAULT_TLB_ENTRYNO   16  /*16 pairs*/
 
 
 struct pavo_system {
@@ -49,5 +37,6 @@ typedef struct pavo_system pavo_t;
 vm_instance_t *create_instance(char *conf);
 int init_instance(vm_instance_t *vm);
 void  virtual_timer(cpu_mips_t *cpu);
+int pavo_reset(vm_instance_t *vm);
 
 #endif

@@ -238,6 +238,22 @@ void dev_jz4740_uart_init_defaultvalue(int uart_index)
 
 }
 
+
+void dev_jz4740_uart_reset(cpu_mips_t *cpu,struct vdevice *dev,int uart_index)
+{
+  dev_jz4740_uart_init_defaultvalue(uart_index);
+}
+
+void dev_jz4740_uart_reset0(cpu_mips_t *cpu,struct vdevice *dev)
+{
+  dev_jz4740_uart_init_defaultvalue(0);
+}
+void dev_jz4740_uart_reset1(cpu_mips_t *cpu,struct vdevice *dev)
+{
+  dev_jz4740_uart_init_defaultvalue(1);
+}
+
+
 void *dev_jz4740_uart_access0(cpu_mips_t *cpu,struct vdevice *dev,
                      m_uint32_t offset,u_int op_size,u_int op_type,
                      m_reg_t *data,m_uint8_t *has_set_value)
@@ -274,11 +290,13 @@ int dev_jz4740_uart_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t le
    if (uart_index==0)
     {
       d->dev->handler   = dev_jz4740_uart_access0;
+      d->dev->reset_handler   = dev_jz4740_uart_reset0;
       (*d).vtty->read_notifier = jz4740_tty_con0_input;
    }
    else   if (uart_index==1)
     {
       d->dev->handler   = dev_jz4740_uart_access1;
+       d->dev->reset_handler   = dev_jz4740_uart_reset1;
       (*d).vtty->read_notifier = jz4740_tty_con1_input;
     }
    else 
@@ -286,10 +304,13 @@ int dev_jz4740_uart_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t le
       ASSERT(0,"We only emulate 2 UART in JZ4740\n");
     }
 
+   
+
     d->jz4740_uart_ptr = (m_uint8_t*)(m_iptr_t)(&jz4740_uart_table[uart_index]);
       
 	vm_bind_device(vm,d->dev);
-	dev_jz4740_uart_init_defaultvalue(uart_index);
+	//dev_jz4740_uart_init_defaultvalue(uart_index);
+	
 
    d->tid = ptask_add((ptask_callback)jz4740_tty_trigger_dummy_irq,d,NULL);
 	return  (0);

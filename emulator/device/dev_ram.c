@@ -25,6 +25,13 @@ struct ram_data {
 	struct vdevice *dev;
 };
 
+void dev_ram_reset(cpu_mips_t *cpu,struct vdevice *dev)
+{
+   assert(dev->host_addr!=0);
+   /*reset ram*/
+   memset((unsigned char *)dev->host_addr,0x0,dev->phys_len);
+   
+}
 
 /* Initialize a RAM zone */
 int dev_ram_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len)
@@ -44,6 +51,7 @@ int dev_ram_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len)
 		goto err_dev_create;
 	}
    d->dev->priv_data = d;   
+   d->dev->reset_handler=dev_ram_reset;
 	return(0);
 
 	err_dev_create:

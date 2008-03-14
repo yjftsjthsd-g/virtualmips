@@ -105,6 +105,18 @@ void dev_init(struct vdevice *dev)
 	dev->fd = -1;
 }
 
+/* reset all devices */
+void dev_reset_all(vm_instance_t *vm)
+{
+	struct vdevice *dev;
+	for(dev=vm->dev_list;dev;dev=dev->next)
+	  {
+	    ASSERT(dev->reset_handler!=NULL,"reset_handler is NULL. name %s\n",dev->name);
+	    dev->reset_handler(vm->boot_cpu,dev);
+	  }
+}
+
+
 /* Allocate a device */
 struct vdevice *dev_create(char *name)
 {
@@ -217,6 +229,7 @@ struct vdevice *dev_create_ram(vm_instance_t *vm,char *name,
 	dev->phys_len = len;
 	//dev->flags = VDEVICE_FLAG_CACHING;
 	dev->host_addr = (m_iptr_t)m_memalign(4096,dev->phys_len);
+	
 	if (!dev->host_addr) {
 		free(dev);
 		return NULL;

@@ -88,11 +88,9 @@ else
       default:
         assert(0);
     }
+ 
    switch(offset)
-    {
-
-    
-         
+    {      
       case TCU_TSSR:  /*set*/
          
           assert (op_type==MTS_WRITE);
@@ -167,6 +165,12 @@ jz4740_wdt_tcu_table[TCU_TSR/4]=0XFFFFFFFF;
 
 
 }
+
+void dev_jz4740_wdt_tcu_reset(cpu_mips_t *cpu,struct vdevice *dev)
+{
+    dev_jz4740_wdt_tcu_init_defaultvalue();
+}
+
 int dev_jz4740_wdt_tcu_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len)
 {
  	struct jz4740_wdt_tcu_data *d;
@@ -186,10 +190,11 @@ int dev_jz4740_wdt_tcu_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t
    d->jz4740_wdt_tcu_ptr = (m_uint8_t*)(&jz4740_wdt_tcu_table[0]);
    d->jz4740_wdt_tcu_size = len;
    d->dev->handler   = dev_jz4740_wdt_tcu_access;
+   d->dev->reset_handler   = dev_jz4740_wdt_tcu_reset;
    d->dev->flags     = VDEVICE_FLAG_NO_MTS_MMAP;
    
 	vm_bind_device(vm,d->dev);
-	dev_jz4740_wdt_tcu_init_defaultvalue();
+	//dev_jz4740_wdt_tcu_init_defaultvalue();
 	
 	return  (0);
 
@@ -219,18 +224,60 @@ if (jz4740_wdt_tcu_table[TCU_TER/4]&0x01)
   past_instructions++;
   if (past_instructions==COUNT_PER_INSTRUCTION)
     {
-      jz4740_wdt_tcu_table[TCU_TCNT0/4] +=1 ;
-      past_instructions=0;
-      /*TODO: INTERRUPT*/
+      jz4740_wdt_tcu_table[TCU_TCNT0/4] +=1;
+       /*TODO: INTERRUPT*/
+       past_instructions=0;
+       /*count is 16 bit*/
+      if (jz4740_wdt_tcu_table[TCU_TCNT0/4]&0xffff0000)
+        jz4740_wdt_tcu_table[TCU_TCNT0/4]=0;
+     
+     
     }
 }
 
   
 }
 
+m_uint32_t   wdt_past_instructions=0;
+
+void forced_inline virtual_jz4740_wdt(cpu_mips_t *cpu)
+{
+
+if (likely(jz4740_wdt_tcu_table[TCU_TSR/4]&WDT_TIMER_STOP))
+{
+  return;
+}
+
+if (jz4740_wdt_tcu_table[WDT_TCER/4]&0x01)
+{
+
+  wdt_past_instructions++;
+  if (wdt_past_instructions>=COUNT_PER_INSTRUCTION)
+    {
+      jz4740_wdt_tcu_table[WDT_TCNT/4] +=1;
+      past_instructions=0;
+      if (jz4740_wdt_tcu_table[WDT_TCNT/4]&0xffff0000)
+        jz4740_wdt_tcu_table[WDT_TCNT/4]=0;
+      //cpu_log(cpu,"","jz4740_wdt_tcu_table[WDT_TDR/4] %x jz4740_wdt_tcu_table[WDT_TCNT/4] %x\n",jz4740_wdt_tcu_table[WDT_TDR/4],jz4740_wdt_tcu_table[WDT_TCNT/4]);
+
+     if (jz4740_wdt_tcu_table[WDT_TCNT/4]>=jz4740_wdt_tcu_table[WDT_TDR/4])
+      {
+        /*RESET soc*/
+        cpu_stop(cpu);
+        cpu->cpu_thread_running=FALSE;
+        jz4740_reset(cpu->vm);
+ 
+      }
+    }
+
+  
+}
+
+}
 void forced_inline virtual_timer(cpu_mips_t *cpu)
 {
 	virtual_jz4740_timer(cpu);
+	virtual_jz4740_wdt(cpu);
 }
 
 

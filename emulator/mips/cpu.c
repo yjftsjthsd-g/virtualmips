@@ -28,7 +28,7 @@
 
 
 
-#define LOG_ENABLE 0
+#define LOG_ENABLE 1
 /* Log a message for a CPU */
 void cpu_log(cpu_mips_t *cpu,char *module,char *format,...)
 {
@@ -223,7 +223,6 @@ static int cpu_group_check_activity(cpu_group_t *group)
 	for(cpu=group->cpu_list;cpu;cpu=cpu->next) {
 		if (!cpu->cpu_thread_running)
 			continue;
-
 		if ((cpu->state == CPU_STATE_RUNNING) || !cpu->seq_state)
 			return(FALSE);
 	}

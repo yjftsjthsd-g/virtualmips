@@ -63,6 +63,20 @@ typedef m_uint32_t m_cp0_reg_t;
 #define vmtoh64(x) (swap64(x))
 #endif
 
+#define JZ4740_CONFIG0  0x80000082
+#define JZ4740_CONFIG1 0x3E613080  /*CACHE (128SET*32 BYTES*2 WAY)= 8K*/
+#define JZ4740_CONFIG7 0x0              
+
+
+
+
+
+#define JZ4740_ROM_PC  0x80000004
+#define JZ4740_PRID    0x0001800b  
+#define JZ4740_DEFAULT_TLB_ENTRYNO   16  /*16 pairs*/
+
+
+
 
 /*------------------------REG DEFINE---------------------------------*/
 #define NAND_DATAPORT	0x18000000
@@ -221,10 +235,12 @@ typedef m_uint32_t m_cp0_reg_t;
 #define EMC_RTCNT       ( 0x88)  /* Refresh Timer Counter */
 #define EMC_RTCOR       ( 0x8c)  /* Refresh Time Constant Register */
 #define EMC_DMAR0       ( 0x90)  /* SDRAM Bank 0 Addr Config Register */
+
+
 #define EMC_SDMR0       ( 0xa000) /* Mode Register of SDRAM bank 0 */
 /*has other register*/
 
-#define JZ4740_EMC_INDEX_MAX 0x2809 /*0xa024/4*/
+#define JZ4740_EMC_INDEX_MAX 0x4b /*0x128/4*/
 
 
 
@@ -255,6 +271,7 @@ typedef m_uint32_t m_cp0_reg_t;
 #define WDT_TCER        ( 0x04)
 #define WDT_TCNT        ( 0x08)
 #define WDT_TCSR        ( 0x0C)
+
 
 /*************************************************************************
  * TCU (Timer Counter Unit)
@@ -296,8 +313,13 @@ typedef m_uint32_t m_cp0_reg_t;
 #define TCU_TCNT5	( 0x98)
 #define TCU_TCSR5	( 0x9C)
 
-
+#define  WDT_TIMER_STOP  0x10000
 #define JZ4740_WDT_INDEX_MAX 0x28  /*0xa0/4*/
+
+
+
+int jz4740_boot_from_nandflash(vm_instance_t *vm);
+int jz4740_reset(vm_instance_t *vm);
 
 #endif
 
