@@ -1,0 +1,4 @@
+#summary Screen shot of VirtualMIPS
+
+= 1. pave board of u-boot =
+[http://virtualmips.googlepages.com/Screenshot-Terminal-1.png]
