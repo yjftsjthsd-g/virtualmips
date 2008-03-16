@@ -1,5 +1,4 @@
 #summary Screen shot of VirtualMIPS
-#labels Deprecated
 
 == pave board of u-boot ==
 [http://virtualmips.googlepages.com/Screenshot-Terminal-1.png]
