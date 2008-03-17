@@ -1,5 +1,4 @@
 #summary What's going on next.
-#labels Featured
 
 = Todo List =
 
