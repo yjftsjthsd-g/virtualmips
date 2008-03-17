@@ -1,4 +1,4 @@
-# Index page of wiki
+#Summary Index page of wiki
 
 === VirtualMIPS ===
 
