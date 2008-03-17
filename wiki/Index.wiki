@@ -15,4 +15,4 @@
  # [screenshot Screenshot of VirtualMIPS]
  # [ChangeLog ChangeLog of VirtualMIPS]
  # [todolist Todolist of VirtualMIPS]
- # [DevelopersAndContributors Developers and contributors]
+ # [DevelopersAndContributors Developers and Contributors]
