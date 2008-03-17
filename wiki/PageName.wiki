@@ -3,7 +3,7 @@
 = Introduction =
 
 Add your content here.
-[3.jpg]
+[666]
 
 = Details =
 
