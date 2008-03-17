@@ -1,8 +1,8 @@
 #summary Source code of VirtualMIPS
 
 === v0.02-RC1 ===
- * [http://virtualmips.googlecode.com/files/virtualmips-V0.02-RC1.tar.bz2 virtualmips-V0.02-RC1.tar.bz2]:Source code of VirtualMIPS v0.02-RC1.
- * [http://virtualmips.googlecode.com/files/virtualmips-V0.02-RC1-inline.patch virtualmips-V0.02-RC1-inline.patch]:patch for building VirtualMIPS using gcc 3.4
+ * [http://virtualmips.googlecode.com/files/virtualmips-V0.02-RC1-inline.patch virtualmips-V0.02-RC1-inline.patch]: patch for building VirtualMIPS-V0.02-RC1 using gcc 3.4
+ * [http://virtualmips.googlecode.com/files/virtualmips-V0.02-RC1.tar.bz2 virtualmips-V0.02-RC1.tar.bz2]: Source code of VirtualMIPS v0.02-RC1.
 
 
 === v0.01 ===
