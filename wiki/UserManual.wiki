@@ -1,5 +1,4 @@
 #summary How to build and run VirtualMIPS
-#labels Featured
 
 = How to build VirtualMIPS =
 -----
