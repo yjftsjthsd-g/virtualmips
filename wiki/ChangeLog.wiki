@@ -1,5 +1,4 @@
 #summary ChangeLog of VirtualMIPS
-#labels Featured
 
 = 2008-03-11 =
 
