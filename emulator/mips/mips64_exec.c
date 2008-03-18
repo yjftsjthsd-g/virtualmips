@@ -1986,6 +1986,23 @@ static    int mips64_exec_TLBWR(cpu_mips_t *cpu,mips_insn_t insn)
 	return(0);
 }
 
+/* TLBWR */
+static  int mips64_exec_TNE(cpu_mips_t *cpu,mips_insn_t insn)
+{
+	int rs = bits(insn,21,25);
+	int rt = bits(insn,16,20);
+
+	if ((m_ireg_t)cpu->gpr[rs]!=(m_ireg_t)cpu->gpr[rt])
+	  {
+	    /*take a trap*/
+	    mips64_trigger_trap_exception(cpu);
+	    return (1);
+	  }
+	else
+	  return(0);
+}
+
+
 
 /* wait */
 static    int mips64_exec_WAIT(cpu_mips_t *cpu,mips_insn_t insn)
@@ -2321,6 +2338,7 @@ static struct mips64_insn_exec_tag mips64_exec_tags[] = {
 		{ "tlbr"   , mips64_exec_TLBR    , 0xffffffff , 0x42000001, 1, 1 },
 		{ "tlbwi"  , mips64_exec_TLBWI   , 0xffffffff , 0x42000002, 1, 1 },
 		{ "tlbwr"  , mips64_exec_TLBWR   , 0xffffffff , 0x42000006, 1, 1 },
+       { "tne"  , mips64_exec_TNE   , 0xfc00003f , 0x00000036, 1, 1 },
 		{ "wait"    , mips64_exec_WAIT     , 0xfc00003f , 0x40000020, 1, 3 },
 		{ "xor"    , mips64_exec_XOR     , 0xfc0007ff , 0x00000026, 1, 3 },
 		{ "xori"   , mips64_exec_XORI    , 0xfc000000 , 0x38000000, 1, 5 },
