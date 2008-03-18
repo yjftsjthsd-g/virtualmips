@@ -3,8 +3,10 @@
 
 all:mknandflash
 
-mknandflash:
-	gcc -o mknandflash mknandflash.c
+mknandflash.o:mknandflash.c
+	gcc -c -g mknandflash.c
+mknandflash:mknandflash.o
+	gcc -o mknandflash mknandflash.o -L. libconfuse.a
 	
 clean:
-	rm -f mknandflash
+	rm -f mknandflash mknandflash.o
