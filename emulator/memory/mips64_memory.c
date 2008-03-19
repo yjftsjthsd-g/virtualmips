@@ -2568,3 +2568,65 @@ int mips_set_addr_mode(cpu_mips_t *cpu,u_int addr_mode)
 
 
 
+/*------------------DMA------------------------*/
+
+
+
+/* Get host pointer for the physical address */
+void *physmem_get_hptr(vm_instance_t *vm,m_pa_t paddr,
+                                     u_int op_size,u_int op_type,
+                                     m_uint32_t *data)
+{
+   struct vdevice *dev;
+   m_uint32_t offset;
+
+   m_uint8_t has_set_value;
+
+   if (!(dev = dev_lookup(vm,paddr)))
+      return NULL;
+
+   if ((dev->host_addr != 0) && !(dev->flags & VDEVICE_FLAG_NO_MTS_MMAP))
+      return((void *)dev->host_addr + (paddr - dev->phys_addr));
+
+   if (op_size == 0)
+      return NULL;
+
+   ASSERT(0,"physmem_get_hptr error\n");
+   offset = paddr - dev->phys_addr;
+   return(dev->handler(vm->boot_cpu,dev,offset,op_size,op_type,data,&has_set_value));
+}
+
+/* DMA transfer operation */
+void physmem_dma_transfer(vm_instance_t *vm,m_pa_t src,m_pa_t dst,
+                          size_t len)
+{
+   m_uint32_t dummy;
+   u_char *sptr,*dptr;
+   size_t clen,sl,dl;
+
+   while(len > 0) {
+      sptr = physmem_get_hptr(vm,src,0,MTS_READ,&dummy);
+      dptr = physmem_get_hptr(vm,dst,0,MTS_WRITE,&dummy);
+
+      if (!sptr || !dptr) {
+         vm_log(vm,"DMA","unable to transfer from 0x%"LL"x to 0x%"LL"x\n",src,dst);
+         ASSERT(0,"physmem_dma_transfer src %x dst %x\n",src,dst);
+         return;
+      }
+
+      sl = VM_PAGE_SIZE - (src & VM_PAGE_IMASK);
+      dl = VM_PAGE_SIZE - (dst & VM_PAGE_IMASK);
+      clen = m_min(sl,dl);
+      clen = m_min(clen,len);
+
+      memcpy(dptr,sptr,clen);
+
+      src += clen;
+      dst += clen;
+      len -= clen;
+   }
+}
+
+
+
+

@@ -28,7 +28,7 @@ TODO:
 #include "cpu.h"
 #include "jz4740.h"
 
-
+#define  VALIDE_WDT_TCU_OPERATION 1
 
  m_uint32_t jz4740_wdt_tcu_table[JZ4740_WDT_INDEX_MAX];
 
@@ -53,6 +53,7 @@ void *dev_jz4740_wdt_tcu_access(cpu_mips_t *cpu,struct vdevice *dev,
       return NULL;
    }
 
+#if  VALIDE_WDT_TCU_OPERATION
 if (op_type==MTS_WRITE)
 	  {
         ASSERT(offset!=TCU_TSR,"Write to read only register in TCU. offset %x\n",offset);
@@ -73,7 +74,7 @@ else if (op_type==MTS_READ)
 }
 else
   assert(0);
-
+#endif
  switch (op_size)
       {
       case 1:
@@ -161,8 +162,25 @@ void dev_jz4740_wdt_tcu_init_defaultvalue()
 {
 
 /*set TCU_TSR=0xffffffff*/
-jz4740_wdt_tcu_table[TCU_TSR/4]=0XFFFFFFFF;
+//jz4740_wdt_tcu_table[TCU_TSR/4]=0XFFFFFFFF;
 
+jz4740_wdt_tcu_table[TCU_TDFR0/4]=0XFFFF;
+jz4740_wdt_tcu_table[TCU_TDHR0/4]=0XFFFe;
+
+jz4740_wdt_tcu_table[TCU_TDFR1/4]=0XFFFF;
+jz4740_wdt_tcu_table[TCU_TDHR1/4]=0XFFFe;
+
+jz4740_wdt_tcu_table[TCU_TDFR2/4]=0XFFFF;
+jz4740_wdt_tcu_table[TCU_TDHR2/4]=0XFFFe;
+
+jz4740_wdt_tcu_table[TCU_TDFR3/4]=0XFFFF;
+jz4740_wdt_tcu_table[TCU_TDHR3/4]=0XFFFe;
+
+jz4740_wdt_tcu_table[TCU_TDFR4/4]=0XFFFF;
+jz4740_wdt_tcu_table[TCU_TDHR4/4]=0XFFFe;
+
+jz4740_wdt_tcu_table[TCU_TDFR5/4]=0XFFFF;
+jz4740_wdt_tcu_table[TCU_TDHR5/4]=0XFFFe;
 
 }
 
@@ -213,11 +231,11 @@ m_uint32_t   past_instructions=0;
 /*JUST TIMER 0*/
 void forced_inline virtual_jz4740_timer(cpu_mips_t *cpu)
 {
-  
-  if (jz4740_wdt_tcu_table[TCU_TSR/4]&0x01)
-    {
+
+ if (jz4740_wdt_tcu_table[TCU_TSR/4]&0x01)
+ {
     return;
-    }
+ }
 if (jz4740_wdt_tcu_table[TCU_TER/4]&0x01)
 {
   //allow counter
@@ -225,12 +243,22 @@ if (jz4740_wdt_tcu_table[TCU_TER/4]&0x01)
   if (past_instructions==COUNT_PER_INSTRUCTION)
     {
       jz4740_wdt_tcu_table[TCU_TCNT0/4] +=1;
-       /*TODO: INTERRUPT*/
+      if (jz4740_wdt_tcu_table[TCU_TCNT0/4] ==jz4740_wdt_tcu_table[TCU_TDHR0/4] )
+        {
+          /*set TFR*/
+          jz4740_wdt_tcu_table[TCU_TFR/4] |=1<<16;
+          if (jz4740_wdt_tcu_table[TCU_TMR/4]&(1<<16) )
+            cpu->vm->set_irq(cpu->vm,IRQ_TCU0);
+        }
+      if (jz4740_wdt_tcu_table[TCU_TCNT0/4] ==jz4740_wdt_tcu_table[TCU_TDFR0/4] )
+        {
+          jz4740_wdt_tcu_table[TCU_TFR/4] |=1;
+          if (jz4740_wdt_tcu_table[TCU_TMR/4]&(0x1) )
+            cpu->vm->set_irq(cpu->vm,IRQ_TCU0);
+           jz4740_wdt_tcu_table[TCU_TCNT0/4]=0;
+        }
        past_instructions=0;
-       /*count is 16 bit*/
-      if (jz4740_wdt_tcu_table[TCU_TCNT0/4]&0xffff0000)
-        jz4740_wdt_tcu_table[TCU_TCNT0/4]=0;
-     
+    
      
     }
 }
