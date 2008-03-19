@@ -94,4 +94,9 @@ void mips_mem_shutdown(cpu_mips_t *cpu);
 /* Set the address mode */
 int mips_set_addr_mode(cpu_mips_t *cpu,u_int addr_mode);
 
+void physmem_dma_transfer(vm_instance_t *vm,m_pa_t src,m_pa_t dst,
+                          size_t len);
+void *physmem_get_hptr(vm_instance_t *vm,m_pa_t paddr,
+                                     u_int op_size,u_int op_type,
+                                     m_uint32_t *data);
 #endif

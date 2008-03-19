@@ -85,7 +85,11 @@ jz4740_uart_table[1][UART_LSR/4] |= UART_LSR_DRY;
 
 void jz4740_uart_set_interrupt(cpu_mips_t *cpu,int channel)
 {
-    /*TODO : SET INTERRUPT*/
+    printf("jz4740_uart_set_interrupt\n");
+    if (channel==0)
+      {
+        cpu->vm->set_irq(cpu->vm,IRQ_UART0);
+      }
 }
 
 static int  jz4740_tty_trigger_dummy_irq(struct jz4740_uart_data *d,void *arg)

@@ -24,6 +24,12 @@
 #include "system.h"
 #include "gdb_interface.h"
 
+#define VM_PAGE_SHIFT  12
+#define VM_PAGE_SIZE   (1 << VM_PAGE_SHIFT)
+#define VM_PAGE_IMASK  (VM_PAGE_SIZE - 1)
+#define VM_PAGE_MASK   (~(VM_PAGE_IMASK))
+
+
 /* Maximum number of devices per VM */
 #define VM_DEVICE_MAX  (1 << 6)
 /* VM types */

@@ -72,8 +72,8 @@ typedef m_uint32_t m_cp0_reg_t;
 
 
 #define JZ4740_ROM_PC  0x80000004
-#define JZ4740_PRID    0x0001800b  
-#define JZ4740_DEFAULT_TLB_ENTRYNO   16  /*16 pairs*/
+#define JZ4740_PRID    0x0ad0024f  /*jz4740 prid*/
+#define JZ4740_DEFAULT_TLB_ENTRYNO   32 /*32 pairs*/
 
 
 
@@ -296,7 +296,7 @@ typedef m_uint32_t m_cp0_reg_t;
 #define TCU_TDHR1	( 0x54)
 #define TCU_TCNT1	( 0x58)
 #define TCU_TCSR1	( 0x5C)
-#define TCU_TDFR2	(0x60)
+#define TCU_TDFR2	 (0x60)
 #define TCU_TDHR2	( 0x64)
 #define TCU_TCNT2	( 0x68)
 #define TCU_TCSR2	( 0x6C)
@@ -315,6 +315,226 @@ typedef m_uint32_t m_cp0_reg_t;
 
 #define  WDT_TIMER_STOP  0x10000
 #define JZ4740_WDT_INDEX_MAX 0x28  /*0xa0/4*/
+
+
+/*--------------DMA--------------------*/
+#define JZ4740_DMA_BASE 0x13020000
+#define JZ4740_DMA_SIZE  0x310
+#define MAX_DMA_NUM	6  /* max 6 channels */
+
+#define DMAC_DSAR(n)	( (0x00 + (n) * 0x20)) /* DMA source address */
+#define DMAC_DTAR(n)	( (0x04 + (n) * 0x20)) /* DMA target address */
+#define DMAC_DTCR(n)	( (0x08 + (n) * 0x20)) /* DMA transfer count */
+#define DMAC_DRSR(n)	( (0x0c + (n) * 0x20)) /* DMA request source */
+#define DMAC_DCCSR(n)	( (0x10 + (n) * 0x20)) /* DMA control/status */
+#define DMAC_DCMD(n)	( (0x14 + (n) * 0x20)) /* DMA command */
+#define DMAC_DDA(n)	( (0x18 + (n) * 0x20)) /* DMA descriptor address */
+#define DMAC_DMACR	( 0x0300)              /* DMA control register */
+#define DMAC_DMAIPR	( 0x0304)              /* DMA interrupt pending */
+#define DMAC_DMADBR	( 0x0308)              /* DMA doorbell */
+#define DMAC_DMADBSR	( 0x030C)              /* DMA doorbell set */
+
+// channel 0
+#define DMAC_DSAR0      DMAC_DSAR(0)
+#define DMAC_DTAR0      DMAC_DTAR(0)
+#define DMAC_DTCR0      DMAC_DTCR(0)
+#define DMAC_DRSR0      DMAC_DRSR(0)
+#define DMAC_DCCSR0     DMAC_DCCSR(0)
+#define DMAC_DCMD0	DMAC_DCMD(0)
+#define DMAC_DDA0	DMAC_DDA(0)
+
+// channel 1
+#define DMAC_DSAR1      DMAC_DSAR(1)
+#define DMAC_DTAR1      DMAC_DTAR(1)
+#define DMAC_DTCR1      DMAC_DTCR(1)
+#define DMAC_DRSR1      DMAC_DRSR(1)
+#define DMAC_DCCSR1     DMAC_DCCSR(1)
+#define DMAC_DCMD1	DMAC_DCMD(1)
+#define DMAC_DDA1	DMAC_DDA(1)
+
+// channel 2
+#define DMAC_DSAR2      DMAC_DSAR(2)
+#define DMAC_DTAR2      DMAC_DTAR(2)
+#define DMAC_DTCR2      DMAC_DTCR(2)
+#define DMAC_DRSR2      DMAC_DRSR(2)
+#define DMAC_DCCSR2     DMAC_DCCSR(2)
+#define DMAC_DCMD2	DMAC_DCMD(2)
+#define DMAC_DDA2	DMAC_DDA(2)
+
+// channel 3
+#define DMAC_DSAR3      DMAC_DSAR(3)
+#define DMAC_DTAR3      DMAC_DTAR(3)
+#define DMAC_DTCR3      DMAC_DTCR(3)
+#define DMAC_DRSR3      DMAC_DRSR(3)
+#define DMAC_DCCSR3     DMAC_DCCSR(3)
+#define DMAC_DCMD3	DMAC_DCMD(3)
+#define DMAC_DDA3	DMAC_DDA(3)
+
+// channel 4
+#define DMAC_DSAR4      DMAC_DSAR(4)
+#define DMAC_DTAR4      DMAC_DTAR(4)
+#define DMAC_DTCR4      DMAC_DTCR(4)
+#define DMAC_DRSR4      DMAC_DRSR(4)
+#define DMAC_DCCSR4     DMAC_DCCSR(4)
+#define DMAC_DCMD4	DMAC_DCMD(4)
+#define DMAC_DDA4	DMAC_DDA(4)
+
+// channel 5
+#define DMAC_DSAR5      DMAC_DSAR(5)
+#define DMAC_DTAR5      DMAC_DTAR(5)
+#define DMAC_DTCR5      DMAC_DTCR(5)
+#define DMAC_DRSR5      DMAC_DRSR(5)
+#define DMAC_DCCSR5     DMAC_DCCSR(5)
+#define DMAC_DCMD5	DMAC_DCMD(5)
+#define DMAC_DDA5	DMAC_DDA(5)
+
+#define JZ4740_DMA_INDEX_MAX 0xC4  /*0x310/4*/
+
+// DMA request source register
+#define DMAC_DRSR_RS_BIT	0
+#define DMAC_DRSR_RS_MASK	(0x1f << DMAC_DRSR_RS_BIT)
+  #define DMAC_DRSR_RS_AUTO	(8 << DMAC_DRSR_RS_BIT)
+  #define DMAC_DRSR_RS_UART0OUT	(20 << DMAC_DRSR_RS_BIT)
+  #define DMAC_DRSR_RS_UART0IN	(21 << DMAC_DRSR_RS_BIT)
+  #define DMAC_DRSR_RS_SSIOUT	(22 << DMAC_DRSR_RS_BIT)
+  #define DMAC_DRSR_RS_SSIIN	(23 << DMAC_DRSR_RS_BIT)
+  #define DMAC_DRSR_RS_AICOUT	(24 << DMAC_DRSR_RS_BIT)
+  #define DMAC_DRSR_RS_AICIN	(25 << DMAC_DRSR_RS_BIT)
+  #define DMAC_DRSR_RS_MSCOUT	(26 << DMAC_DRSR_RS_BIT)
+  #define DMAC_DRSR_RS_MSCIN	(27 << DMAC_DRSR_RS_BIT)
+  #define DMAC_DRSR_RS_TCU	(28 << DMAC_DRSR_RS_BIT)
+  #define DMAC_DRSR_RS_SADC	(29 << DMAC_DRSR_RS_BIT)
+  #define DMAC_DRSR_RS_SLCD	(30 << DMAC_DRSR_RS_BIT)
+
+// DMA channel control/status register
+#define DMAC_DCCSR_NDES		(1 << 31) /* descriptor (0) or not (1) ? */
+#define DMAC_DCCSR_CDOA_BIT	16        /* copy of DMA offset address */
+#define DMAC_DCCSR_CDOA_MASK	(0xff << DMAC_DCCSR_CDOA_BIT)
+#define DMAC_DCCSR_INV		(1 << 6)  /* descriptor invalid */
+#define DMAC_DCCSR_AR		(1 << 4)  /* address error */
+#define DMAC_DCCSR_TT		(1 << 3)  /* transfer terminated */
+#define DMAC_DCCSR_HLT		(1 << 2)  /* DMA halted */
+#define DMAC_DCCSR_CT		(1 << 1)  /* count terminated */
+#define DMAC_DCCSR_EN		(1 << 0)  /* channel enable bit */
+
+
+
+// DMA channel command register 
+#define DMAC_DCMD_SAI		(1 << 23) /* source address increment */
+#define DMAC_DCMD_DAI		(1 << 22) /* dest address increment */
+#define DMAC_DCMD_RDIL_BIT	16        /* request detection interval length */
+#define DMAC_DCMD_RDIL_MASK	(0x0f << DMAC_DCMD_RDIL_BIT)
+  #define DMAC_DCMD_RDIL_IGN	(0 << DMAC_DCMD_RDIL_BIT)
+  #define DMAC_DCMD_RDIL_2	(1 << DMAC_DCMD_RDIL_BIT)
+  #define DMAC_DCMD_RDIL_4	(2 << DMAC_DCMD_RDIL_BIT)
+  #define DMAC_DCMD_RDIL_8	(3 << DMAC_DCMD_RDIL_BIT)
+  #define DMAC_DCMD_RDIL_12	(4 << DMAC_DCMD_RDIL_BIT)
+  #define DMAC_DCMD_RDIL_16	(5 << DMAC_DCMD_RDIL_BIT)
+  #define DMAC_DCMD_RDIL_20	(6 << DMAC_DCMD_RDIL_BIT)
+  #define DMAC_DCMD_RDIL_24	(7 << DMAC_DCMD_RDIL_BIT)
+  #define DMAC_DCMD_RDIL_28	(8 << DMAC_DCMD_RDIL_BIT)
+  #define DMAC_DCMD_RDIL_32	(9 << DMAC_DCMD_RDIL_BIT)
+  #define DMAC_DCMD_RDIL_48	(10 << DMAC_DCMD_RDIL_BIT)
+  #define DMAC_DCMD_RDIL_60	(11 << DMAC_DCMD_RDIL_BIT)
+  #define DMAC_DCMD_RDIL_64	(12 << DMAC_DCMD_RDIL_BIT)
+  #define DMAC_DCMD_RDIL_124	(13 << DMAC_DCMD_RDIL_BIT)
+  #define DMAC_DCMD_RDIL_128	(14 << DMAC_DCMD_RDIL_BIT)
+  #define DMAC_DCMD_RDIL_200	(15 << DMAC_DCMD_RDIL_BIT)
+#define DMAC_DCMD_SWDH_BIT	14  /* source port width */
+#define DMAC_DCMD_SWDH_MASK	(0x03 << DMAC_DCMD_SWDH_BIT)
+  #define DMAC_DCMD_SWDH_32	(0 << DMAC_DCMD_SWDH_BIT)
+  #define DMAC_DCMD_SWDH_8	(1 << DMAC_DCMD_SWDH_BIT)
+  #define DMAC_DCMD_SWDH_16	(2 << DMAC_DCMD_SWDH_BIT)
+#define DMAC_DCMD_DWDH_BIT	12  /* dest port width */
+#define DMAC_DCMD_DWDH_MASK	(0x03 << DMAC_DCMD_DWDH_BIT)
+  #define DMAC_DCMD_DWDH_32	(0 << DMAC_DCMD_DWDH_BIT)
+  #define DMAC_DCMD_DWDH_8	(1 << DMAC_DCMD_DWDH_BIT)
+  #define DMAC_DCMD_DWDH_16	(2 << DMAC_DCMD_DWDH_BIT)
+#define DMAC_DCMD_DS_BIT	8  /* transfer data size of a data unit */
+#define DMAC_DCMD_DS_MASK	(0x07 << DMAC_DCMD_DS_BIT)
+  #define DMAC_DCMD_DS_32BIT	(0 << DMAC_DCMD_DS_BIT)
+  #define DMAC_DCMD_DS_8BIT	(1 << DMAC_DCMD_DS_BIT)
+  #define DMAC_DCMD_DS_16BIT	(2 << DMAC_DCMD_DS_BIT)
+  #define DMAC_DCMD_DS_16BYTE	(3 << DMAC_DCMD_DS_BIT)
+  #define DMAC_DCMD_DS_32BYTE	(4 << DMAC_DCMD_DS_BIT)
+#define DMAC_DCMD_TM		(1 << 7)  /* transfer mode: 0-single 1-block */
+#define DMAC_DCMD_DES_V		(1 << 4)  /* descriptor valid flag */
+#define DMAC_DCMD_DES_VM	(1 << 3)  /* descriptor valid mask: 1:support V-bit */
+#define DMAC_DCMD_DES_VIE	(1 << 2)  /* DMA valid error interrupt enable */
+#define DMAC_DCMD_TIE		(1 << 1)  /* DMA transfer interrupt enable */
+#define DMAC_DCMD_LINK		(1 << 0)  /* descriptor link enable */
+
+// DMA descriptor address register
+#define DMAC_DDA_BASE_BIT	12  /* descriptor base address */
+#define DMAC_DDA_BASE_MASK	(0x0fffff << DMAC_DDA_BASE_BIT)
+#define DMAC_DDA_OFFSET_BIT	4  /* descriptor offset address */
+#define DMAC_DDA_OFFSET_MASK	(0x0ff << DMAC_DDA_OFFSET_BIT)
+
+
+
+
+
+  
+// DMA control register
+#define DMAC_DMACR_PR_BIT	8  /* channel priority mode */
+#define DMAC_DMACR_PR_MASK	(0x03 << DMAC_DMACR_PR_BIT)
+  #define DMAC_DMACR_PR_012345	(0 << DMAC_DMACR_PR_BIT)
+  #define DMAC_DMACR_PR_023145	(1 << DMAC_DMACR_PR_BIT)
+  #define DMAC_DMACR_PR_201345	(2 << DMAC_DMACR_PR_BIT)
+  #define DMAC_DMACR_PR_RR	(3 << DMAC_DMACR_PR_BIT) /* round robin */
+#define DMAC_DMACR_HLT		(1 << 3)  /* DMA halt flag */
+#define DMAC_DMACR_AR		(1 << 2)  /* address error flag */
+#define DMAC_DMACR_DMAE		(1 << 0)  /* DMA enable bit */
+
+
+
+
+
+/*------------INT CONTROLLER------------------------*/
+#define JZ4740_INT_BASE 0x10001000
+#define JZ4740_INT_SIZE  0x1C
+
+
+#define INTC_ISR	( 0x00)
+#define INTC_IMR	( 0x04)
+#define INTC_IMSR	( 0x08)
+#define INTC_IMCR	( 0x0c)
+#define INTC_IPR	( 0x10)
+
+// 1st-level interrupts
+#define IRQ_I2C		1
+#define IRQ_UHC		3
+#define IRQ_UART0	9
+#define IRQ_SADC	12
+#define IRQ_MSC		14
+#define IRQ_RTC		15
+#define IRQ_SSI		16
+#define IRQ_CIM		17
+#define IRQ_AIC		18
+#define IRQ_ETH		19
+#define IRQ_DMAC	20
+#define IRQ_TCU2	21
+#define IRQ_TCU1	22
+#define IRQ_TCU0	23
+#define IRQ_UDC 	24
+#define IRQ_GPIO3	25
+#define IRQ_GPIO2	26
+#define IRQ_GPIO1	27
+#define IRQ_GPIO0	28
+#define IRQ_IPU		29
+#define IRQ_LCD		30
+
+
+// 2nd-level interrupts
+#define IRQ_DMA_0	32  /* 32 to 37 for DMAC channel 0 to 5 */
+#define IRQ_GPIO_0	48  /* 48 to 175 for GPIO pin 0 to 127 */
+
+
+
+#define JZ4740_INT_INDEX_MAX 0x7  /*0x1C/4*/
+#define JZ4740_INT_TO_MIPS   0x2  /*jz4740 intc will issue int 2 to mips cpu*/
+
+
 
 
 

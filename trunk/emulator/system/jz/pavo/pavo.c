@@ -28,12 +28,16 @@ http://www.ingenic.cn/pfwebplus/productServ/kfyd/Hardware/pffaqQuestionContent.a
 #include "pavo.h"
 #include "device.h"
 
+extern m_uint32_t jz4740_int_table[JZ4740_INT_INDEX_MAX];
 int dev_jz4740_gpio_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
 int dev_jz4740_uart_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len,vtty_t *vtty,int uart_index);
 int dev_jz4740_cpm_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
 int dev_jz4740_emc_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
 int dev_jz4740_rtc_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
 int dev_jz4740_wdt_tcu_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
+int dev_jz4740_int_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
+int dev_jz4740_dma_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
+
 void forced_inline virtual_jz4740_timer(cpu_mips_t *cpu);
 
 /* Initialize default parameters for a adm5120 */
@@ -105,6 +109,11 @@ static int pavo_init_platform(pavo_t *pavo)
     return (-1);
    if (dev_jz4740_wdt_tcu_init(vm,"JZ4740 WDT/TCU",JZ4740_WDT_TCU_BASE,JZ4740_WDT_TCU_SIZE)==-1)
     return (-1);
+     if (dev_jz4740_int_init(vm,"JZ4740 INT",JZ4740_INT_BASE,JZ4740_INT_SIZE)==-1)
+    return (-1);
+ if (dev_jz4740_dma_init(vm,"JZ4740 DMA",JZ4740_DMA_BASE,JZ4740_DMA_SIZE)==-1)
+    return (-1);
+     
 
 	return(0);
 }
@@ -135,7 +144,14 @@ static int pavo_boot(pavo_t *pavo)
 
 void pavo_clear_irq(vm_instance_t *vm,u_int irq)
 {
+  m_uint32_t irq_mask;
 
+   irq_mask = 1<<irq;
+
+   /*clear ISR and IPR*/
+   jz4740_int_table[INTC_ISR/4] &= ~irq_mask;
+   jz4740_int_table[INTC_IPR/4] &= ~irq_mask;
+   
 
 }
 
@@ -143,7 +159,26 @@ void pavo_clear_irq(vm_instance_t *vm,u_int irq)
 /*We must map adm irq to mips irq before setting irq*/
 void pavo_set_irq(vm_instance_t *vm,u_int irq)
 {
+    m_uint32_t irq_mask;
 
+    irq_mask = 1<<irq;
+    
+    /*first check ICMR*/
+    if (jz4740_int_table[INTC_IMR/4]&irq_mask)
+      {
+        /*the irq is masked. set ISR*/
+        jz4740_int_table[INTC_ISR/4] |= irq_mask;
+        /*clear IPR*/
+        jz4740_int_table[INTC_IPR/4] &= ~irq_mask;
+        mips64_set_irq(vm->boot_cpu,JZ4740_INT_TO_MIPS);
+	    mips64_update_irq_flag(vm->boot_cpu);
+      }
+    else
+      {
+         /*the irq is not masked*/
+         /*set IPR*/
+         jz4740_int_table[INTC_IPR/4] |= irq_mask;
+      }
 
 }
 
