@@ -30,7 +30,7 @@ http://www.ingenic.cn/pfwebplus/productServ/kfyd/Hardware/pffaqQuestionContent.a
 
 extern m_uint32_t jz4740_int_table[JZ4740_INT_INDEX_MAX];
 int dev_jz4740_gpio_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
-int dev_jz4740_uart_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len,vtty_t *vtty,int uart_index);
+//int dev_jz4740_uart_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len,vtty_t *vtty,int uart_index);
 int dev_jz4740_cpm_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
 int dev_jz4740_emc_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
 int dev_jz4740_rtc_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
@@ -99,8 +99,11 @@ static int pavo_init_platform(pavo_t *pavo)
     return (-1);
    	if  (dev_jz4740_uart_init(vm,"JZ4740 UART 0",JZ4740_UART0_BASE,JZ4740_UART0_SIZE,vm->vtty_con1,0)==-1)
 		return (-1);
-	if  (dev_jz4740_uart_init(vm,"JZ4740 UART 1",JZ4740_UART0_BASE,JZ4740_UART0_SIZE,vm->vtty_con2,0)==-1)
-		return (-1);
+//if  (dev_jz4740_uart_init(vm,JZ4740_UART0_BASE,0x302c,9,8,vm->vtty_con1,vm->vtty_con2)==-1)
+//		return (-1);
+
+	if  (dev_jz4740_uart_init(vm,"JZ4740 UART 1",JZ4740_UART1_BASE,JZ4740_UART1_SIZE,vm->vtty_con2,0)==-1)
+	return (-1);
 	   if (dev_jz4740_cpm_init(vm,"JZ4740 CPM",JZ4740_CPM_BASE,JZ4740_CPM_SIZE)==-1)
     return (-1);
   if (dev_jz4740_emc_init(vm,"JZ4740 EMC",JZ4740_EMC_BASE,JZ4740_EMC_SIZE)==-1)
@@ -162,22 +165,22 @@ void pavo_set_irq(vm_instance_t *vm,u_int irq)
     m_uint32_t irq_mask;
 
     irq_mask = 1<<irq;
-    
-    /*first check ICMR*/
+    cpu_log(vm->boot_cpu,"","jz4740_int_table[INTC_IMR/4] %x irq_mask %x\n",jz4740_int_table[INTC_IMR/4],irq_mask);
+    /*first check ICMR. masked interrupt is invisible to cpu*/
     if (jz4740_int_table[INTC_IMR/4]&irq_mask)
       {
-        /*the irq is masked. set ISR*/
-        jz4740_int_table[INTC_ISR/4] |= irq_mask;
-        /*clear IPR*/
-        jz4740_int_table[INTC_IPR/4] &= ~irq_mask;
-        mips64_set_irq(vm->boot_cpu,JZ4740_INT_TO_MIPS);
-	    mips64_update_irq_flag(vm->boot_cpu);
+        /*the irq is masked. clear IPR*/
+         jz4740_int_table[INTC_IPR/4] &= ~irq_mask;
+         
       }
     else
       {
          /*the irq is not masked*/
-         /*set IPR*/
-         jz4740_int_table[INTC_IPR/4] |= irq_mask;
+        jz4740_int_table[INTC_ISR/4] |= irq_mask;
+        /*set IPR*/
+       jz4740_int_table[INTC_IPR/4] |= irq_mask;
+        mips64_set_irq(vm->boot_cpu,JZ4740_INT_TO_MIPS);
+	    mips64_update_irq_flag(vm->boot_cpu);
       }
 
 }

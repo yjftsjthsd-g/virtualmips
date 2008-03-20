@@ -54,7 +54,7 @@ static void *ptask_run(void *arg)
 		PTASK_UNLOCK();
 
 		/* For testing! */
-		{
+	/*	{
 			struct timespec t_spc;
 			m_tmcnt_t expire;
 
@@ -65,10 +65,10 @@ static void *ptask_run(void *arg)
 			t_spc.tv_nsec = (expire % 1000000) * 1000;
 			pthread_cond_timedwait(&ucond,&umutex,&t_spc);
 			pthread_mutex_unlock(&umutex);
-		}
+		}*/
 
 		/* Old method... */
-		//usleep(ptask_sleep_time*1000);
+		usleep(ptask_sleep_time*1000);
 	}
 
 	return NULL;

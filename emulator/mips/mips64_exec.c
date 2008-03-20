@@ -357,7 +357,7 @@ float timeuse,performance;
 
 long  instructions_executed=0;
 #endif
-
+int ttt;
 /* Execute a single instruction */
 static forced_inline int 
 mips64_exec_single_instruction(cpu_mips_t *cpu,mips_insn_t instruction)
@@ -375,6 +375,8 @@ mips64_exec_single_instruction(cpu_mips_t *cpu,mips_insn_t instruction)
 	index = ilt_lookup(ilt,instruction);
 	tag = mips64_exec_get_insn(index);
 	exec = tag->exec;
+   
+	
 #if NJM_STATS_ENABLE
 	cpu->insn_exec_count++;
 	mips64_exec_tags[index].count++;
@@ -426,12 +428,20 @@ void *mips64_exec_run_cpu(cpu_mips_t *cpu)
 		if (unlikely(cpu->state != CPU_STATE_RUNNING))
 			break;
       
-       /*virtual clock for cpu*/
+        /*virtual clock for cpu*/
 		virtual_timer(cpu);
-
 
 		/* Reset "zero register" (for safety) */
 		cpu->gpr[0] = 0;
+
+		
+   if (cpu->pc==0x8034D540)
+      ttt=1;
+   //  if ((ttt==1)&&(cpu->pc==0x80000200))
+   //   ttt=2;
+  //  if (ttt==2)
+   //   cpu_log(cpu,"","pc %x \n",cpu->pc);*/
+
 
 		/* Check IRQ */
 		if (unlikely(cpu->irq_pending)) {
@@ -1164,6 +1174,31 @@ static    int mips64_exec_CACHE(cpu_mips_t *cpu,mips_insn_t insn)
 
 	return(mips64_exec_memop2(cpu,MIPS_MEMOP_CACHE,base,offset,op,FALSE));
 }
+
+
+
+/* CLZ  */
+static    int mips64_exec_CLZ(cpu_mips_t *cpu,mips_insn_t insn)
+{
+   int rs = bits(insn,21,25);
+	int rd = bits(insn,11,15);
+	int i;
+	m_uint32_t val;
+
+	val=32;
+	for (i=31;i>=0;i--)
+	{
+	  if (cpu->gpr[rs]&(1<<i))
+	    {
+	      val=31-i;
+	      break;
+	    }
+	}
+   cpu->gpr[rd]=val;
+	return (0);
+	
+}
+
 
 /* CFC0 */
 /*static    int mips64_exec_CFC0(cpu_mips_t *cpu,mips_insn_t insn)
@@ -2273,6 +2308,7 @@ static struct mips64_insn_exec_tag mips64_exec_tags[] = {
 		{ "bnel"   , mips64_exec_BNEL    , 0xfc000000 , 0x54000000, 0, 8 },
 		{ "break"  , mips64_exec_BREAK   , 0xfc00003f , 0x0000000d, 1, 0 },
 		{ "cache"  , mips64_exec_CACHE   , 0xfc000000 , 0xbc000000, 1, 2 },
+		{ "clz"  , mips64_exec_CLZ   , 0xfc0007FF , 0x70000020, 1, 2 },
 		{ "div"    , mips64_exec_DIV     , 0xfc00003f , 0x0000001a, 1, 17 },
 		{ "divu"   , mips64_exec_DIVU    , 0xfc00003f , 0x0000001b, 1, 17 },
 		{ "eret"   , mips64_exec_ERET    , 0xffffffff , 0x42000018, 0, 1 },

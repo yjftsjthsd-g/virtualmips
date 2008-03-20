@@ -338,6 +338,7 @@ static forced_inline int mips64_update_irq_flag_fast(cpu_mips_t *cpu)
 
 		imask = cp0->reg[MIPS_CP0_STATUS] & MIPS_CP0_STATUS_IMASK;
 		if (unlikely(cp0->reg[MIPS_CP0_CAUSE] & imask)) {
+		  cpu_log(cpu,"","cp0->reg[MIPS_CP0_CAUSE] %x imask %x\n",cp0->reg[MIPS_CP0_CAUSE],imask);
 			cpu->irq_pending = TRUE;
 			return(TRUE);
 		}
@@ -426,7 +427,7 @@ void mips64_trigger_exception(cpu_mips_t *cpu,u_int exc_code,int bd_slot)
 	}
 
 	cpu->pc =(m_va_t)new_pc;
-
+    cpu_log(cpu,"","cpu->pc  %x\n",cpu->pc );
 
 	/* Clear the pending IRQ flag */
 	cpu->irq_pending = 0;

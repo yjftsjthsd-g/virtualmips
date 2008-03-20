@@ -89,7 +89,8 @@ else
       default:
         assert(0);
     }
- 
+ if (offset!=0x48)
+  cpu_log(cpu,"","offset %x data %x type %x\n",offset,*data,op_type);
    switch(offset)
     {      
       case TCU_TSSR:  /*set*/
@@ -164,24 +165,30 @@ void dev_jz4740_wdt_tcu_init_defaultvalue()
 /*set TCU_TSR=0xffffffff*/
 //jz4740_wdt_tcu_table[TCU_TSR/4]=0XFFFFFFFF;
 
-jz4740_wdt_tcu_table[TCU_TDFR0/4]=0XFFFF;
-jz4740_wdt_tcu_table[TCU_TDHR0/4]=0XFFFe;
+jz4740_wdt_tcu_table[TCU_TDFR0/4]=0X7FF8;
+jz4740_wdt_tcu_table[TCU_TDHR0/4]=0X7FF7;
+jz4740_wdt_tcu_table[TCU_TCNT0/4]=0X7FF7;
 
-jz4740_wdt_tcu_table[TCU_TDFR1/4]=0XFFFF;
-jz4740_wdt_tcu_table[TCU_TDHR1/4]=0XFFFe;
 
-jz4740_wdt_tcu_table[TCU_TDFR2/4]=0XFFFF;
-jz4740_wdt_tcu_table[TCU_TDHR2/4]=0XFFFe;
+jz4740_wdt_tcu_table[TCU_TDFR1/4]=0X7FF8;
+jz4740_wdt_tcu_table[TCU_TDHR1/4]=0X7FF7;
+jz4740_wdt_tcu_table[TCU_TCNT1/4]=0X7FF7;
 
-jz4740_wdt_tcu_table[TCU_TDFR3/4]=0XFFFF;
-jz4740_wdt_tcu_table[TCU_TDHR3/4]=0XFFFe;
+jz4740_wdt_tcu_table[TCU_TDFR2/4]=0X7FF8;
+jz4740_wdt_tcu_table[TCU_TDHR2/4]=0X7FF7;
+jz4740_wdt_tcu_table[TCU_TCNT2/4]=0X7FF7;
 
-jz4740_wdt_tcu_table[TCU_TDFR4/4]=0XFFFF;
-jz4740_wdt_tcu_table[TCU_TDHR4/4]=0XFFFe;
+jz4740_wdt_tcu_table[TCU_TDFR3/4]=0X7FF8;
+jz4740_wdt_tcu_table[TCU_TDHR3/4]=0X7FF7;
+jz4740_wdt_tcu_table[TCU_TCNT3/4]=0X7FF7;
 
-jz4740_wdt_tcu_table[TCU_TDFR5/4]=0XFFFF;
-jz4740_wdt_tcu_table[TCU_TDHR5/4]=0XFFFe;
+jz4740_wdt_tcu_table[TCU_TDFR4/4]=0X7FF8;
+jz4740_wdt_tcu_table[TCU_TDHR4/4]=0X7FF7;
+jz4740_wdt_tcu_table[TCU_TCNT4/4]=0X7FF7;
 
+jz4740_wdt_tcu_table[TCU_TDFR5/4]=0X7FF8;
+jz4740_wdt_tcu_table[TCU_TDHR5/4]=0X7FF7;
+jz4740_wdt_tcu_table[TCU_TCNT5/4]=0X7FF7;
 }
 
 void dev_jz4740_wdt_tcu_reset(cpu_mips_t *cpu,struct vdevice *dev)
@@ -226,7 +233,7 @@ int dev_jz4740_wdt_tcu_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t
 /*-------------Virtual Timer----------------------*/
 m_uint32_t   past_instructions=0;
 /*TODO:need to adjust*/
-#define COUNT_PER_INSTRUCTION   0X180
+#define COUNT_PER_INSTRUCTION   0x180//0X180
 
 /*JUST TIMER 0*/
 void forced_inline virtual_jz4740_timer(cpu_mips_t *cpu)
@@ -247,14 +254,18 @@ if (jz4740_wdt_tcu_table[TCU_TER/4]&0x01)
         {
           /*set TFR*/
           jz4740_wdt_tcu_table[TCU_TFR/4] |=1<<16;
-          if (jz4740_wdt_tcu_table[TCU_TMR/4]&(1<<16) )
+          if (!(jz4740_wdt_tcu_table[TCU_TMR/4]&(1<<16) ))
             cpu->vm->set_irq(cpu->vm,IRQ_TCU0);
         }
       if (jz4740_wdt_tcu_table[TCU_TCNT0/4] ==jz4740_wdt_tcu_table[TCU_TDFR0/4] )
         {
           jz4740_wdt_tcu_table[TCU_TFR/4] |=1;
-          if (jz4740_wdt_tcu_table[TCU_TMR/4]&(0x1) )
-            cpu->vm->set_irq(cpu->vm,IRQ_TCU0);
+          if (!(jz4740_wdt_tcu_table[TCU_TMR/4]&(0x1) ))
+            {
+              //cpu_log(cpu,"","TCU_TMR %x \n",jz4740_wdt_tcu_table[TCU_TMR/4]);
+               cpu->vm->set_irq(cpu->vm,IRQ_TCU0);
+            }
+           
            jz4740_wdt_tcu_table[TCU_TCNT0/4]=0;
         }
        past_instructions=0;

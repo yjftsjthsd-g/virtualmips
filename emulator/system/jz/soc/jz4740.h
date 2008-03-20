@@ -26,7 +26,8 @@ typedef m_uint32_t m_cp0_reg_t;
 #define  DATA_WIDTH 32 /*64*/
 #define LL
 
-
+/*JZ4740 use soft fpu*/
+#define SOFT_FPU   1
 
 /*Guest endian*/
 #define GUEST_BYTE_ORDER  ARCH_LITTLE_ENDIAN
@@ -122,8 +123,14 @@ typedef m_uint32_t m_cp0_reg_t;
 
 
 /*---------------------UART----------------------------------*/
+
+#define JZ4740_UART_SIZE       0x302c
+
 #define JZ4740_UART0_BASE       0x10030000
 #define JZ4740_UART0_SIZE       0x2c
+
+
+
 #define JZ4740_UART1_BASE       0x10031000
 #define JZ4740_UART1_SIZE       0x2c
 #define JZ4740_UART2_BASE       0x10032000
