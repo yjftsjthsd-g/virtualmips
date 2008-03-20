@@ -26,6 +26,20 @@ please set nandflash.conf before!!
 
 #include "confuse.h"
 
+#if 0
+#define TOTAL_SIZE  0x42000000    /*1G data BYTES +32M bytes SPARE BYTES*/
+#define TOTAL_PAGES 0x100000     /**/
+#define TOTAL_BLOCKS 0x1000
+#define PAGES_PER_BLOCK  0x100
+
+
+#define PAGE_SIZE   0x420    /*1k bytes date size+32 bytes spare size*/
+#define SPARE_SIZE  0x20     /*32 bytes*/
+#define BLOCK_SIZE  0x42000  /*264k bytes*/
+#define PAGE_DATA_SIZE 0x400  /*1k bytes */
+#define BLOCK_DATA_SIZE 0x40000  /*256k bytes */
+#endif
+
 #define TOTAL_SIZE  0x42000000    /*1G data BYTES +32M bytes SPARE BYTES*/
 #define TOTAL_PLANE 4
 #define TOTAL_PAGES 0x80000
@@ -166,6 +180,57 @@ void cal_block_no(unsigned int start_address,unsigned int file_size,unsigned int
   
 }
 
+/*yaffs2 file has sparece already*/
+int write_nand_flash_file_with_sparce(char *file_name,unsigned int start_address)
+{
+   FILE *n_fp;/*fp for nand flash*/
+   FILE *fp;
+   unsigned int file_size;
+   unsigned int block_start_no,block_end_no;
+   char block_file_name[64];
+   unsigned char block[BLOCK_SIZE];
+   int i;
+   int leave=0;
+
+   fp=fopen(file_name,"r");
+  if (fp==NULL)
+  {
+    printf("can not open file %s\n",file_name);
+    return(-1);
+  }
+  fseek(fp,0, SEEK_END);
+  file_size = ftell(fp);
+  fseek(fp,0,SEEK_SET);
+  cal_block_no(start_address, file_size, &block_start_no, &block_end_no);
+  for (i=block_start_no;i<=block_end_no;i++)
+  {
+     snprintf(block_file_name,sizeof(block_file_name),"nandflash1GB/nandflash1GB.%d",i);
+      n_fp = fopen(block_file_name,"w+");
+      if (n_fp==NULL)
+        {
+          system("mkdir nandflash1GB");
+        }
+      n_fp = fopen(block_file_name,"w+");
+      assert(n_fp!=NULL);
+      fseek(n_fp,0,SEEK_SET);
+      memset(block,0xff,BLOCK_SIZE);
+      /*copy block from file*/
+      leave=file_size-(i-block_start_no)*BLOCK_SIZE;
+      if (leave>=0)
+        fread(block,1,BLOCK_SIZE,fp);
+      else
+        fread(block,1,leave+BLOCK_SIZE,fp);
+      fwrite(block,1,BLOCK_SIZE,n_fp);
+
+      fclose(n_fp);
+
+      
+  }
+  
+fclose(fp);
+  return (0);
+     
+}
 
 int write_nand_flash_file(char *file_name,unsigned int start_address)
 {
@@ -191,7 +256,7 @@ int write_nand_flash_file(char *file_name,unsigned int start_address)
   assert(file_size>=F16K);  /*u-boot image must >F16K*/
   fseek(fp,0,SEEK_SET);
   cal_block_no(start_address, file_size, &block_start_no, &block_end_no);
-  
+  printf("block_start_no %d block_end_no %d\n",block_start_no,block_end_no);
   for (i=block_start_no;i<=block_end_no;i++)
     {
       snprintf(block_file_name,sizeof(block_file_name),"nandflash1GB/nandflash1GB.%d",i);
@@ -211,12 +276,10 @@ int write_nand_flash_file(char *file_name,unsigned int start_address)
            if (leave>=0)
             {
               fread(page,1,PAGE_DATA_SIZE,fp);
-              //printf("j %x leave %x\n",j,leave);
             }
            else  /*last page*/
             {
               fread(page,1,leave+PAGE_DATA_SIZE,fp);
-              //printf("here j %x leave %x leave+PAGE_DATA_SIZE %x\n",j,leave,leave+PAGE_DATA_SIZE);
             }
 
 
@@ -261,7 +324,7 @@ int main(int argc,char*argv[])
     if (write_nand_flash_file(kernel_file_name,kernel_start_address)==-1)
      exit(-1);
 if (rootfs_file_name!=NULL)
-   if (write_nand_flash_file(rootfs_file_name,rootfs_start_address)==-1)
+   if (write_nand_flash_file_with_sparce(rootfs_file_name,rootfs_start_address)==-1)
     exit(-1);
 if (custom1_file_name!=NULL)
    if (write_nand_flash_file(custom1_file_name,custom1_start_address)==-1)

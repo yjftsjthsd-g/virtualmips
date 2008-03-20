@@ -28,7 +28,7 @@
 
 
 
-#define LOG_ENABLE 1
+#define LOG_ENABLE 0
 /* Log a message for a CPU */
 void cpu_log(cpu_mips_t *cpu,char *module,char *format,...)
 {
@@ -42,9 +42,46 @@ void cpu_log(cpu_mips_t *cpu,char *module,char *format,...)
 	va_end(ap);
 #endif
 }
+void cpu_log1(cpu_mips_t *cpu,char *module,char *format,...)
+{
+	/*char buffer[256];
+	va_list ap;
+
+	va_start(ap,format);
+	snprintf(buffer,sizeof(buffer),"CPU%u: %s",cpu->id,module);
+	vm_flog(cpu->vm,buffer,format,ap);
+	va_end(ap);*/
+}
 
 
+void cpu_log2(cpu_mips_t *cpu,char *module,char *format,...)
+{
+	char buffer[256];
+	va_list ap;
 
+	va_start(ap,format);
+	snprintf(buffer,sizeof(buffer),"CPU%u: %s",cpu->id,module);
+	vm_flog(cpu->vm,buffer,format,ap);
+	va_end(ap);
+}
+
+
+#if 0
+extern int ttt;
+/* Log a message for a CPU */
+void cpu_log1(cpu_mips_t *cpu,char *module,char *format,...)
+{
+	char buffer[256];
+	va_list ap;
+if (ttt==1)
+{
+	va_start(ap,format);
+	snprintf(buffer,sizeof(buffer),"CPU%u: %s",cpu->id,module);
+	vm_flog(cpu->vm,buffer,format,ap);
+	va_end(ap);
+}
+}
+#endif
 /* Start a CPU */
 void cpu_start(cpu_mips_t *cpu)
 {

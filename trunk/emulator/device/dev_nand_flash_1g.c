@@ -64,8 +64,9 @@ m_uint8_t  nand_status=NAND_STATUS_READY|NAND_STATUS_WP ;
 #undef CPU_LOG
 #endif
 
+//#define DEBUG_FLASH_ACCESS
 #ifdef DEBUG_FLASH_ACCESS
-#define CPU_LOG(arg1) cpu_log(arg1)
+#define CPU_LOG(arg1) cpu_log arg1
 #else
 #define CPU_LOG(arg1) 
 #endif
@@ -99,8 +100,8 @@ static unsigned char * create_nand_flash_file(m_uint32_t block_no)
 unsigned char* get_nand_flash_page_ptr(m_uint32_t row_addr,unsigned char *block_start)
 {
   
-   m_uint32_t block_no = row_addr>>6;
-  m_uint32_t page_no =row_addr&0x3f;
+   m_uint32_t block_no = row_addr>>NAND_FLASH_1G_BLOCK_PAGE_OFFSET;
+  m_uint32_t page_no =row_addr&NAND_FLASH_1G_BLOCK_PAGE_MASK;
  assert(block_no<NAND_FLASH_1G_TOTAL_BLOCKS);
  assert(block_start!=NULL);
  return (block_start+page_no*NAND_FLASH_1G_PAGE_SIZE);
@@ -210,7 +211,7 @@ void *dev_nand_flash_1g_access(cpu_mips_t *cpu,struct vdevice *dev,
             if  (((*data)&0xff)==0xd0)
               {
                 //erase blcok
-                block_no = (d->row_addr)>>6;
+                block_no = (d->row_addr)>>NAND_FLASH_1G_BLOCK_PAGE_OFFSET;
                  if (d->flash_map[block_no]==NULL)
                   d->flash_map[block_no]=create_nand_flash_file(block_no);
                 nand_flash_erase_block(d->flash_map[block_no]);
@@ -224,7 +225,7 @@ void *dev_nand_flash_1g_access(cpu_mips_t *cpu,struct vdevice *dev,
               {
                 d->has_issue_30h=1;
                 d->state=STATE_INIT;
-                block_no = (d->row_addr)>>6;
+                block_no = (d->row_addr)>>NAND_FLASH_1G_BLOCK_PAGE_OFFSET;
                 if (d->flash_map[block_no]==NULL)
                 {
                   CPU_LOG((cpu,"","block_no %x is null. redirect to fake page.",block_no));
@@ -239,7 +240,7 @@ void *dev_nand_flash_1g_access(cpu_mips_t *cpu,struct vdevice *dev,
            else if  (((*data)&0xff)==0x35)
               {
                 d->state=STATE_READ_PAGE_FOR_COPY_WRITE;
-                 block_no = (d->row_addr)>>6;
+                 block_no = (d->row_addr)>>NAND_FLASH_1G_BLOCK_PAGE_OFFSET;
                 memset(d->write_buffer,0xff,NAND_FLASH_1G_PAGE_SIZE);
               }
            else if  (((*data)&0xff)==0xFF)
@@ -256,7 +257,7 @@ void *dev_nand_flash_1g_access(cpu_mips_t *cpu,struct vdevice *dev,
             if  (((*data)&0xff)==0xe0)
               {
                 d->state=STATE_INIT;
-                block_no = (d->row_addr)>>6;
+                block_no = (d->row_addr)>>NAND_FLASH_1G_BLOCK_PAGE_OFFSET;
                 if (d->flash_map[block_no]==NULL)
                 {
                   CPU_LOG((cpu,"","block_no %x is null. redirect to fake page.",block_no));
@@ -278,7 +279,7 @@ void *dev_nand_flash_1g_access(cpu_mips_t *cpu,struct vdevice *dev,
             if  (((*data)&0xff)==0x10)
               {
                 d->state=STATE_INIT;
-                block_no = (d->row_addr)>>6;
+                block_no = (d->row_addr)>>NAND_FLASH_1G_BLOCK_PAGE_OFFSET;
                 if (d->flash_map[block_no]==NULL)
                   d->flash_map[block_no]=create_nand_flash_file(block_no);
 
@@ -298,7 +299,7 @@ void *dev_nand_flash_1g_access(cpu_mips_t *cpu,struct vdevice *dev,
                if  (((*data)&0xff)==0x10)
               {
                 d->state=STATE_INIT;
-                 block_no = (d->row_addr)>>6;
+                 block_no = (d->row_addr)>>NAND_FLASH_1G_BLOCK_PAGE_OFFSET;
                  if (d->flash_map[block_no]==NULL)
                   d->flash_map[block_no]=create_nand_flash_file(block_no);
                  write_nand_fiash_page_file(d->row_addr,d->flash_map[block_no],d->write_buffer);
@@ -329,7 +330,7 @@ void *dev_nand_flash_1g_access(cpu_mips_t *cpu,struct vdevice *dev,
             if  (((*data)&0xff)==0x10)
               {
                 d->state=STATE_INIT;
-                block_no = (d->row_addr)>>6;
+                block_no = (d->row_addr)>>NAND_FLASH_1G_BLOCK_PAGE_OFFSET;
                  if (d->flash_map[block_no]==NULL)
                   d->flash_map[block_no]=create_nand_flash_file(block_no);
                 write_nand_fiash_page_file(d->row_addr,d->flash_map[block_no],d->write_buffer);

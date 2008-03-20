@@ -36,7 +36,7 @@ int jz4740_boot_from_nandflash(vm_instance_t *vm)
   assert(dev!=NULL);
   assert(dev->host_addr!=0);
   /*copy 8K nand flash data to 8K RAM*/
-  for (i=0;i<4;i++)
+  for (i=0;i<(0x2000/NAND_FLASH_1G_PAGE_DATA_SIZE);i++)
   {
     page_addr= get_nand_flash_page_ptr(i,pavo->nand_flash->flash_map[0]);
     memcpy((unsigned char*)dev->host_addr+NAND_FLASH_1G_PAGE_DATA_SIZE*i,page_addr,NAND_FLASH_1G_PAGE_DATA_SIZE);
