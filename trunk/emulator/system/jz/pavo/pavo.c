@@ -30,7 +30,8 @@ http://www.ingenic.cn/pfwebplus/productServ/kfyd/Hardware/pffaqQuestionContent.a
 
 extern m_uint32_t jz4740_int_table[JZ4740_INT_INDEX_MAX];
 int dev_jz4740_gpio_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
-//int dev_jz4740_uart_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len,vtty_t *vtty,int uart_index);
+int dev_jz4740_uart_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len,
+                     u_int irq,vtty_t *vtty);
 int dev_jz4740_cpm_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
 int dev_jz4740_emc_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
 int dev_jz4740_rtc_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
@@ -97,13 +98,11 @@ static int pavo_init_platform(pavo_t *pavo)
 	    return (-1);
    if (dev_jz4740_gpio_init(vm,"JZ4740 GPIO",JZ4740_GPIO_BASE,JZ4740_GPIO_SIZE)==-1)
     return (-1);
-   	if  (dev_jz4740_uart_init(vm,"JZ4740 UART 0",JZ4740_UART0_BASE,JZ4740_UART0_SIZE,vm->vtty_con1,0)==-1)
-		return (-1);
-//if  (dev_jz4740_uart_init(vm,JZ4740_UART0_BASE,0x302c,9,8,vm->vtty_con1,vm->vtty_con2)==-1)
-//		return (-1);
-
-	if  (dev_jz4740_uart_init(vm,"JZ4740 UART 1",JZ4740_UART1_BASE,JZ4740_UART1_SIZE,vm->vtty_con2,0)==-1)
-	return (-1);
+   if (dev_jz4740_uart_init(vm,"JZ4740 UART0",JZ4740_UART0_BASE,JZ4740_UART0_SIZE,9,vm->vtty_con1)==-1)
+    return (-1)  ;   
+  if (dev_jz4740_uart_init(vm,"JZ4740 UART1",JZ4740_UART1_BASE,JZ4740_UART1_SIZE,8,vm->vtty_con2)==-1)
+    return (-1)  ;   
+                     
 	   if (dev_jz4740_cpm_init(vm,"JZ4740 CPM",JZ4740_CPM_BASE,JZ4740_CPM_SIZE)==-1)
     return (-1);
   if (dev_jz4740_emc_init(vm,"JZ4740 EMC",JZ4740_EMC_BASE,JZ4740_EMC_SIZE)==-1)
@@ -165,7 +164,6 @@ void pavo_set_irq(vm_instance_t *vm,u_int irq)
     m_uint32_t irq_mask;
 
     irq_mask = 1<<irq;
-    cpu_log(vm->boot_cpu,"","jz4740_int_table[INTC_IMR/4] %x irq_mask %x\n",jz4740_int_table[INTC_IMR/4],irq_mask);
     /*first check ICMR. masked interrupt is invisible to cpu*/
     if (jz4740_int_table[INTC_IMR/4]&irq_mask)
       {

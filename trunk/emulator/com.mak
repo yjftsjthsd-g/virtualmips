@@ -16,6 +16,7 @@ INCLUDE_DIR += -I./memory
 INCLUDE_DIR += -I./contrib
 INCLUDE_DIR += -I./gdb
 
+#CC = gcc
 CC = gcc-3.4
 
 RM = rm -f

@@ -1,3 +1,11 @@
+ /*
+ * Copyright (C) yajin 2008<yajinzhou@gmail.com >
+ *     
+ * This file is part of the virtualmips distribution. 
+ * See LICENSE file for terms of the license. 
+ *
+ */
+
 
 /*jz4740 Interrupt controller*/
 
@@ -15,7 +23,7 @@
 #include "cpu.h"
 #include "jz4740.h"
 
-
+#define VALIDE_INT_OPERATION 0
 
  m_uint32_t jz4740_int_table[JZ4740_INT_INDEX_MAX];
 
@@ -92,6 +100,7 @@ switch(offset)
 
 void dev_jz4740_int_init_defaultvalue()
 {
+memset(jz4740_int_table,0x0,sizeof(jz4740_int_table));
   jz4740_int_table[INTC_IMR/4]=0xffffffff;
 }
 void dev_jz4740_int_reset(cpu_mips_t *cpu,struct vdevice *dev)

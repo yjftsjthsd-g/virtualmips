@@ -320,6 +320,13 @@ typedef m_uint32_t m_cp0_reg_t;
 #define TCU_TCNT5	( 0x98)
 #define TCU_TCSR5	( 0x9C)
 
+#define TCU_TDFR(n)   (TCU_TDFR0+n*0x10)
+#define TCU_TDHR(n)   (TCU_TDHR0+n*0x10)
+#define TCU_TCNT(n)   (TCU_TCNT0+n*0x10)
+#define TCU_TCSR(n)   (TCU_TCSR0+n*0x10)
+
+
+
 #define  WDT_TIMER_STOP  0x10000
 #define JZ4740_WDT_INDEX_MAX 0x28  /*0xa0/4*/
 

@@ -65,7 +65,7 @@ void *dev_jz4740_emc_access(cpu_mips_t *cpu,struct vdevice *dev,
 
 void dev_jz4740_emc_init_defaultvalue()
 {
-
+memset(jz4740_emc_table,0x0,sizeof(jz4740_emc_table));
 #ifdef SIM_PAVO
     /*EMC BCR(31:30):Boot sel
     11:2k page nand flash*/

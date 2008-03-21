@@ -336,7 +336,6 @@ static forced_inline int mips64_exec_fetch(cpu_mips_t *cpu,m_va_t pc,
    
 	offset = (pc & MIPS_MIN_PAGE_IMASK) >> 2;
 	*insn = vmtoh32(cpu->njm_exec_ptr[offset]);
-   //cpu_log(cpu,"","pc %x\n",cpu->pc);
 	return(0);
 }
 

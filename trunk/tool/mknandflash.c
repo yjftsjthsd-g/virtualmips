@@ -9,14 +9,17 @@
 
 /*make u-boot into a nand flash.
 for K9K8G nand flash device.
-
 Useage:
   mknandflash 
-
 please set nandflash.conf before!!
 
-
+For rootfs of yaffs, it already contains spare bit of flash page. So just 
+copy its content to flash. 
+For other(u-boot and uImage), we just copy the content into flash and fill the spare by ourself.
 */
+
+
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,19 +29,7 @@ please set nandflash.conf before!!
 
 #include "confuse.h"
 
-#if 0
-#define TOTAL_SIZE  0x42000000    /*1G data BYTES +32M bytes SPARE BYTES*/
-#define TOTAL_PAGES 0x100000     /**/
-#define TOTAL_BLOCKS 0x1000
-#define PAGES_PER_BLOCK  0x100
 
-
-#define PAGE_SIZE   0x420    /*1k bytes date size+32 bytes spare size*/
-#define SPARE_SIZE  0x20     /*32 bytes*/
-#define BLOCK_SIZE  0x42000  /*264k bytes*/
-#define PAGE_DATA_SIZE 0x400  /*1k bytes */
-#define BLOCK_DATA_SIZE 0x40000  /*256k bytes */
-#endif
 
 #define TOTAL_SIZE  0x42000000    /*1G data BYTES +32M bytes SPARE BYTES*/
 #define TOTAL_PLANE 4
@@ -63,21 +54,36 @@ please set nandflash.conf before!!
 
 char *u_boot_file_name=NULL;
 unsigned int  u_boot_start_address=0;
+unsigned int  u_boot_has_spare=0;
+
 char *kernel_file_name=NULL;
 unsigned int  kernel_start_address=0;
+unsigned int  kernel_has_spare=0;
+
 char *rootfs_file_name=NULL;
 unsigned int  rootfs_start_address=0;
+unsigned int  rootfs_has_spare=0;
+
 char *custom1_file_name=NULL;
 unsigned int  custom1_start_address=0;
+unsigned int  custom1_has_spare=0;
+
 char *custom2_file_name=NULL;
 unsigned int  custom2_start_address=0;
+unsigned int  custom2_has_spare=0;
+
 char *custom3_file_name=NULL;
 unsigned int  custom3_start_address=0;
+unsigned int  custom3_has_spare=0;
+
+
 char *custom4_file_name=NULL;
 unsigned int  custom4_start_address=0;
+unsigned int  custom4_has_spare=0;
+
 char *custom5_file_name=NULL;
 unsigned int  custom5_start_address=0;
-
+unsigned int  custom5_has_spare=0;
 
 
 
@@ -86,20 +92,37 @@ void parse_configure_file(int argc,char *argv[])
   cfg_opt_t opts[] = {
 			CFG_SIMPLE_INT("uboot_startaddress", &u_boot_start_address),   
 			CFG_SIMPLE_STR("uboot_file", &(u_boot_file_name)),   
+			CFG_SIMPLE_INT("uboot_has_spare", &u_boot_has_spare),   
+			
 			CFG_SIMPLE_INT("kernel_startaddress", &kernel_start_address),   
-			CFG_SIMPLE_STR("kernel_file", &(kernel_file_name)),   
+			CFG_SIMPLE_STR("kernel_file", &(kernel_file_name)),  
+			CFG_SIMPLE_INT("kernel_has_spare", &kernel_has_spare),   
+
+			
 			CFG_SIMPLE_INT("rootfs_startaddress", &rootfs_start_address),   
 			CFG_SIMPLE_STR("rootfs_file", &(rootfs_file_name)),   
+          CFG_SIMPLE_INT("rootfs_has_spare", &rootfs_has_spare),   
+
 			CFG_SIMPLE_INT("custom1_startaddress", &custom1_start_address),   
 			CFG_SIMPLE_STR("custom1_file", &(custom1_file_name)),   
+			CFG_SIMPLE_INT("custom1_has_spare", &custom1_has_spare),   
+
+			
 			CFG_SIMPLE_INT("custom2_startaddress", &custom2_start_address),   
 			CFG_SIMPLE_STR("custom2_file", &(custom2_file_name)),   
+			CFG_SIMPLE_INT("custom2_has_spare", &custom2_has_spare),   
+			
 			CFG_SIMPLE_INT("custom3_startaddress", &custom3_start_address),   
 			CFG_SIMPLE_STR("custom3_file", &(custom3_file_name)),   
+			CFG_SIMPLE_INT("custom3_has_spare", &custom3_has_spare),   
+			
 			CFG_SIMPLE_INT("custom4_startaddress", &custom4_start_address),   
 			CFG_SIMPLE_STR("custom4_file", &(custom4_file_name)),   
+			CFG_SIMPLE_INT("custom4_has_spare", &custom4_has_spare),   
+			
 			CFG_SIMPLE_INT("custom5_startaddress", &custom5_start_address),   
 			CFG_SIMPLE_STR("custom5_file", &(custom5_file_name)),   
+			CFG_SIMPLE_INT("custom5_has_spare", &custom5_has_spare),   
 			CFG_END()
 	};
 	cfg_t *cfg;
@@ -109,8 +132,7 @@ void parse_configure_file(int argc,char *argv[])
 	
     ASSERT(u_boot_start_address==0,"uboot_startaddress must be 0\n");
 	ASSERT(u_boot_file_name!=NULL,"please set u-boot file\n");
-	//ASSERT(kernel_file_name!=NULL,"please set kernel file\n");
-   //ASSERT(kernel_start_address!=0,"please set kernel start address\n");
+	
    if (custom1_start_address!=0)
      ASSERT(custom1_file_name!=NULL,"please set custom1_file\n");
    if (custom1_file_name!=NULL)
@@ -146,21 +168,36 @@ void parse_configure_file(int argc,char *argv[])
 	printf("----configure options--------------\n");
 	printf("uboot_startaddress 0x%x\n",u_boot_start_address);
 	printf("uboot_file %s\n",u_boot_file_name);
+	printf("uboot_has_spare %x\n",u_boot_has_spare);
+	
 	printf("kernel_startaddress 0x%x\n",kernel_start_address);
 	printf("kernel_file %s\n",kernel_file_name);
+	printf("kernel_has_spare %x\n",kernel_has_spare);
+	
 	printf("rootfs_startaddress 0x%x\n",rootfs_start_address);
 	printf("rootfs_file %s\n",rootfs_file_name);
+	printf("rootfs_has_spare %x\n",rootfs_has_spare);
+	
 	printf("custom1_startaddress 0x%x\n",custom1_start_address);
 	printf("custom1_file %s\n",custom1_file_name);
+	printf("custom1_has_spare %x\n",custom1_has_spare);
+
+	
 	printf("custom2_startaddress 0x%x\n",custom2_start_address);
 	printf("custom2_file %s\n",custom2_file_name);
+	printf("custom2_has_spare %x\n",custom2_has_spare);
+	
 	printf("custom3_startaddress 0x%x\n",custom3_start_address);
 	printf("custom3_file %s\n",custom3_file_name);
+	printf("custom3_has_spare %x\n",custom3_has_spare);
+	
 	printf("custom4_startaddress 0x%x\n",custom4_start_address);
 	printf("custom4_file %s\n",custom4_file_name);
+	printf("custom4_has_spare %x\n",custom4_has_spare);
+	
 	printf("custom5_startaddress 0x%x\n",custom4_start_address);
 	printf("custom5_file %s\n",custom4_file_name);
-	
+	printf("custom5_has_spare %x\n",custom5_has_spare);
 
 
 	
@@ -256,7 +293,6 @@ int write_nand_flash_file(char *file_name,unsigned int start_address)
   assert(file_size>=F16K);  /*u-boot image must >F16K*/
   fseek(fp,0,SEEK_SET);
   cal_block_no(start_address, file_size, &block_start_no, &block_end_no);
-  printf("block_start_no %d block_end_no %d\n",block_start_no,block_end_no);
   for (i=block_start_no;i<=block_end_no;i++)
     {
       snprintf(block_file_name,sizeof(block_file_name),"nandflash1GB/nandflash1GB.%d",i);
@@ -318,29 +354,120 @@ int main(int argc,char*argv[])
   
 
   /*write u-boot*/
-  if (write_nand_flash_file(u_boot_file_name,u_boot_start_address)==-1)
-    exit(-1);
+    if (u_boot_file_name!=NULL)
+    {
+      if (u_boot_has_spare)
+        {
+          if (write_nand_flash_file_with_sparce(u_boot_file_name,u_boot_start_address)==-1)
+             exit(-1);
+        }
+      else
+        {
+          if (write_nand_flash_file(u_boot_file_name,u_boot_start_address)==-1)
+            exit(-1);
+        }
+    }
+
+    
   if (kernel_file_name!=NULL)
-    if (write_nand_flash_file(kernel_file_name,kernel_start_address)==-1)
-     exit(-1);
-if (rootfs_file_name!=NULL)
-   if (write_nand_flash_file_with_sparce(rootfs_file_name,rootfs_start_address)==-1)
-    exit(-1);
+    {
+      if (kernel_has_spare)
+        {
+          if (write_nand_flash_file_with_sparce(kernel_file_name,kernel_start_address)==-1)
+             exit(-1);
+        }
+      else
+        {
+          if (write_nand_flash_file(kernel_file_name,kernel_start_address)==-1)
+            exit(-1);
+        }
+    }
+
+  if (rootfs_file_name!=NULL)
+    {
+      if (rootfs_has_spare)
+        {
+          if (write_nand_flash_file_with_sparce(rootfs_file_name,rootfs_start_address)==-1)
+             exit(-1);
+        }
+      else
+        {
+          if (write_nand_flash_file(rootfs_file_name,rootfs_start_address)==-1)
+            exit(-1);
+        }
+    }
+
 if (custom1_file_name!=NULL)
-   if (write_nand_flash_file(custom1_file_name,custom1_start_address)==-1)
-    exit(-1);
+    {
+      if (custom1_has_spare)
+        {
+          if (write_nand_flash_file_with_sparce(custom1_file_name,custom1_start_address)==-1)
+             exit(-1);
+        }
+      else
+        {
+          if (write_nand_flash_file(custom1_file_name,custom1_start_address)==-1)
+            exit(-1);
+        }
+    }
+
 if (custom2_file_name!=NULL)
-    if (write_nand_flash_file(custom2_file_name,custom2_start_address)==-1)
-    exit(-1);
+    {
+      if (custom2_has_spare)
+        {
+          if (write_nand_flash_file_with_sparce(custom2_file_name,custom2_start_address)==-1)
+             exit(-1);
+        }
+      else
+        {
+          if (write_nand_flash_file(custom2_file_name,custom2_start_address)==-1)
+            exit(-1);
+        }
+    }
+
 if (custom3_file_name!=NULL)
-     if (write_nand_flash_file(custom3_file_name,custom3_start_address)==-1)
-    exit(-1);
+    {
+      if (custom3_has_spare)
+        {
+          if (write_nand_flash_file_with_sparce(custom3_file_name,custom3_start_address)==-1)
+             exit(-1);
+        }
+      else
+        {
+          if (write_nand_flash_file(custom3_file_name,custom3_start_address)==-1)
+            exit(-1);
+        }
+    }
+
 if (custom4_file_name!=NULL)
-      if (write_nand_flash_file(custom4_file_name,custom4_start_address)==-1)
-    exit(-1);
+    {
+      if (custom4_has_spare)
+        {
+          if (write_nand_flash_file_with_sparce(custom4_file_name,custom4_start_address)==-1)
+             exit(-1);
+        }
+      else
+        {
+          if (write_nand_flash_file(custom4_file_name,custom4_start_address)==-1)
+            exit(-1);
+        }
+    }
+
 if (custom5_file_name!=NULL)
-       if (write_nand_flash_file(custom5_file_name,custom5_start_address)==-1)
-    exit(-1);
+    {
+      if (custom5_has_spare)
+        {
+          if (write_nand_flash_file_with_sparce(custom5_file_name,custom5_start_address)==-1)
+             exit(-1);
+        }
+      else
+        {
+          if (write_nand_flash_file(custom5_file_name,custom5_start_address)==-1)
+            exit(-1);
+        }
+    }
+
+
 
   
 
@@ -353,117 +480,4 @@ if (custom5_file_name!=NULL)
   
 }
 
-#if 0
-
-int main(int argc,char*argv[])
-{
-        FILE *u_fp;/*fp for u-boot image*/
-        FILE *n_fp;/*fp for nand flash*/
-        
-        unsigned int u_size,u_blocks;
-        unsigned char *temp=NULL;
-        struct spare_struct spare;
-        unsigned int i,j;
-
-        
-        unsigned char perpage[PAGE_DATA_SIZE];
-        unsigned char temp_name[64];
-        
-        parse_cmd_line(argc,argv);
-        
-        u_fp = fopen(u_boot_file_name,"r");
-        if (u_fp==NULL)
-        {
-                printf("can not open u-boot image file %s\n",u_boot_file_name);
-                exit(-1);
-        }
-        fseek(u_fp,0, SEEK_END);
-        u_size = ftell(u_fp);
-        assert(u_size>=F16K);  /*u-boot image must >F16K*/
-        
-        u_blocks=(u_size/BLOCK_DATA_SIZE);
-        if ((u_size%BLOCK_DATA_SIZE)!=0)
-                u_blocks++;
-        
-        temp=malloc(u_blocks*BLOCK_DATA_SIZE);
-        assert(temp!=NULL);
-        memset(temp,0xff,u_blocks*BLOCK_DATA_SIZE);
-        fseek(u_fp,0,SEEK_SET);
-        fread(temp,1,u_size,u_fp);
-        fclose(u_fp);
-        
-        
-        /*read nand flash file */
-        n_fp = fopen("nandflash1GB/nandflash1GB.0","w+");
-        if (n_fp==NULL)
-        {
-                system("mkdir nandflash1GB");
-        }
-        n_fp = fopen("nandflash1GB/nandflash1GB.0","w+");
-        assert(n_fp!=NULL);
-        fseek(n_fp,0,SEEK_SET);
-        
-        /*write first 16k to flash. page size 2k.*/
-        for (i=0;i<8;i++)
-        {
-                fwrite(temp,1,PAGE_DATA_SIZE,n_fp);
-                temp+=PAGE_DATA_SIZE;
-                
-                memset(&spare,0xff,sizeof(spare));
-                /*2-4 bytes: 00 means valid page*/
-                spare.spare_data[2]=0x00;
-                spare.spare_data[3]=0x00;
-                spare.spare_data[4]=0x00;
-                
-                /*we do not check ECC value during booting.so just leave the other bits zero*/
-                /*TODO:Reed-Solomon ECC*/
-                fwrite(&spare,1,sizeof(spare),n_fp);
-        }
-        
-        /*write other pages of 1 block*/
-        for (i=8;i<PAGES_PER_BLOCK;i++)
-        {
-                fwrite(temp,1,PAGE_DATA_SIZE,n_fp);
-                temp+=PAGE_DATA_SIZE;
-                
-                memset(&spare,0xff,sizeof(spare));
-                fwrite(&spare,1,sizeof(spare),n_fp);
-        }
-        
-        /*write other u-boot blocks*/
-        for (j=1;j<u_blocks;j++)
-        {
-		         
-               // if (u_blocks==j)
-               //         break;
-                {
-                        /*create nand flash file*/
-                        sprintf(temp_name,"nandflash1GB/nandflash1GB.%d",j);
-                        fclose(n_fp);
-                        n_fp = fopen(temp_name,"w+");
-                        assert(n_fp!=NULL);
-                        fseek(n_fp,0,SEEK_SET);
-                }
-                for (i=0;i<PAGES_PER_BLOCK;i++)
-                {
-                        //printf("j %d i %d u_pages %d\n",j,i,u_pages);
-                        fwrite(temp,1,PAGE_DATA_SIZE,n_fp);
-                        temp+=PAGE_DATA_SIZE;
-        
-                        memset(&spare,0xff,sizeof(spare));
-                        /*write spare data*/
-                        fwrite(&spare,1,sizeof(spare),n_fp);
-                
-                
-                }
-        }
-        
-        fclose(n_fp);
-
-        
-        printf("done\n");
-        
-        
-}
-#endif
 

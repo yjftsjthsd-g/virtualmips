@@ -1,7 +1,16 @@
+ /*
+ * Copyright (C) yajin 2008<yajinzhou@gmail.com >
+ *     
+ * This file is part of the virtualmips distribution. 
+ * See LICENSE file for terms of the license. 
+ *
+ */
 
 
 /*DMA Controller
 Only support AUTO Request.
+
+TODO:
 */
 
 #define _GNU_SOURCE
@@ -272,7 +281,7 @@ void *dev_jz4740_dma_access(cpu_mips_t *cpu,struct vdevice *dev,
 
 void dev_jz4740_dma_init_defaultvalue()
 {
-
+memset(jz4740_dma_table,0x0,sizeof(jz4740_dma_table));
 }
 void dev_jz4740_dma_reset(cpu_mips_t *cpu,struct vdevice *dev)
 {
