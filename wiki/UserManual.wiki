@@ -35,6 +35,7 @@ cd test_suit-0.02
 There are several files in direcotry test_suit-0.02.
  * u-boot-nand.bin: u-boot image for pavo board
  * uImage: linux 2.6.24 kernel image for pavo(u-boot image)
+ * config.linux2.6.24.pavo: linux 2.6.24 config for pavo
  * vmlinux-adm5120: linux 2.6.22 kernel and root file system for adm5120
  * run.bin: linux 2.6.22 kernel image and boot loader for adm5120
 
