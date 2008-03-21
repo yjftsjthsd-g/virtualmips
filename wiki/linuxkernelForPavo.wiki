@@ -1,0 +1,72 @@
+#summary How to build linux kernel for pavo
+
+= Introduction =
+
+This page describes how to build linux kernel for pavo
+
+
+= Build the toolchain =
+
+Follow [ftp://ftp.ingenic.cn/3sw/01linux/08doc/mips_toolchain_guide.pdf mipsel toolchain guide] to build the toolchain. Add it to $PATH.
+
+In ubuntu system, you need to change the default shell program to build the toolchain.
+{{{
+sudo dpkg-reconfigure dash
+}}}
+See [https://wiki.ubuntu.com/DashAsBinSh DashAsBinSh] for more information.
+
+= Down and patch linux kernel =
+
+Down [ftp://ftp.ingenic.cn/3sw/01linux/02kernel/linux-2.6.24/linux-2.6.24.3.tar.bz2 linux 2.6.24 kernel] and [ftp://ftp.ingenic.cn/3sw/01linux/02kernel/linux-2.6.24/linux-2.6.24.3-jz-20080304.patch.gz patch] from JZ's website.
+
+{{{
+tar jxvf linux-2.6.24.3.tar.bz2
+cd linux-2.6.24.3
+tar zxvf -cd ../linux-2.6.24.3-jz-20080304.patch.gz | patch -p1
+}}}
+
+= Configure linux kernel =
+
+You can config the kernel by yourself or copy the config file included in test suit.
+{{{
+cp test_suit-0.02/config.linux2.6.24.pavo linux-2.6.24.3/.config
+make
+}}}
+
+Configure the kernel by yourself.
+
+{{{
+make pavo_defconfig
+make menuconfig
+}}}
+
+1. *Exclude* the LCD support because VirtualMIPS does not emulate LCD controller.
+
+Device Drivers  ->Graphics support   ->Support for frame buffer devices    ->< >   JZSOC LCD controller support 
+
+2. *Exclude* the touch screen support.
+Device Drivers ->Character device  -> JZSOC char device support ->< > JzSOC touchpanel driver support 
+
+3. *Exclude* the JZ CS8900A Ethernet support.
+Device Driver -> Network device suppor -> Ethernet (10 or 100Mbit) ->< >   JZ CS8900A Ethernet support 
+
+4. Change the nand config.
+Device Drivers ->Memory Technology Device (MTD) support ->NAND Device Support -> (63)  which page inside a block will store the badblock mark
+
+5. *Exclude* the USB support.
+Device Drivers ->[ ] USB support  
+
+6. *Exclude* the MMC/SD card support support.
+Device Drivers -> < > MMC/SD card support  
+
+7. *Exclude* the ac97 support.
+
+Device Drivers ->Sound ->Advanced Linux Sound Architecture ->System on Chip audio support->< > SoC Audio for Ingenic jz4740 chip 
+
+Saving the config option and make linux kernel. Type 'make' to make linux kernel or 'make uImage' to generate linux image for u-boot.
+{{{
+make
+make uImage
+}}}
+
+uImage will be created in arch/mips/boot/ directory.
