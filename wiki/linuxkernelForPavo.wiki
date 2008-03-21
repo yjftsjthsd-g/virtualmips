@@ -70,3 +70,9 @@ make uImage
 }}}
 
 uImage will be created in arch/mips/boot/ directory.
+
+
+= Links =
+ * [UserManual  How to build and run VirtualMIPS]
+ * [ubootForPavo  How to build u-boot for pavo]
+ * [http://www.ingenic.cn/pfwebplus/productServ/kfyd/linux/pfFixedPage.aspx]
