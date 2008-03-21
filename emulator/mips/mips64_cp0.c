@@ -5,6 +5,7 @@
  * MIPS Coprocessor 0 (System Coprocessor) implementation.
  * We don't use the JIT here, since there is no high performance needed.
  */
+ 
   /*
  * Copyright (C) yajin 2008 <yajinzhou@gmail.com >
  *     
@@ -296,7 +297,7 @@ static inline void mips64_cp0_exec_tlbw(cpu_mips_t *cpu,u_int index)
 {
 	m_uint32_t index;
 
-	/*FIX ME: 
+/*FIX ME: 
   May be a bug in tlblhandler of 2.6.11.  by yajin.
 
  IN kernel, TLBL exception handler run a tlbp and then tlbw without checking tlbp is successful.
@@ -313,6 +314,7 @@ static inline void mips64_cp0_exec_tlbw(cpu_mips_t *cpu,u_int index)
  So I first check whether last tlbp failed(check highest bit of index register). If tlbp failed, write 
  tlbwr instead tlbw. It works well.
 	 */
+	 
 	if (cpu->cp0.reg[MIPS_CP0_INDEX] &0x80000000)
 	{
 		mips64_cp0_exec_tlbwr(cpu);

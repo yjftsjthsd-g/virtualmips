@@ -49,11 +49,11 @@ void mips_access_special(cpu_mips_t *cpu,m_va_t vaddr,m_uint32_t mask,
 	m_uint8_t exc_code;
 
 	
-			cpu_log(cpu,
+/*			cpu_log(cpu,
 					"MTS","vaddr 0x%"LL"x at "
 					"pc=0x%"LL"x (size=%u) mask %x \n",vaddr,cpu->pc,op_size,mask);
 		
-		
+		*/
 	switch(mask) {
 	case MTS_ACC_U:
 #if DEBUG_MTS_ACC_U

@@ -8,9 +8,7 @@
 
  /* Watch dog and timer of JZ4740.
 TODO:
-1. watch dog
 2. timer1-5
-3.interrupt
  */
 
 
@@ -28,7 +26,7 @@ TODO:
 #include "cpu.h"
 #include "jz4740.h"
 
-#define  VALIDE_WDT_TCU_OPERATION 1
+#define  VALIDE_WDT_TCU_OPERATION 0
 
  m_uint32_t jz4740_wdt_tcu_table[JZ4740_WDT_INDEX_MAX];
 
@@ -89,8 +87,6 @@ else
       default:
         assert(0);
     }
- if (offset!=0x48)
-  cpu_log(cpu,"","offset %x data %x type %x\n",offset,*data,op_type);
    switch(offset)
     {      
       case TCU_TSSR:  /*set*/
@@ -162,8 +158,9 @@ else
 void dev_jz4740_wdt_tcu_init_defaultvalue()
 {
 
-/*set TCU_TSR=0xffffffff*/
-//jz4740_wdt_tcu_table[TCU_TSR/4]=0XFFFFFFFF;
+
+
+memset(jz4740_wdt_tcu_table,0x0,sizeof(jz4740_wdt_tcu_table));
 
 jz4740_wdt_tcu_table[TCU_TDFR0/4]=0X7FF8;
 jz4740_wdt_tcu_table[TCU_TDHR0/4]=0X7FF7;
@@ -219,7 +216,6 @@ int dev_jz4740_wdt_tcu_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t
    d->dev->flags     = VDEVICE_FLAG_NO_MTS_MMAP;
    
 	vm_bind_device(vm,d->dev);
-	//dev_jz4740_wdt_tcu_init_defaultvalue();
 	
 	return  (0);
 
@@ -230,20 +226,21 @@ int dev_jz4740_wdt_tcu_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t
 
 
    
-/*-------------Virtual Timer----------------------*/
+/*-------------Virtual Timer and WDT Timer----------------------*/
 m_uint32_t   past_instructions=0;
+//m_uint32_t   past_instructions[6];
 /*TODO:need to adjust*/
-#define COUNT_PER_INSTRUCTION   0x180//0X180
+#define COUNT_PER_INSTRUCTION   0x80//0X180
 
 /*JUST TIMER 0*/
 void forced_inline virtual_jz4740_timer(cpu_mips_t *cpu)
 {
 
- if (jz4740_wdt_tcu_table[TCU_TSR/4]&0x01)
+ if (unlikely(jz4740_wdt_tcu_table[TCU_TSR/4]&0x01))
  {
     return;
  }
-if (jz4740_wdt_tcu_table[TCU_TER/4]&0x01)
+if (likely(jz4740_wdt_tcu_table[TCU_TER/4]&0x01))
 {
   //allow counter
   past_instructions++;
@@ -262,7 +259,6 @@ if (jz4740_wdt_tcu_table[TCU_TER/4]&0x01)
           jz4740_wdt_tcu_table[TCU_TFR/4] |=1;
           if (!(jz4740_wdt_tcu_table[TCU_TMR/4]&(0x1) ))
             {
-              //cpu_log(cpu,"","TCU_TMR %x \n",jz4740_wdt_tcu_table[TCU_TMR/4]);
                cpu->vm->set_irq(cpu->vm,IRQ_TCU0);
             }
            
@@ -273,6 +269,7 @@ if (jz4740_wdt_tcu_table[TCU_TER/4]&0x01)
      
     }
 }
+
 
   
 }
@@ -287,17 +284,16 @@ if (likely(jz4740_wdt_tcu_table[TCU_TSR/4]&WDT_TIMER_STOP))
   return;
 }
 
-if (jz4740_wdt_tcu_table[WDT_TCER/4]&0x01)
+if (unlikely(jz4740_wdt_tcu_table[WDT_TCER/4]&0x01))
 {
 
   wdt_past_instructions++;
   if (wdt_past_instructions>=COUNT_PER_INSTRUCTION)
     {
       jz4740_wdt_tcu_table[WDT_TCNT/4] +=1;
-      past_instructions=0;
+      wdt_past_instructions=0;
       if (jz4740_wdt_tcu_table[WDT_TCNT/4]&0xffff0000)
         jz4740_wdt_tcu_table[WDT_TCNT/4]=0;
-      //cpu_log(cpu,"","jz4740_wdt_tcu_table[WDT_TDR/4] %x jz4740_wdt_tcu_table[WDT_TCNT/4] %x\n",jz4740_wdt_tcu_table[WDT_TDR/4],jz4740_wdt_tcu_table[WDT_TCNT/4]);
 
      if (jz4740_wdt_tcu_table[WDT_TCNT/4]>=jz4740_wdt_tcu_table[WDT_TDR/4])
       {

@@ -51,7 +51,7 @@ void *dev_jz4740_rtc_access(cpu_mips_t *cpu,struct vdevice *dev,
 
 void dev_jz4740_rtc_init_defaultvalue()
 {
-
+memset(jz4740_rtc_table,0x0,sizeof(jz4740_rtc_table));
 /*RTC_RCR (RTC_RCR_WRDY )=1 bit 7*/
 jz4740_rtc_table[RTC_RCR/4] |= 0x80;
     

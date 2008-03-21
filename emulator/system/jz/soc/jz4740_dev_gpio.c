@@ -23,7 +23,7 @@
 #include "jz4740.h"
 
 /*set to 0 to improve performance. set to 1 to debug gpio*/
-#define VALIDE_GPIO_OPERATION 1
+#define VALIDE_GPIO_OPERATION 0
 
  m_uint32_t jz4740_gpio_table[JZ4740_GPIO_INDEX_MAX];
 
@@ -373,6 +373,8 @@ return NULL;
 
 void dev_jz4740_gpio_init_defaultvalue()
 {
+memset(jz4740_gpio_table,0x0,sizeof(jz4740_gpio_table));
+
   jz4740_gpio_table[GPIO_PXIM(0)/4]=0xffffffff;
   jz4740_gpio_table[GPIO_PXIM(1)/4]=0xffffffff;
   jz4740_gpio_table[GPIO_PXIM(2)/4]=0xffffffff;

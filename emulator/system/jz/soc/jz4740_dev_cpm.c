@@ -54,7 +54,7 @@ void *dev_jz4740_cpm_access(cpu_mips_t *cpu,struct vdevice *dev,
 
 void dev_jz4740_cpm_init_defaultvalue()
 {
-
+memset(jz4740_cpm_table,0x0,sizeof(jz4740_cpm_table));
 }
 void dev_jz4740_cpm_reset(cpu_mips_t *cpu,struct vdevice *dev)
 {
