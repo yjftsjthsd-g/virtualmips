@@ -69,4 +69,5 @@ If everything goes well, file _u-boot-nand.bin_ will be created and that is what
 
 = Links =
  * [UserManual  How to build and run VirtualMIPS]
+ * [linuxkernelForPavo  How to build linux kernel for pavo]
  * [http://www.ingenic.cn/pfwebplus/productServ/kfyd/linux/pfFixedPage.aspx]
