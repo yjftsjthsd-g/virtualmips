@@ -2,7 +2,7 @@
 
 = How to build VirtualMIPS =
 -----
-You need to download VirtualMIPS first. The latest version is v0.02 release candidate 1. 
+You need to download VirtualMIPS first. The [http://virtualmips.googlecode.com/files/virtualmips-0.02.tar.bz2 latest version] is v0.02. 
 
 Supported systems:
  * JZ [http://www.ingenic.cn/pfwebplus/productServ/kfyd/Hardware/pffaqQuestionContent.aspx?Category=2&Question=3 Pavo demo borad](without LCD controller).
@@ -18,31 +18,54 @@ sudo apt-get install libelf-dev
 After installing libelf,you can compile VirtualMIPS.
 
 {{{
-tar -jxvf virtualmips-V0.02-RC1.tar.bz2
-cd virtualmips-V0.02-RC1/run
+tar -jxvf virtualmips-0.02.tar.bz2
+cd virtualmips-0.02/run
 make
 }}}
 
 If everything goes well, file 'adm5120' and 'pavo' will be created.
- 
-If you are using gcc 3.x and get the following error message, the [http://virtualmips.googlecode.com/files/virtualmips-V0.02-RC1-inline.patch patch] may fix the problem.
+
+You need to down the [http://virtualmips.googlecode.com/files/test_suit-0.02.tar.bz2 test suit] run VirtualMIPS.
+
 {{{
-./mips/mips64_cp0.h:28: sorry, unimplemented: inlining failed ......
+tar -jxvf test_suit-0.02.tar.bz2
+cd test_suit-0.02
 }}}
 
-There are some other files in direcotry virtualmips-V0.02-RC1/run.
- * adm5120.conf:configure file for adm5120 emulation
- * pavo.conf:configure file for pavo board emulation
+There are several files in direcotry test_suit-0.02.
  * u-boot-nand.bin: u-boot image for pavo board
- * vmlinux: linux 2.6.22 kernel and root file system for adm5120
+ * uImage: linux 2.6.24 kernel image for pavo(u-boot image)
+ * vmlinux-adm5120: linux 2.6.22 kernel and root file system for adm5120
+ * run.bin: linux 2.6.22 kernel image and boot loader for adm5120
+
 
 = How to run pavo board emulation =
 
-Pavo board has an 1GB nand flash where u-boot bootloader stored. In pavo emulation, we use cow(create on write) to emulate 1GB nand flash. That means the nand flash file will be created only after the block has been written. VirtualMIPS provides a tool mknandflash to create the nand flash file of u-boot.
+Pavo board has an 1GB nand flash where u-boot bootloader/linux kernel/rootfs stored. In pavo emulation, we use cow(create on write) method to emulate 1GB nand flash. That means the nand flash file will be created only after the block has been written. VirtualMIPS provides a tool mknandflash to create the nand flash file. Before using mknandflash, you need to build u-boot linux kernel and root file system. There are u-boot image and kernel image for pavo in test_suit-0.02. Root file system is too big so it is not included in test suit. But you can [ftp://ftp.ingenic.cn/3sw/01linux/03root/rootfs-20080226.tgz download it] form JZ's website.
 
 {{{
-cd virtualmips-V0.02-RC1/run
-../tool/mknandflash -b u-boot-nand.bin
+tar zxvf rootfs-20080226.tgz
+cd rootfs-20080226
+mkyaffs2image 1 root26 root.yaffs2
+}}}
+
+It will create the yaffs2 root file system root.yaffs2. Copy it to VirtualMIPS directory.
+
+{{{
+cp rootfs-20080226/root.yaffs2  virtualmips-0.02/run
+}}}
+
+Copy the other file from test_suit to VirtualMIPS directory.
+
+{{{
+cp test_suit-0.02/*  virtualmips-0.02/run
+}}}
+
+Use mknandflash to create the nand file file.
+
+{{{
+cd virtualmips-0.02/run
+../tool/mknandflash 
 }}}
 
 It will create a directory nandflash1GB containning nand flash file(One file one block).
@@ -70,64 +93,134 @@ In:    serial
 Out:   serial
 Err:   serial
 Hit any key to stop autoboot:  0
-PAVO # help
-?       - alias for 'help'
-askenv  - get environment variables from stdin
-autoscr - run script from memory
-base    - print or set address offset
-bdinfo  - print Board Info structure
-boot    - boot default, i.e., run 'bootcmd'
-bootd   - boot default, i.e., run 'bootcmd'
-bootm   - boot application image from memory
-bootp   - boot image via network using BootP/TFTP protocol
-cmp     - memory compare
-coninfo - print console devices and information
-cp      - memory copy
-cpm:     - Usage: cpmtest [add][cpm_value]
-crc32   - checksum calculation
-dhcp    - invoke DHCP client to obtain IP/boot params
-echo    - echo args to console
-erase   - erase FLASH memory
-fatinfo - print information about filesystem
-fatload - load binary file from a dos filesystem
-fatls   - list files in a directory (default /)
-flinfo  - print FLASH memory information
-go      - start application at address 'addr'
-help    - print online help
-iminfo  - print header information for application image
-imls    - list all images found in flash
-itest   - return true/false on integer compare
-loadb   - load binary file over serial line (kermit mode)
-loads   - load S-Record file over serial line
-loady   - load binary file over serial line (ymodem mode)
-loop    - infinite loop on address range
-md      - memory display
-mm      - memory modify (auto-incrementing)
-mmcinit - init mmc card
-mtest   - simple RAM test
-mw      - memory write (fill)
-nand    - NAND sub-system
-nboot   - boot from NAND device
-nfs     - boot image via network using NFS protocol
-nm      - memory modify (constant address)
-ping    - send ICMP ECHO_REQUEST to network host
-printenv- print environment variables
-protect - enable or disable FLASH write protection
-rarpboot- boot image via network using RARP/TFTP protocol
-reset   - Perform RESET of the CPU
-run     - run commands in an environment variable
-saveenv - save environment variables to persistent storage
-setenv  - set environment variables
-sleep   - delay execution for some time
-tftpboot- boot image via network using TFTP protocol
-version - print monitor version
-PAVO #
+
+NAND read: device 0 offset 0x400000, size 0x300000
+ 3145728 bytes read: OK
+## Booting image at 80600000 ...
+   Image Name:   Linux-2.6.24.3
+   Image Type:   MIPS Linux Kernel Image (gzip compressed)
+   Data Size:    1875172 Bytes =  1.8 MB
+   Load Address: 80010000
+   Entry Point:  8031b400
+   Verifying Checksum ... OK
+   Uncompressing Kernel Image ... OK
+
+Starting kernel ...
+
+Linux version 2.6.24.3 (root@KILL-BILL) (gcc version 4.1.2) #30 PREEMPT Fri Mar 21 15:04:18 CST 2008
+CPU revision is: 0ad0024f (Ingenic JZRISC)
+CPU clock: 336MHz, System clock: 112MHz, Peripheral clock: 112MHz, Memory clock: 112MHz
+JZ4740 PAVO board setup
+Determined physical RAM map:
+ memory: 04000000 @ 00000000 (usable)
+User-defined physical RAM map:
+ memory: 04000000 @ 00000000 (usable)
+Zone PFN ranges:
+  Normal          0 ->    16384
+Movable zone start PFN for each node
+early_node_map[1] active PFN ranges
+    0:        0 ->    16384
+Built 1 zonelists in Zone order, mobility grouping on.  Total pages: 16256
+Kernel command line: mem=64M console=ttyS0,57600n8 ip=off rootfstype=yaffs2 root=/dev/mtdblock2 rw
+Primary instruction cache 16kB, VIPT, 4-way, linesize 32 bytes.
+Primary data cache 16kB, 4-way, VIPT, no aliases, linesize 32 bytes
+Synthesized clear page handler (25 instructions).
+Synthesized copy page handler (44 instructions).
+Synthesized TLB refill handler (20 instructions).
+Synthesized TLB load handler fastpath (32 instructions).
+Synthesized TLB store handler fastpath (32 instructions).
+Synthesized TLB modify handler fastpath (31 instructions).
+PID hash table entries: 256 (order: 8, 1024 bytes)
+Console: colour dummy device 80x25
+console [ttyS0] enabled
+Dentry cache hash table entries: 8192 (order: 3, 32768 bytes)
+Inode-cache hash table entries: 4096 (order: 2, 16384 bytes)
+Memory: 60476k/65536k available (3140k kernel code, 4992k reserved, 927k data, 164k init, 0k highmem)
+Mount-cache hash table entries: 512
+net_namespace: 64 bytes
+NET: Registered protocol family 16
+SCSI subsystem initialized
+NET: Registered protocol family 2
+IP route cache hash table entries: 1024 (order: 0, 4096 bytes)
+TCP established hash table entries: 2048 (order: 2, 16384 bytes)
+TCP bind hash table entries: 2048 (order: 1, 8192 bytes)
+TCP: Hash tables configured (established 2048 bind 2048)
+TCP reno registered
+Total 4MB memory at 0x3400000 was reserved for IPU
+Power Management for JZ
+yaffs Mar 20 2008 09:26:40 Installing.
+io scheduler noop registered
+io scheduler anticipatory registered (default)
+io scheduler deadline registered
+io scheduler cfq registered
+JzSOC: char device family.
+JZ UDC hotplug driver installed
+Serial: 8250/16550 driver $Revision: 1.2 $ 2 ports, IRQ sharing disabled
+UDC starting monitor thread
+serial8250: ttyS0 at MMIO 0x0 (irq = 9) is a 16450
+serial8250: ttyS1 at MMIO 0x0 (irq = 8) is a 16450
+RAMDISK driver initialized: 16 RAM disks of 4096K size 1024 blocksize
+loop: module loaded
+Linux video capture interface: v2.00
+JzSOC Camera Interface Module (CIM) driver registered
+Ingenic CMOS camera sensor driver registered
+Driver 'sd' needs updating - please use bus_type methods
+block2mtd: version $Revision: 1.30 $
+NAND device: Manufacturer ID: 0xec, Chip ID: 0xd3 (Samsung NAND 1GiB 3,3V 8-bit)
+Scanning device for bad blocks
+Creating 6 MTD partitions on "NAND 1GiB 3,3V 8-bit":
+0x00000000-0x00400000 : "NAND BOOT partition"
+0x00400000-0x00800000 : "NAND KERNEL partition"
+0x00800000-0x08000000 : "NAND ROOTFS partition"
+0x08000000-0x10000000 : "NAND DATA1 partition"
+0x10000000-0x20000000 : "NAND DATA2 partition"
+0x20000000-0x40000000 : "NAND VFAT partition"
+mice: PS/2 mouse device common for all mice
+JzSOC Watchdog Timer: timer margin 60 sec
+Advanced Linux Sound Architecture Driver Version 1.0.15 (Tue Nov 20 19:16:42 2007 UTC).
+ASoC version 0.13.1
+ALSA device list:
+  No soundcards found.
+TCP cubic registered
+NET: Registered protocol family 1
+NET: Registered protocol family 17
+RPC: Registered udp transport module.
+RPC: Registered tcp transport module.
+yaffs: dev is 32505858 name is "mtdblock2"
+yaffs: Attempting MTD mount on 31.2, "mtdblock2"
+VFS: Mounted root (yaffs2 filesystem).
+Freeing unused kernel memory: 164k freed
+Algorithmics/MIPS FPU Emulator v1.5
+init started: BusyBox v1.8.2 (2008-01-09 19:22:01 CST)
+starting pid 719, tty '': '/etc/init.d/rcS'
+Starting udevd ...
+starting pid 742, tty '': '/bin/sh'
+# ls
+bin         home        linuxrc     opt         sbin        usr
+dev         init        lost+found  proc        sys         var
+etc         lib         mnt         root        tmp
+# cat /proc/cpuinfo
+system type             : JZ4740
+processor               : 0
+cpu model               : Ingenic JZRISC V4.15
+BogoMIPS                : 185.13
+wait instruction        : yes
+microsecond timers      : no
+tlb_entries             : 32
+extra interrupt vector  : yes
+hardware watchpoint     : no
+ASEs implemented        :
+shadow register sets    : 1
+VCED exceptions         : not available
+VCEI exceptions         : not available
+
+#
 
 }}}
 
 = How to run adm5120 emulation =
 
-Type the following command to run ADM5120 emulation.
+Type the following command to run ADM5120 emulation.(Make sure you have copy the kernel image from test suit to VirtualMIPS directory.)
 
 {{{
 cd virtualmips-V0.02-RC1/run
@@ -136,18 +229,19 @@ cd virtualmips-V0.02-RC1/run
 
 
 {{{
-VirtualMIPS (version 0.01)
+VirtualMIPS (version 0.02)
 Copyright (c) 2008 yajin.
-Build date: Feb 27 2008 11:49:51
+Build date: Mar 21 2008 16:02:42
 
 Using configure file: adm5120.conf
 ram_size: 16M bytes
 boot_method: ELF
+flash_type: NOR FLASH
 flash_size: 4M bytes
-flash_file_name: flash.bin
+flash_file_name: run.bin
 flash_phy_address: 0x1fc00000
-kernel_file_name: vmlinux
-Loading ELF file 'vmlinux'...
+kernel_file_name: vmlinux-adm5120
+Loading ELF file 'vmlinux-adm5120'...
 ELF entry point: 0x80214000
 
 ADM5120 'adm5120': starting simulation (CPU0 PC=0x80214000), JIT disabled.
@@ -169,7 +263,7 @@ PID hash table entries: 128 (order: 7, 2048 bytes)
 CPU clock: 175MHz
 Dentry cache hash table entries: 4096 (order: 2, 16384 bytes)
 Inode-cache hash table entries: 2048 (order: 1, 8192 bytes)
-Memory: 13312k/13488k available (1819k kernel code, 160k reserved, 297k data, 676k init, 0k ighmem)
+Memory: 13312k/13488k available (1819k kernel code, 160k reserved, 297k data, 676k init, 0k highmem)
 Mount-cache hash table entries: 512
 Checking for 'wait' instruction...  available.
 NET: Registered protocol family 16
@@ -199,7 +293,24 @@ Algorithmics/MIPS FPU Emulator v1.5
 BusyBox v1.00 (2008.02.22-15:41+0000) Built-in shell (ash)
 Enter 'help' for a list of built-in commands.
 
+/ # ls
+bin         home        lost+found  proc        tmp
+dev         init        mnt         root        usr
+etc         lib         opt         sbin        var
+/ # cat /proc/cpuinfo
+system type             : ADM5120 Board
+processor               : 0
+cpu model               : MIPS 4Kc V0.11
+BogoMIPS                : 0.00
+wait instruction        : yes
+microsecond timers      : yes
+tlb_entries             : 32
+extra interrupt vector  : yes
+hardware watchpoint     : no
+VCED exceptions         : not available
+VCEI exceptions         : not available
 / #
+
 }}}
 
 = How to stop emulation =
