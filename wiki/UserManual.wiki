@@ -42,7 +42,7 @@ There are several files in direcotry test_suit-0.02.
 
 = How to run pavo board emulation =
 
-Pavo board has an 1GB nand flash where u-boot bootloader/linux kernel/rootfs stored. In pavo emulation, we use cow(create on write) method to emulate 1GB nand flash. That means the nand flash file will be created only after the block has been written. VirtualMIPS provides a tool mknandflash to create the nand flash file. Before using mknandflash, you need to build u-boot linux kernel and root file system. There are u-boot image and kernel image for pavo in test_suit-0.02. Root file system is too big so it is not included in test suit. But you can [ftp://ftp.ingenic.cn/3sw/01linux/03root/rootfs-20080226.tgz download it] form JZ's website.
+Pavo board has an 1GB nand flash where u-boot bootloader/linux kernel/rootfs stored. In pavo emulation, we use cow(create on write) method to emulate 1GB nand flash. That means the nand flash file will be created only after the block has been written. VirtualMIPS provides a tool mknandflash to create the nand flash file. Before using mknandflash, you need to build u-boot linux kernel and root file system. There are u-boot image and kernel image for pavo in test_suit-0.02. Root file system is too big so it is not included in test suit. You can [ftp://ftp.ingenic.cn/3sw/01linux/03root/rootfs-20080226.tgz download it] form JZ's website.
 
 {{{
 tar zxvf rootfs-20080226.tgz
@@ -56,7 +56,7 @@ It will create the yaffs2 root file system root.yaffs2. Copy it to VirtualMIPS d
 cp rootfs-20080226/root.yaffs2  virtualmips-0.02/run
 }}}
 
-Copy the other file from test_suit to VirtualMIPS directory.
+Copy the other files from test_suit to VirtualMIPS directory.
 
 {{{
 cp test_suit-0.02/*  virtualmips-0.02/run
