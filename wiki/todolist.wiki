@@ -13,7 +13,7 @@
   * Just like [http://www.valgrind.org/ valgirnd], but we can provide a system level code instrumentation not only application level.
 
  * OKL4 porting (middle priority) 
-  * porting [http://www.ok-labs.com/products/okl4 OKL4] to jz4740. OKL4 is a good virtualization platform and it is very cool to see two operating system run on VirutalMIPS at the same time.
+  * porting [http://www.ok-labs.com/products/okl4 OKL4] to jz4740. OKL4 is a good virtualization platform and it is very cool to see two operating system running on VirutalMIPS at the same time.
 
  * add support of swarm board (BCM1250)(low priority) 
 
