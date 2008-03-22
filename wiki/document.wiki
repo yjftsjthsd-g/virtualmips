@@ -1,5 +1,4 @@
 #summary document of VirtualMIPS
-#labels Featured
 
 === VirtualMIPS ===
 
