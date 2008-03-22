@@ -43,7 +43,7 @@ make
 
 If everything goes well, file 'adm5120' and 'pavo' will be created.
 
-You need to down the [http://virtualmips.googlecode.com/files/test_suit-0.02.tar.bz2 test suit] to run VirtualMIPS.
+You need to download the [http://virtualmips.googlecode.com/files/test_suit-0.02.tar.bz2 test suit] to run VirtualMIPS.
 
 {{{
 tar -jxvf test_suit-0.02.tar.bz2
