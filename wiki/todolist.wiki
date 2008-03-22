@@ -1,13 +1,22 @@
 #summary What is going on next?
 
 
- * add support of [http://www.ingenic.cn JZ] Soc(High priority)
+ * add support of [http://www.ingenic.cn JZ] Soc(high priority)
 
- * dynamic binary translation(JIT)(High priority) 
+ * dynamic binary translation(JIT)(high priority) 
   * In order to improve the performance of emulator, jit is used to translate the guest code into host code, mips to x86 for example. QEMU has an excellent architectural of JIT. However, it relays on the specific version of gcc(gcc-3). We want to design and implement a framework of JIT which *DOES NOT* relay on the version of compiler and host architectural.
 
- * add support of swarm board (BCM1250)(Low priority) 
+ * Profile support (middle priority) 
+  * It is usefule for emulator to support program profiling so that you can know where is the critical path of program and then optimize it. 
+
+ * Code instrumentation (middle priority) 
+  * Just like http://www.valgrind.org/ valgirnd], but we can provide a system level code instrumentation not only application level.
+
+ * okl4 porting (middle priority) 
+  * porting Okl4 micro kernel to jz4740. OKL4 is a good virtualization platform and it is very cool to see two operating system run on VirutalMIPS at the same time.
+
+ * add support of swarm board (BCM1250)(low priority) 
 
  * add support of [http://www.linux-mips.org/wiki/Fulong fulong] (Low priority)
 
- * add support of au1200 (Low priority)
+ * add support of au1200 (low priority)
