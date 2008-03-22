@@ -1,7 +1,5 @@
-#summary TODO List
+#summary What is going on next?
 
-== Introduction ==
-This page describes the todo list of VirtualMIPS, according to the priority.
 
  * add support of [http://www.ingenic.cn JZ] Soc(High priority) ===
 
@@ -13,5 +11,3 @@ This page describes the todo list of VirtualMIPS, according to the priority.
  * add support of [http://www.linux-mips.org/wiki/Fulong fulong] (Low priority)
 
  * add support of au1200 (Low priority)
-
-
