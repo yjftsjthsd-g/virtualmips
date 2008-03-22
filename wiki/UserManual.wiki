@@ -80,7 +80,7 @@ Copy the other files from test_suit to VirtualMIPS directory.
 cp test_suit-0.02/*  virtualmips-0.02/run
 }}}
 
-Use mknandflash to create the nand file file. Make sure you have setten the right u-boot/kernel image file name and root filesytem file name/startaddress in the configure file of mknandflash(nandflash.conf in directory virtualmips-0.02/run).See nandflash.conf for more information.
+VirtualMIPS provides a tool "mknandflash" to create the nand flash file(Source code is  virtualmips-0.02/tool/mknandflash.c). Make sure you have setten the right u-boot/kernel image file name and root filesytem file name/startaddress in the configure file of mknandflash(nandflash.conf in directory virtualmips-0.02/run).See nandflash.conf for more information.
 
 {{{
 cd virtualmips-0.02/run
