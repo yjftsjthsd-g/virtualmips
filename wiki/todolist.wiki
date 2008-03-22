@@ -1,7 +1,7 @@
 #summary What is going on next?
 
 
- * add support of [http://www.ingenic.cn JZ] Soc(High priority) ===
+ * add support of [http://www.ingenic.cn JZ] Soc(High priority)
 
  * dynamic binary translation(JIT)(High priority) 
   * In order to improve the performance of emulator, jit is used to translate the guest code into host code, mips to x86 for example. QEMU has an excellent architectural of JIT. However, it relays on the specific version of gcc(gcc-3). We want to design and implement a framework of JIT which *DOES NOT* relay on the version of compiler and host architectural.
