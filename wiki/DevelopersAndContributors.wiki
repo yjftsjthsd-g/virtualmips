@@ -1,4 +1,3 @@
 #summary developers and contributors
-#labels Deprecated
 
 [http://home.ustc.edu.cn/~ncs yajin]:project creator and the main developer.<virtualmips AT gmail.com>
