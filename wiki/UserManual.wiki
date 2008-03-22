@@ -241,7 +241,7 @@ VCEI exceptions         : not available
 Type the following command to run ADM5120 emulation.(Make sure you have copy the kernel image from test suit to VirtualMIPS directory.)
 
 {{{
-cd cd virtualmips-0.02/run
+cd virtualmips-0.02/run
 ./adm5120
 }}}
 
