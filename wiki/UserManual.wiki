@@ -1,4 +1,5 @@
 #summary How to build and run VirtualMIPS
+#labels Featured
 
 = How to build VirtualMIPS =
 -----
@@ -8,14 +9,31 @@ Supported systems:
  * JZ [http://www.ingenic.cn/pfwebplus/productServ/kfyd/Hardware/pffaqQuestionContent.aspx?Category=2&Question=3 Pavo demo borad](without LCD controller).
  * ADM5120
 
-VirtualMIPS needs libelf to read elf kernel image. Please install it before compiling VirtualMIPS. In debian/ubuntu, type the following command to install libelf.
+VirtualMIPS needs libelf to read elf kernel image and [http://www.nongnu.org/confuse/ libconfuse] to read config file. Please install them before compiling VirtualMIPS. 
 
+ * Debian/Ubuntu
 {{{
 sudo apt-get install libelf-dev
+sudo apt-get install libconfuse-dev
 }}}
 
+  * Archlinux
+{{{
+sudo pacman -S libelf
+sudo pacman -S confuse
+}}}
 
-After installing libelf,you can compile VirtualMIPS.
+Also you can build libconfuse by yourself. Download the source code of libconfuse from http://bzero.se/confuse/confuse-2.6.tar.gz.
+
+{{{
+tar zxvf confuse-2.6.tar.gz 
+cd confuse-2.6
+./configure
+make 
+sudo make install
+}}}
+
+After installing libelf and libconfuse ,you can compile VirtualMIPS.
 
 {{{
 tar -jxvf virtualmips-0.02.tar.bz2
