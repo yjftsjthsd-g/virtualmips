@@ -15,7 +15,7 @@ sudo dpkg-reconfigure dash
 }}}
 See [https://wiki.ubuntu.com/DashAsBinSh DashAsBinSh] for more information.
 
-= Down and patch linux kernel =
+= Download and patch linux kernel =
 
 Down [ftp://ftp.ingenic.cn/3sw/01linux/02kernel/linux-2.6.24/linux-2.6.24.3.tar.bz2 linux 2.6.24 kernel] and [ftp://ftp.ingenic.cn/3sw/01linux/02kernel/linux-2.6.24/linux-2.6.24.3-jz-20080304.patch.gz patch] from JZ's website.
 
@@ -45,18 +45,22 @@ make menuconfig
 Device Drivers  ->Graphics support   ->Support for frame buffer devices    ->< >   JZSOC LCD controller support 
 
 2. *Exclude* the touch screen support.
+
 Device Drivers ->Character device  -> JZSOC char device support ->< > JzSOC touchpanel driver support 
 
 3. *Exclude* the JZ CS8900A Ethernet support.
 Device Driver -> Network device suppor -> Ethernet (10 or 100Mbit) ->< >   JZ CS8900A Ethernet support 
 
 4. Change the nand config.
+
 Device Drivers ->Memory Technology Device (MTD) support ->NAND Device Support -> (63)  which page inside a block will store the badblock mark
 
 5. *Exclude* the USB support.
+
 Device Drivers ->[ ] USB support  
 
 6. *Exclude* the MMC/SD card support support.
+
 Device Drivers -> < > MMC/SD card support  
 
 7. *Exclude* the ac97 support.
