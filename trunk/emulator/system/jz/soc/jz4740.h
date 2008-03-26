@@ -279,6 +279,26 @@ typedef m_uint32_t m_cp0_reg_t;
 #define WDT_TCNT        ( 0x08)
 #define WDT_TCSR        ( 0x0C)
 
+#define TCU_CLOCK_EXT  0x4
+#define TCU_CLOCK_RTC  0x2
+#define TCU_CLOCK_PCK  0x0
+#define TCU_CLOCK_SOUCE_MASK  0x7
+
+#define TCU_CLOCK_PRESCALE_MASK  0x38
+#define TCU_CLOCK_PRESCALE_OFFSET  0x3
+
+#define WDT_CLOCK_EXT  0x4
+#define WDT_CLOCK_RTC  0x2
+#define WDT_CLOCK_PCK  0x0
+#define WDT_CLOCK_SOUCE_MASK  0x7
+
+#define WDT_CLOCK_PRESCALE_MASK  0x38
+#define WDT_CLOCK_PRESCALE_OFFSET  0x3
+
+
+#define EXT_CLOCK  12000000 /*12M*/
+#define RTC_CLOCK       32768
+
 
 /*************************************************************************
  * TCU (Timer Counter Unit)

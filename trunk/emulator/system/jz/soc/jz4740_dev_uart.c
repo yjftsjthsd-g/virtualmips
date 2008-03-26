@@ -42,6 +42,7 @@ send:
 #include "mips64_memory.h"
 #include "jz4740.h"
 #include "cpu.h"
+#include "jz4740_dev_uart.h"
 
 /* Interrupt Identification Register */
 #define IIR_NPENDING  0x01   /* 0: irq pending, 1: no irq pending */
@@ -50,45 +51,25 @@ send:
 
 
 
-struct jz4740_uart_data {
-   struct vdevice *dev;
-
-   u_int irq,duart_irq_seq;
-   u_int output;
-
-   vtty_t *vtty;
-   vm_instance_t *vm;
-
-   m_uint32_t  ier ;/*0x04*/
-   m_uint32_t  iir ;/*0x08*/
-   m_uint32_t  fcr ;/*0x08*/
-   m_uint32_t  lcr ;/*0x0c*/
-   m_uint32_t  mcr ;/*0x10*/
-   m_uint32_t  lsr ;/*0x14*/
-   m_uint32_t  msr ;/*0x18*/
-   m_uint32_t  spr ;/*0x1c*/
-   m_uint32_t  isr ;/*0x20*/
-   m_uint32_t  umr ;/*0x24*/
-   m_uint32_t  uacr ;/*0x28*/
-
-   m_uint32_t jz4740_uart_size;
-   
-
-   
-};
-
-
+/*given cpu return uart0*/
+struct jz4740_uart_data * jz4740_get_uart0(cpu_mips_t *cpu)
+{
+	if (cpu->vm->vtty_con1->priv_data!=NULL)
+		return cpu->vm->vtty_con1->priv_data;
+	else
+		return NULL;
+}
 
 static void  jz4740_tty_con_input(vtty_t *vtty)
 {
   struct jz4740_uart_data *d = vtty->priv_data;
-
 
    if (d->ier & UART_IER_RDRIE)
     {
       d->vm->set_irq(d->vm,d->irq);
     }
    d->lsr |= UART_LSR_DRY;
+   //printf("I am here\n");
       
 }
 
@@ -111,6 +92,7 @@ void *dev_jz4740_uart_access(cpu_mips_t *cpu,struct vdevice *dev,
       case UART_RBR:/*0x0 RBR THR*/
          if (op_type==MTS_READ)
          {
+         
             *data = vtty_get_char(d->vtty);
             if (vtty_is_char_avail(d->vtty))
               d->lsr |= UART_LSR_DRY;
@@ -119,15 +101,33 @@ void *dev_jz4740_uart_access(cpu_mips_t *cpu,struct vdevice *dev,
          }
          else
         {
-          /*write*/
           vtty_put_char(d->vtty,(char)(*data));
+           if ((d->ier & UART_IER_TDRIE)&&(d->output==0)&&(d->fcr&0x10))
+           {
+            /*yajin.
+            
+            In order to put the next data more quickly, just set irq not waiting for host_alarm_handler to set irq. 
+            Sorry uart, too much work for you.
+            
+            Sometimes, linux kernel prints "serial8250: too much work for irq9" if we print large data on screen.
+            Please patch the kernel. comment "printk(KERN_ERR "serial8250: too much work for "
+			 														"irq%d\n", irq);"
+			 qemu has some question.
+			 http://lkml.org/lkml/2008/1/12/135
+			 http://kerneltrap.org/mailarchive/linux-kernel/2008/2/7/769924
+
+			 If jit is used in future, we may not need to set irq here because emulation is quick enough. Then we have 
+			 no "too much work for irq9" problem. 
+
+			 
+            */
+            d->output = TRUE;
+       	 d->vm->set_irq(d->vm,d->irq);
+           }
       
         }
-          if ((d->ier & UART_IER_TDRIE)&&(d->output==0)&&(d->fcr&0x10))
-    {
-         d->output = TRUE;
-         d->vm->set_irq(d->vm,d->irq);
-      }
+
+    
       *has_set_value =TRUE;
       break;
 
@@ -137,12 +137,8 @@ void *dev_jz4740_uart_access(cpu_mips_t *cpu,struct vdevice *dev,
             *data = d->ier;
          } else {
             d->ier = *data & 0xFF;
-           if ((d->ier  & UART_IER_TDRIE)&&(d->output==0)&&(d->fcr&0x10))
-              {
-                d->vm->set_irq(d->vm,d->irq);
-                d->output = TRUE;
-              }
           }
+         
            *has_set_value =TRUE;
          break;
 
@@ -152,17 +148,19 @@ void *dev_jz4740_uart_access(cpu_mips_t *cpu,struct vdevice *dev,
              if (op_type == MTS_READ) 
              {
                 odata = IIR_NPENDING;
-                 if (vtty_is_char_avail(d->vtty))
+               
+                if (vtty_is_char_avail(d->vtty)) 
                  {
-                    odata = IIR_RXRDY;
+                     odata = IIR_RXRDY;
                 }
-               else
+               else 
                 {
-                   if (d->output) 
-                    {
-                     odata = IIR_TXRDY;
+                  if (d->output)  
+                    	 {
+                      odata = IIR_TXRDY;
                       d->output = 0;
-                    }
+                    }  
+                 
                 }
              *data = odata;
           }
@@ -231,8 +229,57 @@ void dev_jz4740_uart_reset(cpu_mips_t *cpu,struct vdevice *dev)
    d->uacr =0x0;
   
 }
+extern cpu_mips_t *current_cpu;
+
+/*1ms*/
+void dev_jz4740_uart_cb(void *opaque)
+{
+
+ struct jz4740_uart_data *d=(struct jz4740_uart_data *)opaque;
+
+ m_int64_t current;
+	 m_uint32_t past_time;
+
+	
+	d->output=0;
+	
+ if (vtty_is_char_avail(d->vtty))
+	{
+		d->lsr |= UART_LSR_DRY;
+		if (d->ier & UART_IER_RDRIE)
+    	{
+     		 d->vm->set_irq(d->vm,d->irq);
+     		 current=vp_get_clock(rt_clock);
+	past_time=current-d->uart_timer->set_time;
 
 
+	cpu_log8(current_cpu,"","RIQ %x \n",past_time);
+     		 vp_mod_timer(d->uart_timer, vp_get_clock(rt_clock)+1);
+     		 return;
+    	}
+		     		
+
+	}
+	if ((d->ier & UART_IER_TDRIE)&&(d->output==0)&&(d->fcr&0x10))
+    {
+       d->output = TRUE;
+       d->vm->set_irq(d->vm,d->irq);
+       current=vp_get_clock(rt_clock);
+	past_time=current-d->uart_timer->set_time;
+
+
+	cpu_log8(current_cpu,"","TIQ %x \n",past_time);
+       vp_mod_timer(d->uart_timer, vp_get_clock(rt_clock)+1);
+       return;
+      }
+
+	
+
+	 d->uart_timer->set_time=vp_get_clock(rt_clock);
+   vp_mod_timer(d->uart_timer, vp_get_clock(rt_clock)+1);
+
+ 
+}
 int dev_jz4740_uart_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len,
                      u_int irq,vtty_t *vtty)
 {  
@@ -258,6 +305,10 @@ int dev_jz4740_uart_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t le
    d->dev->handler   = dev_jz4740_uart_access;
    d->dev->reset_handler   = dev_jz4740_uart_reset;
    (*d).vtty->read_notifier = jz4740_tty_con_input;
+   d->uart_timer=vp_new_timer(rt_clock, dev_jz4740_uart_cb, d);
+   
+   d->uart_timer->set_time=vp_get_clock(rt_clock);
+   vp_mod_timer(d->uart_timer, vp_get_clock(rt_clock)+1);
       
 	vm_bind_device(vm,d->dev);
 	

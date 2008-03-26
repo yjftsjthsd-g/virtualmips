@@ -10,8 +10,8 @@
 #include<string.h>
 #include <assert.h>
 #include<stdlib.h>
+#include <confuse.h>
 
-#include "confuse.h"
 #include "utils.h"
 #include "mips64.h"
 #include "vm.h"
@@ -102,7 +102,7 @@ m_va_t kernel_entry_point;
 /* Launch the simulation */
 	printf("VM '%s': starting simulation (CPU0 PC=0x%"LL"x), JIT %sabled.\n",
 			vm->name,cpu->pc,vm->jit_use ? "en":"dis");
-
+  cpu_log6(cpu,"","pc ggg %x\n",cpu->pc);
 	vm->status = VM_STATUS_RUNNING;
 	cpu_start(vm->boot_cpu);
 	return(0);

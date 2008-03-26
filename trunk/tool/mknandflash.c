@@ -27,7 +27,7 @@ For other(u-boot and uImage), we just copy the content into flash and fill the s
 #include <getopt.h>
 #include <assert.h>
 
-#include "confuse.h"
+#include <confuse.h>
 
 
 

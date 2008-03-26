@@ -123,8 +123,8 @@ inline void mips64_cp0_set_reg(cpu_mips_t *cpu,u_int cp0_reg,u_int sel,
 	case MIPS_CP0_CAUSE:
 
 		cp0->reg[cp0_reg] = val; 
-
-		mips64_update_irq_flag(cpu);
+		
+		//mips64_update_irq_flag(cpu);
 
 		break;
 	case MIPS_CP0_TLB_HI:

@@ -29,6 +29,7 @@ enum {
 	CPU_STATE_RUNNING = 0,
 	CPU_STATE_HALTED,
 	CPU_STATE_SUSPENDED,
+	CPU_STATE_RESTARTING,
 };
 
 
@@ -46,6 +47,7 @@ struct cpu_group {
 void cpu_log(cpu_mips_t *cpu,char *module,char *format,...);
 void cpu_start(cpu_mips_t *cpu);
 void cpu_stop(cpu_mips_t *cpu);
+void cpu_restart(cpu_mips_t *cpu);
 cpu_mips_t *cpu_create(vm_instance_t *vm,u_int type,u_int id);
 void cpu_delete(cpu_mips_t *cpu);
 cpu_mips_t *cpu_group_find_id(cpu_group_t *group,u_int id);

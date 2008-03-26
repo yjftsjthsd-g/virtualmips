@@ -28,7 +28,7 @@
 
 
 
-#define LOG_ENABLE 1
+#define LOG_ENABLE 0
 /* Log a message for a CPU */
 void cpu_log(cpu_mips_t *cpu,char *module,char *format,...)
 {
@@ -43,12 +43,45 @@ void cpu_log(cpu_mips_t *cpu,char *module,char *format,...)
 #endif
 }
 
+void cpu_log7(cpu_mips_t *cpu,char *module,char *format,...)
+{
+
+	
+
+}
+
+void cpu_log8(cpu_mips_t *cpu,char *module,char *format,...)
+{
+	
+}
+void cpu_log9(cpu_mips_t *cpu,char *module,char *format,...)
+{
+/*	char buffer[256];
+	va_list ap;
+
+	va_start(ap,format);
+	snprintf(buffer,sizeof(buffer),"CPU%u: %s",cpu->id,module);
+	vm_flog(cpu->vm,buffer,format,ap);
+	va_end(ap);*/
+}
+
+void cpu_log6(cpu_mips_t *cpu,char *module,char *format,...)
+{
+	char buffer[256];
+	va_list ap;
+
+	va_start(ap,format);
+	snprintf(buffer,sizeof(buffer),"CPU%u: %s",cpu->id,module);
+	vm_flog(cpu->vm,buffer,format,ap);
+	va_end(ap);
+}
 
 
 /* Start a CPU */
 void cpu_start(cpu_mips_t *cpu)
 {
 	if (cpu) {
+		cpu_log6(cpu,"","pc fff %x\n",cpu->pc);
 		cpu->state = CPU_STATE_RUNNING;
 	}
 }
@@ -61,6 +94,14 @@ void cpu_stop(cpu_mips_t *cpu)
 		cpu->state = CPU_STATE_HALTED;
 	}
 }
+void cpu_restart(cpu_mips_t *cpu)
+{
+	if (cpu) {
+		cpu_log(cpu,"CPU_STATE","Restartting CPU (old state=%u)...\n",cpu->state);
+		cpu->state = CPU_STATE_RESTARTING;
+	}
+}
+
 /* Create a new CPU */
 cpu_mips_t *cpu_create(vm_instance_t *vm,u_int type,u_int id)
 {

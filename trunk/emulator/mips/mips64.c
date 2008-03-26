@@ -326,12 +326,10 @@ static forced_inline int mips64_update_irq_flag_fast(cpu_mips_t *cpu)
 	mips_cp0_t *cp0 = &cpu->cp0;
 	m_uint32_t imask,sreg_mask;
 	m_uint32_t cause;
-
 	cpu->irq_pending = FALSE;
 
 	cause = cp0->reg[MIPS_CP0_CAUSE] & ~MIPS_CP0_CAUSE_IMASK;
 	cp0->reg[MIPS_CP0_CAUSE] = cause | cpu->irq_cause;
-
 	sreg_mask = MIPS_CP0_STATUS_IE|MIPS_CP0_STATUS_EXL|MIPS_CP0_STATUS_ERL;
 
 	if ((cp0->reg[MIPS_CP0_STATUS] & sreg_mask) == MIPS_CP0_STATUS_IE) {
@@ -375,6 +373,13 @@ void mips64_trigger_exception(cpu_mips_t *cpu,u_int exc_code,int bd_slot)
 	cause &= ~MIPS_CP0_CAUSE_EXC_MASK; //clear exec-code
 	cause |= (exc_code << 2);
 	cp0->reg[MIPS_CP0_CAUSE] = cause;
+/*FIXME: JZ4740 will always trigger timer interrupt if update irq.
+			          BUT ADM5120 needs it.  I am confused.
+		*/
+	//#ifdef SIM_PAVO
+	if (exc_code==MIPS_CP0_CAUSE_INTERRUPT)
+		cpu->irq_cause=0;
+	//#endif
 	/* Set EXL bit in status register */
 	/*TODO: RESET SOFT RESET AND NMI EXCEPTION*/
 	cp0->reg[MIPS_CP0_STATUS] |= MIPS_CP0_STATUS_EXL;
@@ -430,6 +435,7 @@ void mips64_trigger_exception(cpu_mips_t *cpu,u_int exc_code,int bd_slot)
 	/* Clear the pending IRQ flag */
 	cpu->irq_pending = 0;
 
+\
 
 }
 
@@ -439,7 +445,6 @@ void mips64_trigger_exception(cpu_mips_t *cpu,u_int exc_code,int bd_slot)
 {
 	mips_cp0_t *cp0 = &cpu->cp0;
 	cp0->reg[MIPS_CP0_CAUSE] |= 0x10000000; //CE=1
-
 	if (cpu->is_in_bdslot == 0)
 		mips64_trigger_exception(cpu,MIPS_CP0_CAUSE_CP_UNUSABLE,0);
 	else

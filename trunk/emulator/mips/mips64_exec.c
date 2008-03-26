@@ -24,6 +24,10 @@
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <fcntl.h>
+#include <signal.h>
+#include <linux/rtc.h>
+#include <sys/ioctl.h>
+#include <time.h>
 
 #include "cpu.h"
 #include "vm.h"
@@ -33,12 +37,94 @@
 #include "mips64.h"
 #include "mips64_cp0.h"
 #include "debug.h"
-
+#include "vp_timer.h"
+cpu_mips_t *current_cpu;
 
 /* Forward declaration of instruction array */
 static struct mips64_insn_exec_tag mips64_exec_tags[];
 static insn_lookup_t *ilt = NULL;
 extern char *mips64_cp0_reg_names[MIPS64_CP0_REG_NR] ;
+
+
+static int timer_freq;
+extern void host_alarm_handler(int host_signum);
+
+#define RTC_FREQ 1024
+
+static int rtc_fd;
+
+static int start_rtc_timer(void)
+{
+    rtc_fd = open("/dev/rtc", O_RDONLY);
+    if (rtc_fd < 0)
+        return -1;
+    if (ioctl(rtc_fd, RTC_IRQP_SET, RTC_FREQ) < 0) {
+        fprintf(stderr, "Could not configure '/dev/rtc' to have a 1024 Hz timer. This is not a fatal\n"
+                "error, but for better emulation accuracy either use a 2.6 host Linux kernel or\n"
+                "type 'echo 1024 > /proc/sys/dev/rtc/max-user-freq' as root.\n");
+        goto fail;
+    }
+    if (ioctl(rtc_fd, RTC_PIE_ON, 0) < 0) {
+    fail:
+        close(rtc_fd);
+        return -1;
+    }
+    return 0;
+}
+
+/*host alarm*/
+static void mips64_init_host_alarm(void)
+{
+        struct sigaction act;
+        struct itimerval itv;
+        
+        /* get times() syscall frequency */
+        timer_freq = sysconf(_SC_CLK_TCK);
+        
+        /* timer signal */
+        sigfillset(&act.sa_mask);
+       act.sa_flags = 0;
+#if defined (TARGET_I386) && defined(USE_CODE_COPY)
+        act.sa_flags |= SA_ONSTACK;
+#endif
+        act.sa_handler = host_alarm_handler;
+        sigaction(SIGALRM, &act, NULL);
+
+        itv.it_interval.tv_sec = 0;
+        itv.it_interval.tv_usec = 999; /* for i386 kernel 2.6 to get 1 ms */
+        itv.it_value.tv_sec = 0;
+        itv.it_value.tv_usec = 10*1000;
+        setitimer(ITIMER_REAL, &itv, NULL);
+        /* we probe the tick duration of the kernel to inform the user if
+           the emulated kernel requested a too high timer frequency */
+        getitimer(ITIMER_REAL, &itv);
+
+        /* XXX: force /dev/rtc usage because even 2.6 kernels may not
+           have timers with 1 ms resolution. The correct solution will
+           be to use the POSIX real time timers available in recent
+           2.6 kernels */
+        if (itv.it_interval.tv_usec > 1000 || 1) {
+            /* try to use /dev/rtc to have a faster timer */
+            if (start_rtc_timer() < 0)
+                return;
+            /* disable itimer */
+            itv.it_interval.tv_sec = 0;
+            itv.it_interval.tv_usec = 0;
+            itv.it_value.tv_sec = 0;
+            itv.it_value.tv_usec = 0;
+            setitimer(ITIMER_REAL, &itv, NULL);
+
+            /* use the RTC */
+            sigaction(SIGIO, &act, NULL);
+            fcntl(rtc_fd, F_SETFL, O_ASYNC);
+            fcntl(rtc_fd, F_SETOWN, getpid());
+     
+	}
+}
+
+
+
+
 /* ILT */
 static  void *mips64_exec_get_insn(int index)
 {
@@ -300,7 +386,7 @@ static forced_inline int mips64_exec_memop(cpu_mips_t *cpu,int memop,
 	fn = cpu->mem_op_fn[memop];
 	return(fn(cpu,vaddr,dst_reg));
 }
-int ttt;
+
 /* Execute a memory operation (2) */
 static forced_inline int mips64_exec_memop2(cpu_mips_t *cpu,int memop,
 		m_va_t base,int offset,
@@ -397,7 +483,7 @@ if (unlikely(instructions_executed==C_100MHZ))
 	printf("Used Time:%f seconds %f MHZ\n",timeuse,performance); 
 	exit(1);
 }
-#endif          
+#endif    
 	return(exec(cpu,instruction));
 }
 
@@ -412,14 +498,19 @@ if (unlikely(instructions_executed==C_100MHZ))
 	if (likely(!res)) cpu->pc += 4;
 }
 
-
+//extern gasdf;
+//extern reset_request;
 /* Run MIPS code in step-by-step mode */
 void *mips64_exec_run_cpu(cpu_mips_t *cpu)
 {   
 	mips_insn_t insn=0;
 	int res;
+	
 
 	cpu->cpu_thread_running = TRUE;
+	current_cpu=cpu;
+	
+	mips64_init_host_alarm();
 
 	start_cpu:
 
@@ -427,27 +518,34 @@ void *mips64_exec_run_cpu(cpu_mips_t *cpu)
 		if (unlikely(cpu->state != CPU_STATE_RUNNING))
 			break;
       
-        /*virtual clock for cpu*/
-		virtual_timer(cpu);
+       /*virtual clock for cpu. */
+       /*We do not need this anymore.
+       Work has been done in host alarm*/
+
+      // if (cpu->interrupt_request==CPU_INTERRUPT_EXIT)
+       {
+        //  cpu_log7(cpu,"","cpu->interrupt_request==CPU_INTERRUPT_EXIT\n");
+        	//break;
+       }
+
+      // if (reset_request)
+       	//{
+       	//	cpu_log6(cpu,"","reset_request %x \n",reset_request); 
+       	//	break;
+       	//}
+       	
 
 		/* Reset "zero register" (for safety) */
 		cpu->gpr[0] = 0;
-
 		
-   if (cpu->pc==0x8034D540)
-      ttt=1;
-   //  if ((ttt==1)&&(cpu->pc==0x80000200))
-   //   ttt=2;
-  //  if (ttt==2)
-   //   cpu_log(cpu,"","pc %x \n",cpu->pc);*/
-
-
+   // if (gasdf==1)
+   // 	cpu_log6(cpu,"","pc %x \n",cpu->pc);
 		/* Check IRQ */
 		if (unlikely(cpu->irq_pending)) {
 			mips64_trigger_irq(cpu);
 			continue;
 		}
-
+       //cpu_log7(cpu,"","pc %x\n",cpu->pc);
 		/* Fetch and execute the instruction */      
 		res=mips64_exec_fetch(cpu,cpu->pc,&insn);
 
@@ -468,25 +566,39 @@ void *mips64_exec_run_cpu(cpu_mips_t *cpu)
 
 		/* Normal flow ? */
 		if (likely(!res)) cpu->pc += sizeof(mips_insn_t);
+		
 	}
 
+	//if (cpu->cpu_thread_running)
+	{
+	  // cpu_log7(cpu,"","cpu->cpu_thread_running adf\n");
+		
+
+		//cpu->interrupt_request |=~CPU_INTERRUPT_EXIT;
+	}
+   
 	/* Check regularly if the CPU has been restarted */
 	while(cpu->cpu_thread_running) {
+	    //cpu_log6(cpu,"","cpu->state %x\n",cpu->state);
+	    //cpu_log6(cpu,"","cpu->pc ddd %x\n",cpu->pc);
 		cpu->seq_state++;
 		switch(cpu->state) {
 		case CPU_STATE_RUNNING:
 			cpu->state = CPU_STATE_RUNNING;
+			//reset_request=0;
 			goto start_cpu;
 
 		case CPU_STATE_HALTED:     
 			cpu->cpu_thread_running = FALSE;
 			break;
+		case CPU_STATE_RESTARTING:
+			break;
 		}
-
+       //cpu_log6(cpu,"","sleep\n");
 		/* CPU is paused */
 		usleep(200000);
 	}
-
+cpu_log6(cpu,"","cpu return\n");
 	return NULL;
 }
 /* Execute the instruction in delay slot */
@@ -2041,7 +2153,7 @@ static  int mips64_exec_TNE(cpu_mips_t *cpu,mips_insn_t insn)
 /* wait */
 static    int mips64_exec_WAIT(cpu_mips_t *cpu,mips_insn_t insn)
 {
-
+   cpu_log(cpu,"","wait pc %x\n",cpu->pc);
 	return(0);
 }
 
