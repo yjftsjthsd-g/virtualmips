@@ -12,8 +12,8 @@
 #include<string.h>
 #include <assert.h>
 #include<stdlib.h>
+#include <confuse.h>
 
-#include "confuse.h"
 #include "utils.h"
 #include "adm5120.h"
 #include "mips64.h"

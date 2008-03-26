@@ -278,7 +278,7 @@ static int dev_flash_load(char * flash_file_name,m_uint32_t flash_len,unsigned c
 	{
 		fprintf(stderr,"Can not open flash file. name %s\n", flash_file_name);
 		fprintf(stderr,"creating flash file. name %s\n", flash_file_name);
-		fd=open(flash_file_name, O_RDWR|O_CREAT, S_IRWXU);
+		 fd=open(flash_file_name,O_RDWR|O_CREAT, S_IREAD|S_IWRITE| S_IRGRP|  S_IWGRP| S_IROTH| S_IWOTH );
 		if (fd<0)
 		{
 			fprintf(stderr,"Can not create flash file. name %s\n",flash_file_name);

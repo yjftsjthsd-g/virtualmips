@@ -64,8 +64,8 @@ static void tty_con0_input(vtty_t *vtty)
     uart_table[0][UART_FR_REG/4] |= UART_RX_FIFO_FULL;
   if ((uart_table[0][UART_CR_REG/4] &UART_RX_INT_EN)&&(uart_table[0][UART_CR_REG/4] &UART_PORT_EN))
       {
-        uart_set_interrupt(vtty->vm->boot_cpu,0);
         uart_table[0][UART_ICR_REG/4] |= UART_RX_INT;
+        uart_set_interrupt(vtty->vm->boot_cpu,0);
       }
 
  
@@ -75,7 +75,7 @@ static void tty_con0_input(vtty_t *vtty)
 /* Console port input */
 static void tty_con1_input(vtty_t *vtty)
 {
- 
+
   uart_table[1][UART_FR_REG/4] &= ~UART_RX_FIFO_EMPTY;
   if (vtty_is_full(vtty))
         uart_table[1][UART_FR_REG/4] |= UART_RX_FIFO_FULL;
@@ -131,7 +131,7 @@ void *dev_uart_access(cpu_mips_t *cpu,struct vdevice *dev,
              }
             else
                *data=vmtoh32(0xffffffff);
-            if (vtty_is_char_avail(d->vtty[channel]))
+           if (vtty_is_char_avail(d->vtty[channel]))
               {
                   uart_table[channel][UART_FR_REG/4] &= ~UART_RX_FIFO_EMPTY;
                   uart_table[channel][UART_FR_REG/4] |= UART_RX_FIFO_FULL;
@@ -196,7 +196,7 @@ void *dev_uart_access(cpu_mips_t *cpu,struct vdevice *dev,
                 uart_table[channel][UART_ICR_REG/4] &= ~UART_TX_INT;
                 uart_clear_interrupt(cpu,channel); 
               }
-             if (*data&UART_TX_INT_EN)
+             if (*data&UART_RX_INT_EN)
                {
                     if (vtty_is_char_avail(d->vtty[channel]))
                       {

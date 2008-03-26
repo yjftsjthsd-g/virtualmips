@@ -17,7 +17,7 @@
 #define __MIPS_H__
 #include "system.h"
 #include "utils.h" 
-#include "rbtree.h"
+
 /* 
  * MIPS General Purpose Registers 
  */
@@ -328,6 +328,15 @@ enum {
 /* Maximum number of breakpoints */
 #define MIPS64_MAX_BREAKPOINTS  8
 
+#define CPU_INTERRUPT_EXIT   0x01 /* wants exit from main loop */
+#define CPU_INTERRUPT_HARD   0x02 /* hardware interrupt pending */
+#define CPU_INTERRUPT_EXITTB 0x04 /* exit the current TB (use for x86 a20 case) */
+#define CPU_INTERRUPT_TIMER  0x08 /* internal timer exception pending */
+#define CPU_INTERRUPT_FIQ    0x10 /* Fast interrupt pending.  */
+#define CPU_INTERRUPT_HALT   0x20 /* CPU halt wanted */
+#define CPU_INTERRUPT_SMI    0x40 /* (x86 only) SMI interrupt pending */
+
+
 
 /* MIPS CPU type */
 //typedef struct cpu_mips cpu_mips_t;
@@ -379,6 +388,8 @@ struct cpu_mips {
 
    /*when wdt reset cpu, this flag is set*/
 //	int reset_flag;
+
+
 
 
 	/* VM instance */
@@ -466,8 +477,8 @@ struct cpu_mips {
 	mips_insn_t *njm_exec_ptr;
 
 	/* Symtrace */
-	int sym_trace;
-	rbtree_tree *sym_tree;
+	//int sym_trace;
+	//rbtree_tree *sym_tree;
 
 	int is_in_bdslot;
 

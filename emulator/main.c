@@ -87,6 +87,7 @@ int main(int argc,char *argv[])
 
 	mips64_exec_create_ilt (vm->name);
     setup_signals();
+    init_timers();
 	if (init_instance(vm)<0)
 	{
 		fprintf(stderr,"Unable to initialize instance.\n");

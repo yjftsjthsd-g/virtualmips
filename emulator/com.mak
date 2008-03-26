@@ -4,7 +4,6 @@ SRCDIRS += ./system
 SRCDIRS += ./mips
 SRCDIRS += ./utils
 SRCDIRS += ./memory
-SRCDIRS += ./contrib
 SRCDIRS += ./gdb
 
 INCLUDE_DIR += -I.
@@ -13,7 +12,6 @@ INCLUDE_DIR += -I./mips
 INCLUDE_DIR += -I./system
 INCLUDE_DIR += -I./utils
 INCLUDE_DIR += -I./memory
-INCLUDE_DIR += -I./contrib
 INCLUDE_DIR += -I./gdb
 
 #CC = gcc
@@ -26,11 +24,11 @@ CFLAGS += -g -Wall -O3  -fomit-frame-pointer
 
 #enable to show emulation performance
 #CFLAGS+= -DDEBUG_MHZ
-
-CONFUSE_LIB =./contrib/libconfuse.a
+RT_LIB =-lrt
+CONFUSE_LIB =-lconfuse
 PTHREAD_LIBS =-lpthread
 ELF_LIBS =-lelf
-LIBS=-L/usr/lib -L.  $(PTHREAD_LIBS)  $(ELF_LIBS) $(CONFUSE_LIB)
+LIBS=-L/usr/lib -L.  $(PTHREAD_LIBS)  $(ELF_LIBS) $(CONFUSE_LIB) $(RT_LIB)
 LDFLAGS := -O3 
 LDFLAGS +=  $(LIBS) 
 
