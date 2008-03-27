@@ -53,7 +53,7 @@ struct jz4740_wdt_tcu_data {
 void dev_jz4740_tcu_active_timer0(struct jz4740_wdt_tcu_data *d)
 {
     d->tcu_timer[0]->set_time=vp_get_clock(rt_clock);
-	vp_mod_timer(d->tcu_timer[0], vp_get_clock(rt_clock)+10);
+	vp_mod_timer(d->tcu_timer[0], vp_get_clock(rt_clock)+5);
 }
 
 void dev_jz4740_tcu_unactive_timer0(struct jz4740_wdt_tcu_data *d)
@@ -363,7 +363,9 @@ dev_jz4740_active_wdt(d);
 
 
 }
-/*10ms*/
+/*5ms
+
+1ms  + jz4740_tcu_clock[0])/1000 */
 void dev_jz4740_tcu_cb(void *opaque)
 {
 	 struct jz4740_wdt_tcu_data *d=(struct jz4740_wdt_tcu_data *)opaque;
@@ -375,9 +377,9 @@ void dev_jz4740_tcu_cb(void *opaque)
 
 	// cpu_log7(current_cpu,"","dev_jz4740_tcu_cb\n");
 
-	//cpu_log7(current_cpu,"","past_time %x \n",past_time);
+	//cpu_log7(current_cpu,"","past_time %x jz4740_wdt_tcu_table[TCU_TDFR0/4]  %x  past_time* jz4740_tcu_clock[0])/100 %x \n",past_time,jz4740_wdt_tcu_table[TCU_TDFR0/4] ,(past_time* jz4740_tcu_clock[0])/1000);
 
-	jz4740_wdt_tcu_table[TCU_TCNT0/4] +=(past_time* jz4740_tcu_clock[0])/100;
+	jz4740_wdt_tcu_table[TCU_TCNT0/4] +=(past_time* jz4740_tcu_clock[0])/1000;
 	jz4740_wdt_tcu_table[TCU_TCNT0/4] &= 0xffff;
 	if (jz4740_wdt_tcu_table[TCU_TCNT0/4] >=jz4740_wdt_tcu_table[TCU_TDHR0/4] )
         {
