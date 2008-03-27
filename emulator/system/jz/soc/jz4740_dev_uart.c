@@ -253,7 +253,7 @@ void dev_jz4740_uart_cb(void *opaque)
 	past_time=current-d->uart_timer->set_time;
 
 
-	cpu_log8(current_cpu,"","RIQ %x \n",past_time);
+	//cpu_log8(current_cpu,"","RIQ %x \n",past_time);
      		 vp_mod_timer(d->uart_timer, vp_get_clock(rt_clock)+1);
      		 return;
     	}
@@ -268,7 +268,7 @@ void dev_jz4740_uart_cb(void *opaque)
 	past_time=current-d->uart_timer->set_time;
 
 
-	cpu_log8(current_cpu,"","TIQ %x \n",past_time);
+	//cpu_log8(current_cpu,"","TIQ %x \n",past_time);
        vp_mod_timer(d->uart_timer, vp_get_clock(rt_clock)+1);
        return;
       }

@@ -93,7 +93,7 @@ static void mips64_init_host_alarm(void)
         itv.it_interval.tv_sec = 0;
         itv.it_interval.tv_usec = 999; /* for i386 kernel 2.6 to get 1 ms */
         itv.it_value.tv_sec = 0;
-        itv.it_value.tv_usec = 10*1000;
+        itv.it_value.tv_usec =10*1000;
         setitimer(ITIMER_REAL, &itv, NULL);
         /* we probe the tick duration of the kernel to inform the user if
            the emulated kernel requested a too high timer frequency */
@@ -103,7 +103,12 @@ static void mips64_init_host_alarm(void)
            have timers with 1 ms resolution. The correct solution will
            be to use the POSIX real time timers available in recent
            2.6 kernels */
-        if (itv.it_interval.tv_usec > 1000 || 1) {
+        /*
+				Qemu uses rtc to get 1 ms resolution timer. However, it always crashs my 
+				os(arch linux (core dump) ). So I do not use rtc for timer.  (yajin)
+        */
+         
+        if (itv.it_interval.tv_usec > 1000 || 0) {
             /* try to use /dev/rtc to have a faster timer */
             if (start_rtc_timer() < 0)
                 return;
@@ -120,6 +125,7 @@ static void mips64_init_host_alarm(void)
             fcntl(rtc_fd, F_SETOWN, getpid());
      
 	}
+       
 }
 
 
@@ -598,7 +604,7 @@ void *mips64_exec_run_cpu(cpu_mips_t *cpu)
 		/* CPU is paused */
 		usleep(200000);
 	}
-cpu_log6(cpu,"","cpu return\n");
+//cpu_log6(cpu,"","cpu return\n");
 	return NULL;
 }
 /* Execute the instruction in delay slot */

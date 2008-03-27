@@ -17,7 +17,7 @@ if (unlikely(current_cpu->state!=CPU_STATE_RUNNING))
 
 	 if (vp_timer_expired(active_timers[VP_TIMER_REALTIME],vp_get_clock(rt_clock))) 
 	 	{
-	 	cpu_log7(current_cpu,"","vp_timer_expired \n");
+	 	//cpu_log7(current_cpu,"","vp_timer_expired \n");
 	 	vp_run_timers(&active_timers[VP_TIMER_REALTIME], 
                     vp_get_clock(rt_clock));
 	 	}

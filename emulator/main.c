@@ -22,7 +22,7 @@
 #include "device.h"
 #include "vm.h"
 #include "mips64_exec.h"
-
+#include "vp_timer.h"
 
 
 char sw_version_tag[] = "20080321";
