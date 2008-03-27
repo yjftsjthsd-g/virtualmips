@@ -16,8 +16,9 @@ http://www.ingenic.cn/pfwebplus/productServ/kfyd/Hardware/pffaqQuestionContent.a
 #include<string.h>
 #include <assert.h>
 #include<stdlib.h>
+#include <confuse.h>
 
-#include "confuse.h"
+#include "vp_lock.h"
 #include "utils.h"
 #include "mips64.h"
 #include "vm.h"
@@ -27,6 +28,8 @@ http://www.ingenic.cn/pfwebplus/productServ/kfyd/Hardware/pffaqQuestionContent.a
 
 #include "pavo.h"
 #include "device.h"
+
+
 
 extern m_uint32_t jz4740_int_table[JZ4740_INT_INDEX_MAX];
 int dev_jz4740_gpio_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
@@ -158,11 +161,16 @@ void pavo_clear_irq(vm_instance_t *vm,u_int irq)
 }
 
 
-/*We must map adm irq to mips irq before setting irq*/
+/*This function may be forked by timer function and main loop. (dev_jz4740_tcu_cb)
+Lock
+*/
 void pavo_set_irq(vm_instance_t *vm,u_int irq)
 {
     m_uint32_t irq_mask;
-
+    static int interrupt_lock;
+    
+if (!testandset(&interrupt_lock))
+{
     irq_mask = 1<<irq;
     /*first check ICMR. masked interrupt is invisible to cpu*/
     if (jz4740_int_table[INTC_IMR/4]&irq_mask)
@@ -180,6 +188,10 @@ void pavo_set_irq(vm_instance_t *vm,u_int irq)
         mips64_set_irq(vm->boot_cpu,JZ4740_INT_TO_MIPS);
 	    mips64_update_irq_flag(vm->boot_cpu);
       }
+     interrupt_lock = 0;
+
+}
+
 
 }
 

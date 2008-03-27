@@ -386,6 +386,8 @@ struct cpu_mips {
 	pthread_t cpu_thread;
 	int cpu_thread_running;
 
+	m_uint32_t pause_request;
+
    /*when wdt reset cpu, this flag is set*/
 //	int reset_flag;
 
