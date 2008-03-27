@@ -53,7 +53,7 @@ struct jz4740_wdt_tcu_data {
 void dev_jz4740_tcu_active_timer0(struct jz4740_wdt_tcu_data *d)
 {
     d->tcu_timer[0]->set_time=vp_get_clock(rt_clock);
-	vp_mod_timer(d->tcu_timer[0], vp_get_clock(rt_clock)+5);
+	vp_mod_timer(d->tcu_timer[0], vp_get_clock(rt_clock)+10);
 }
 
 void dev_jz4740_tcu_unactive_timer0(struct jz4740_wdt_tcu_data *d)
@@ -333,6 +333,7 @@ extern cpu_mips_t *current_cpu;
 int gasdf;
 int reset_request=0;
 
+/*10ms*/
 void dev_jz4740_wdt_cb(void *opaque)
 {
 m_int64_t current;
@@ -363,9 +364,9 @@ dev_jz4740_active_wdt(d);
 
 
 }
-/*5ms
-
-1ms  + jz4740_tcu_clock[0])/1000 */
+/*10ms
+Linux uses 100HZ timer, so we fire tcu every 10 ms.
+1ms ->  jz4740_wdt_tcu_table[TCU_TCNT0/4]+= jz4740_tcu_clock[0])/1000; */
 void dev_jz4740_tcu_cb(void *opaque)
 {
 	 struct jz4740_wdt_tcu_data *d=(struct jz4740_wdt_tcu_data *)opaque;
@@ -374,7 +375,6 @@ void dev_jz4740_tcu_cb(void *opaque)
 	m_uint32_t past_time;
 	current=vp_get_clock(rt_clock);
 	past_time=current-d->tcu_timer[0]->set_time;
-
 	// cpu_log7(current_cpu,"","dev_jz4740_tcu_cb\n");
 
 	//cpu_log7(current_cpu,"","past_time %x jz4740_wdt_tcu_table[TCU_TDFR0/4]  %x  past_time* jz4740_tcu_clock[0])/100 %x \n",past_time,jz4740_wdt_tcu_table[TCU_TDFR0/4] ,(past_time* jz4740_tcu_clock[0])/1000);
