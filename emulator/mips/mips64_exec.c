@@ -504,8 +504,14 @@ if (unlikely(instructions_executed==C_100MHZ))
 	if (likely(!res)) cpu->pc += 4;
 }
 
-//extern gasdf;
-//extern reset_request;
+
+
+//void mips64_pause(cpu_mips_t *cpu, int mask)
+//{
+   // cpu->pause_request |= mask;
+//}
+
+
 /* Run MIPS code in step-by-step mode */
 void *mips64_exec_run_cpu(cpu_mips_t *cpu)
 {   
@@ -528,12 +534,7 @@ void *mips64_exec_run_cpu(cpu_mips_t *cpu)
        /*We do not need this anymore.
        Work has been done in host alarm*/
 
-      // if (cpu->interrupt_request==CPU_INTERRUPT_EXIT)
-       {
-        //  cpu_log7(cpu,"","cpu->interrupt_request==CPU_INTERRUPT_EXIT\n");
-        	//break;
-       }
-
+     
       // if (reset_request)
        	//{
        	//	cpu_log6(cpu,"","reset_request %x \n",reset_request); 
@@ -545,7 +546,7 @@ void *mips64_exec_run_cpu(cpu_mips_t *cpu)
 		cpu->gpr[0] = 0;
 		
    // if (gasdf==1)
-   // 	cpu_log6(cpu,"","pc %x \n",cpu->pc);
+    	//cpu_log7(cpu,"","pc %x \n",cpu->pc);
 		/* Check IRQ */
 		if (unlikely(cpu->irq_pending)) {
 			mips64_trigger_irq(cpu);
@@ -575,15 +576,6 @@ void *mips64_exec_run_cpu(cpu_mips_t *cpu)
 		
 	}
 
-	//if (cpu->cpu_thread_running)
-	{
-	  // cpu_log7(cpu,"","cpu->cpu_thread_running adf\n");
-		
-
-		//cpu->interrupt_request |=~CPU_INTERRUPT_EXIT;
-	}
-   
-	/* Check regularly if the CPU has been restarted */
 	while(cpu->cpu_thread_running) {
 	    //cpu_log6(cpu,"","cpu->state %x\n",cpu->state);
 	    //cpu_log6(cpu,"","cpu->pc ddd %x\n",cpu->pc);
@@ -591,20 +583,19 @@ void *mips64_exec_run_cpu(cpu_mips_t *cpu)
 		switch(cpu->state) {
 		case CPU_STATE_RUNNING:
 			cpu->state = CPU_STATE_RUNNING;
-			//reset_request=0;
 			goto start_cpu;
 
 		case CPU_STATE_HALTED:     
 			cpu->cpu_thread_running = FALSE;
 			break;
 		case CPU_STATE_RESTARTING:
+			/*Just waiting for cpu restart.*/
 			break;
+			
 		}
-       //cpu_log6(cpu,"","sleep\n");
 		/* CPU is paused */
 		usleep(200000);
 	}
-//cpu_log6(cpu,"","cpu return\n");
 	return NULL;
 }
 /* Execute the instruction in delay slot */

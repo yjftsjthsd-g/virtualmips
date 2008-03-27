@@ -336,7 +336,7 @@ int reset_request=0;
 void dev_jz4740_wdt_cb(void *opaque)
 {
 m_int64_t current;
-	 m_uint32_t past_time;
+m_uint32_t past_time;
 	 
 struct jz4740_wdt_tcu_data *d=(struct jz4740_wdt_tcu_data *)opaque;
 //cpu_log6(current_cpu, "","jz4740_wdt_tcu_table[WDT_TCNT/4] %x \n",jz4740_wdt_tcu_table[WDT_TCNT/4]);
@@ -366,22 +366,20 @@ dev_jz4740_active_wdt(d);
 /*10ms*/
 void dev_jz4740_tcu_cb(void *opaque)
 {
+	 struct jz4740_wdt_tcu_data *d=(struct jz4740_wdt_tcu_data *)opaque;
 	 
 	m_int64_t current;
-	 m_uint32_t past_time;
-	 struct jz4740_wdt_tcu_data *d=(struct jz4740_wdt_tcu_data *)opaque;
-	
+	m_uint32_t past_time;
 	current=vp_get_clock(rt_clock);
 	past_time=current-d->tcu_timer[0]->set_time;
 
-	//  cpu_log7(current_cpu,"","dev_jz4740_tcu_cb\n");
+	// cpu_log7(current_cpu,"","dev_jz4740_tcu_cb\n");
 
 	//cpu_log7(current_cpu,"","past_time %x \n",past_time);
 
 	jz4740_wdt_tcu_table[TCU_TCNT0/4] +=(past_time* jz4740_tcu_clock[0])/100;
 	jz4740_wdt_tcu_table[TCU_TCNT0/4] &= 0xffff;
-   //cpu_log7(current_cpu,"","jz4740_wdt_tcu_table[TCU_TCNT0/4]  %x \n",jz4740_wdt_tcu_table[TCU_TCNT0/4] );
-		if (jz4740_wdt_tcu_table[TCU_TCNT0/4] >=jz4740_wdt_tcu_table[TCU_TDHR0/4] )
+	if (jz4740_wdt_tcu_table[TCU_TCNT0/4] >=jz4740_wdt_tcu_table[TCU_TDHR0/4] )
         {
           /*set TFR*/
           jz4740_wdt_tcu_table[TCU_TFR/4] |=1<<16;

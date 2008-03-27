@@ -237,23 +237,16 @@ void dev_jz4740_uart_cb(void *opaque)
 
  struct jz4740_uart_data *d=(struct jz4740_uart_data *)opaque;
 
- m_int64_t current;
-	 m_uint32_t past_time;
+
 
 	
-	d->output=0;
-	
+ d->output=0;
  if (vtty_is_char_avail(d->vtty))
 	{
 		d->lsr |= UART_LSR_DRY;
 		if (d->ier & UART_IER_RDRIE)
     	{
      		 d->vm->set_irq(d->vm,d->irq);
-     		 current=vp_get_clock(rt_clock);
-	past_time=current-d->uart_timer->set_time;
-
-
-	//cpu_log8(current_cpu,"","RIQ %x \n",past_time);
      		 vp_mod_timer(d->uart_timer, vp_get_clock(rt_clock)+1);
      		 return;
     	}
@@ -264,18 +257,11 @@ void dev_jz4740_uart_cb(void *opaque)
     {
        d->output = TRUE;
        d->vm->set_irq(d->vm,d->irq);
-       current=vp_get_clock(rt_clock);
-	past_time=current-d->uart_timer->set_time;
-
-
-	//cpu_log8(current_cpu,"","TIQ %x \n",past_time);
        vp_mod_timer(d->uart_timer, vp_get_clock(rt_clock)+1);
        return;
       }
 
-	
-
-	 d->uart_timer->set_time=vp_get_clock(rt_clock);
+	// d->uart_timer->set_time=vp_get_clock(rt_clock);
    vp_mod_timer(d->uart_timer, vp_get_clock(rt_clock)+1);
 
  
@@ -307,7 +293,7 @@ int dev_jz4740_uart_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t le
    (*d).vtty->read_notifier = jz4740_tty_con_input;
    d->uart_timer=vp_new_timer(rt_clock, dev_jz4740_uart_cb, d);
    
-   d->uart_timer->set_time=vp_get_clock(rt_clock);
+   //d->uart_timer->set_time=vp_get_clock(rt_clock);
    vp_mod_timer(d->uart_timer, vp_get_clock(rt_clock)+1);
       
 	vm_bind_device(vm,d->dev);
