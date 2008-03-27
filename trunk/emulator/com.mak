@@ -14,8 +14,8 @@ INCLUDE_DIR += -I./utils
 INCLUDE_DIR += -I./memory
 INCLUDE_DIR += -I./gdb
 
-#CC = gcc
-CC = gcc-3.4
+CC = gcc
+#CC = gcc-3.4
 
 RM = rm -f
 SRCEXTS :=  .c

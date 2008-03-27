@@ -1,4 +1,5 @@
-
+ #include<stdlib.h>
+ #include<string.h>
 #include "utils.h"
 #include "vp_clock.h"
 
@@ -46,10 +47,11 @@ m_int64_t vp_get_clock(vp_clock_t *clock)
     switch(clock->type) {
     case VP_TIMER_REALTIME:
         return get_clock() / 1000000;
-    //default:
-    //case VP_TIMER_VIRTUAL:
-    //    return cpu_get_clock();
+   default:
+    case VP_TIMER_VIRTUAL:
+        ASSERT(0,"not support yet\n");
     }
+    return 0;
 }
 
 vp_clock_t *vp_new_clock(int type)

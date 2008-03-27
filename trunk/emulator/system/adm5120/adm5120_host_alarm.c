@@ -33,9 +33,11 @@ m_uint32_t time_reload;
 extern m_uint32_t uart_table[2][UART_INDEX_MAX];
 extern cpu_mips_t *current_cpu;
 
+void uart_set_interrupt(cpu_mips_t *cpu,int channel);
 /*ADM5120 use host_alarm_handler to process all the things,
-not likely jz4740.
-This method is deprecated.*/
+This method is deprecated. 
+JZ4740 uses a timer method, which is more flexible.
+See jz4740_host_alam.c */
 
  void host_alarm_handler(int host_signum)
 {
@@ -76,7 +78,7 @@ This method is deprecated.*/
   current_cpu->cp0.reg[MIPS_CP0_COUNT]+=ADM_FREQ/(2*1000);
   if (current_cpu->cp0.reg[MIPS_CP0_COMPARE]!=0)
     {
-    cpu_log6(current_cpu,"","count %x compare %x \n",current_cpu->cp0.reg[MIPS_CP0_COUNT],current_cpu->cp0.reg[MIPS_CP0_COMPARE]);
+ //   cpu_log6(current_cpu,"","count %x compare %x \n",current_cpu->cp0.reg[MIPS_CP0_COUNT],current_cpu->cp0.reg[MIPS_CP0_COMPARE]);
 if (current_cpu->cp0.reg[MIPS_CP0_COUNT]>=current_cpu->cp0.reg[MIPS_CP0_COMPARE])
     {
       mips64_set_irq(current_cpu,MIPS_TIMER_INTERRUPT);
