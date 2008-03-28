@@ -29,6 +29,35 @@ For other(u-boot and uImage), we just copy the content into flash and fill the s
 
 #include <confuse.h>
 
+/*types from qemu*/
+typedef unsigned char uint8_t;
+typedef unsigned short uint16_t;
+typedef unsigned int uint32_t;
+
+// Linux/Sparc64 defines uint64_t
+#if !(defined (__sparc_v9__) && defined(__linux__))
+/* XXX may be done for all 64 bits targets ? */
+#if defined (__x86_64__) || defined(__ia64)
+typedef unsigned long uint64_t;
+#else
+typedef unsigned long long uint64_t;
+#endif
+#endif
+
+#ifndef __sun__
+typedef signed char int8_t;
+#endif
+typedef signed short int16_t;
+typedef signed int int32_t;
+// Linux/Sparc64 defines int64_t
+#if !(defined (__sparc_v9__) && defined(__linux__))
+#if defined (__x86_64__) || defined(__ia64)
+typedef signed long int64_t;
+#else
+typedef signed long long int64_t;
+#endif
+#endif
+
 
 
 #define TOTAL_SIZE  0x42000000    /*1G data BYTES +32M bytes SPARE BYTES*/
@@ -53,37 +82,37 @@ For other(u-boot and uImage), we just copy the content into flash and fill the s
 #define ASSERT(a,format,args...)  do{ if ((format!=NULL)&&(!(a)))   fprintf(stderr,format, ##args); assert((a));} while(0) 
 
 char *u_boot_file_name=NULL;
-unsigned int  u_boot_start_address=0;
-unsigned int  u_boot_has_spare=0;
+uint32_t  u_boot_start_address=0;
+uint32_t  u_boot_has_spare=0;
 
 char *kernel_file_name=NULL;
-unsigned int  kernel_start_address=0;
-unsigned int  kernel_has_spare=0;
+uint32_t  kernel_start_address=0;
+uint32_t  kernel_has_spare=0;
 
 char *rootfs_file_name=NULL;
-unsigned int  rootfs_start_address=0;
-unsigned int  rootfs_has_spare=0;
+uint32_t  rootfs_start_address=0;
+uint32_t  rootfs_has_spare=0;
 
 char *custom1_file_name=NULL;
-unsigned int  custom1_start_address=0;
-unsigned int  custom1_has_spare=0;
+uint32_t  custom1_start_address=0;
+uint32_t  custom1_has_spare=0;
 
 char *custom2_file_name=NULL;
-unsigned int  custom2_start_address=0;
-unsigned int  custom2_has_spare=0;
+uint32_t  custom2_start_address=0;
+uint32_t  custom2_has_spare=0;
 
 char *custom3_file_name=NULL;
-unsigned int  custom3_start_address=0;
-unsigned int  custom3_has_spare=0;
+uint32_t  custom3_start_address=0;
+uint32_t  custom3_has_spare=0;
 
 
 char *custom4_file_name=NULL;
-unsigned int  custom4_start_address=0;
-unsigned int  custom4_has_spare=0;
+uint32_t  custom4_start_address=0;
+uint32_t  custom4_has_spare=0;
 
 char *custom5_file_name=NULL;
-unsigned int  custom5_start_address=0;
-unsigned int  custom5_has_spare=0;
+uint32_t  custom5_start_address=0;
+uint32_t  custom5_has_spare=0;
 
 
 
@@ -207,7 +236,7 @@ void parse_configure_file(int argc,char *argv[])
 
 
 /*given the start address and file size, cal the block start no and block end no*/
-void cal_block_no(unsigned int start_address,unsigned int file_size,unsigned int *block_start_no,unsigned int*block_end_no)
+void cal_block_no(uint32_t start_address,uint32_t file_size,uint32_t *block_start_no,uint32_t*block_end_no)
 {
   *block_start_no=start_address/BLOCK_DATA_SIZE;
   
@@ -222,8 +251,8 @@ int write_nand_flash_file_with_sparce(char *file_name,unsigned int start_address
 {
    FILE *n_fp;/*fp for nand flash*/
    FILE *fp;
-   unsigned int file_size;
-   unsigned int block_start_no,block_end_no;
+   uint32_t  file_size;
+   uint32_t  block_start_no,block_end_no;
    char block_file_name[64];
    unsigned char block[BLOCK_SIZE];
    int i;
@@ -273,13 +302,13 @@ int write_nand_flash_file(char *file_name,unsigned int start_address)
 {
   FILE *n_fp;/*fp for nand flash*/
   FILE *fp;
-  unsigned int file_size;
+  uint32_t  file_size;
   int i,j;
   unsigned char page[PAGE_SIZE];
   unsigned char spare_page[SPARE_SIZE];
   char block_file_name[64];
 
-  unsigned int block_start_no,block_end_no;
+  uint32_t block_start_no,block_end_no;
   int leave=0;
 
   fp=fopen(file_name,"r");

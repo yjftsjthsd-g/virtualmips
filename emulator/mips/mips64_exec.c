@@ -506,12 +506,16 @@ if (unlikely(instructions_executed==C_100MHZ))
 
 
 
-//void mips64_pause(cpu_mips_t *cpu, int mask)
-//{
-   // cpu->pause_request |= mask;
-//}
+/*void mips64_pause(cpu_mips_t *cpu, int mask)
+{
+ cpu->pause_request |= mask;
+}*/
 
-
+void mips64_main_loop_wait(cpu_mips_t *cpu,int timeout)
+{
+	vp_run_timers(&active_timers[VP_TIMER_REALTIME], 
+                    vp_get_clock(rt_clock));
+}
 /* Run MIPS code in step-by-step mode */
 void *mips64_exec_run_cpu(cpu_mips_t *cpu)
 {   
@@ -533,20 +537,18 @@ void *mips64_exec_run_cpu(cpu_mips_t *cpu)
        /*virtual clock for cpu. */
        /*We do not need this anymore.
        Work has been done in host alarm*/
+       /*virtual_timer();*/
 
-     
-      // if (reset_request)
-       	//{
-       	//	cpu_log6(cpu,"","reset_request %x \n",reset_request); 
-       	//	break;
-       	//}
-       	
+     if (unlikely((cpu->pause_request)&CPU_INTERRUPT_EXIT))
+     	{
+     		cpu->state=CPU_STATE_PAUSING;
+     		break;
+     	}
+			       	
 
 		/* Reset "zero register" (for safety) */
 		cpu->gpr[0] = 0;
 		
-   // if (gasdf==1)
-    	//cpu_log7(cpu,"","pc %x \n",cpu->pc);
 		/* Check IRQ */
 		if (unlikely(cpu->irq_pending)) {
 			mips64_trigger_irq(cpu);
@@ -579,22 +581,32 @@ void *mips64_exec_run_cpu(cpu_mips_t *cpu)
 	while(cpu->cpu_thread_running) {
 	    //cpu_log6(cpu,"","cpu->state %x\n",cpu->state);
 	    //cpu_log6(cpu,"","cpu->pc ddd %x\n",cpu->pc);
-		cpu->seq_state++;
+		//cpu->seq_state++;
 		switch(cpu->state) {
 		case CPU_STATE_RUNNING:
 			cpu->state = CPU_STATE_RUNNING;
+			//cpu_log7(cpu,"","going start\n");
 			goto start_cpu;
 
 		case CPU_STATE_HALTED:     
 			cpu->cpu_thread_running = FALSE;
 			break;
 		case CPU_STATE_RESTARTING:
+			cpu->state = CPU_STATE_RESTARTING;
 			/*Just waiting for cpu restart.*/
 			break;
+		case CPU_STATE_PAUSING:
+			/*main loop must wait for me. heihei :)*/
+			mips64_main_loop_wait(cpu,0);
+			cpu->state = CPU_STATE_RUNNING;
+			cpu->pause_request &= ~CPU_INTERRUPT_EXIT;
+			//cpu_log7(cpu,"","cpu->pause_request %x\n",cpu->pause_request);
+			/*start cpu again*/
+			goto start_cpu;
 			
 		}
 		/* CPU is paused */
-		usleep(200000);
+		//usleep(10);
 	}
 	return NULL;
 }
