@@ -279,7 +279,7 @@ void adm5120_set_irq(vm_instance_t *vm,u_int irq)
 	 static int interrupt_lock;
 
 //cpu_log7(vm->boot_cpu,"","adm5120_set_irq interrupt_lock %x\n",interrupt_lock);	 
-if (!testandset(&interrupt_lock))
+//if (!testandset(&interrupt_lock))
 {
 //cpu_log7(vm->boot_cpu,"","SS interrupt_lock %x\n",interrupt_lock);	 
 	int_bit_mask =  1<<irq;

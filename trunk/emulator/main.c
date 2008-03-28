@@ -75,8 +75,16 @@ int main(int argc,char *argv[])
 	printf("Copyright (c) 2008 yajin.\n");
 	printf("Build date: %s %s\n\n",__DATE__,__TIME__);
 
-	/* Initialize VTTY code */
+	
+	/* Initialize CRC functions */
+   crc_init();
+
+   /* Initialize NetIO code */
+   netio_rxl_init();
+
+   /* Initialize VTTY code */
 	vtty_init();
+   
 
 	/* Create the default instance */
 	if (!(vm = create_instance(configure_filename)))

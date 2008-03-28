@@ -42,17 +42,21 @@ void cpu_log(cpu_mips_t *cpu,char *module,char *format,...)
 	va_end(ap);
 #endif
 }
+void cpu_log6(cpu_mips_t *cpu,char *module,char *format,...)
+{
 
+	
+}
 void cpu_log7(cpu_mips_t *cpu,char *module,char *format,...)
 {
 
-	char buffer[256];
+	/*char buffer[256];
 	va_list ap;
 
 	va_start(ap,format);
 	snprintf(buffer,sizeof(buffer),"CPU%u: %s",cpu->id,module);
 	vm_flog(cpu->vm,buffer,format,ap);
-	va_end(ap);
+	va_end(ap);*/
 }
 
 /* Start a CPU */
@@ -241,7 +245,7 @@ static int cpu_group_check_activity(cpu_group_t *group)
 	for(cpu=group->cpu_list;cpu;cpu=cpu->next) {
 		if (!cpu->cpu_thread_running)
 			continue;
-		if ((cpu->state == CPU_STATE_RUNNING) || !cpu->seq_state)
+		if ((cpu->state == CPU_STATE_RUNNING) )
 			return(FALSE);
 	}
 

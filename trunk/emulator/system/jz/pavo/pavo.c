@@ -161,15 +161,13 @@ void pavo_clear_irq(vm_instance_t *vm,u_int irq)
 }
 
 
-/*This function may be forked by timer function and main loop. (dev_jz4740_tcu_cb)
-Lock
-*/
+
 void pavo_set_irq(vm_instance_t *vm,u_int irq)
 {
     m_uint32_t irq_mask;
     static int interrupt_lock;
     
-if (!testandset(&interrupt_lock))
+//if (!testandset(&interrupt_lock))
 {
     irq_mask = 1<<irq;
     /*first check ICMR. masked interrupt is invisible to cpu*/

@@ -3,6 +3,7 @@ SRCDIRS += ./device
 SRCDIRS += ./system
 SRCDIRS += ./mips
 SRCDIRS += ./utils
+SRCDIRS += ./utils/net
 SRCDIRS += ./memory
 SRCDIRS += ./gdb
 
@@ -11,6 +12,7 @@ INCLUDE_DIR += -I./device
 INCLUDE_DIR += -I./mips
 INCLUDE_DIR += -I./system
 INCLUDE_DIR += -I./utils
+INCLUDE_DIR += -I./utils/net
 INCLUDE_DIR += -I./memory
 INCLUDE_DIR += -I./gdb
 

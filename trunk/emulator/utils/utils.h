@@ -53,19 +53,17 @@
 #if __GNUC__ > 2
 #define forced_inline inline __attribute__((always_inline))
 #define no_inline __attribute__ ((noinline))
-#else
-#define forced_inline inline
-#define no_inline
-#endif
-
-#if __GNUC__ > 2
 /* http://kerneltrap.org/node/4705 */
 #define likely(x)    __builtin_expect((x),1)
 #define unlikely(x)  __builtin_expect((x),0)
 #else
+#define forced_inline inline
+#define no_inline
 #define likely(x)    (x)
 #define unlikely(x)  (x)
 #endif
+
+
 
 
 

@@ -109,8 +109,8 @@ else if (op_type==MTS_READ)
 else
   assert(0);
 #endif
-//if ((offset==0x40)||(offset==0x44)||(offset==0x48))
-//	cpu_log7(cpu,"","offset %x *data %x type %x\n",offset,*data,op_type);
+if ((offset==0x40)||(offset==0x44)||(offset==0x48))
+	cpu_log6(cpu,"","offset %x *data %x type %x\n",offset,*data,op_type);
  switch (op_size)
       {
       case 1:
@@ -377,7 +377,7 @@ void dev_jz4740_tcu_cb(void *opaque)
 	past_time=current-d->tcu_timer[0]->set_time;
 	// cpu_log7(current_cpu,"","dev_jz4740_tcu_cb\n");
 
-	//cpu_log7(current_cpu,"","past_time %x jz4740_wdt_tcu_table[TCU_TDFR0/4]  %x  past_time* jz4740_tcu_clock[0])/100 %x \n",past_time,jz4740_wdt_tcu_table[TCU_TDFR0/4] ,(past_time* jz4740_tcu_clock[0])/1000);
+	cpu_log6(current_cpu,"","past_time %x jz4740_wdt_tcu_table[TCU_TDFR0/4]  %x  past_time* jz4740_tcu_clock[0])/100 %x \n",past_time,jz4740_wdt_tcu_table[TCU_TDFR0/4] ,(past_time* jz4740_tcu_clock[0])/1000);
 
 	jz4740_wdt_tcu_table[TCU_TCNT0/4] +=(past_time* jz4740_tcu_clock[0])/1000;
 	jz4740_wdt_tcu_table[TCU_TCNT0/4] &= 0xffff;

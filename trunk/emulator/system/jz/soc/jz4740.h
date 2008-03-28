@@ -85,7 +85,10 @@ typedef m_uint32_t m_cp0_reg_t;
 #define NAND_COMMPORT	0x18008000
 
 
-
+/*FOR CS8900*/
+#define CS8900_IO_BASE  0x8000000
+#define CS8900_SIZE         0x10
+#define CIRRUS_DEFAULT_IRQ      107
 
 
 

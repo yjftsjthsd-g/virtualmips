@@ -18,12 +18,17 @@ void host_alarm_handler(int host_signum)
 if (unlikely(current_cpu->state!=CPU_STATE_RUNNING))
 		return;
 
+//if (current_cpu->pause_request ==CPU_INTERRUPT_EXIT)
+//	return;
+
 	 if (vp_timer_expired(active_timers[VP_TIMER_REALTIME],vp_get_clock(rt_clock))) 
 	 	{
+	 		/*tell cpu we need to pause because timer out*/
+	 		current_cpu->pause_request |= CPU_INTERRUPT_EXIT;
 	 	 //mips64_pause(current_cpu, CPU_INTERRUPT_EXIT);
-	 	//cpu_log7(current_cpu,"","vp_timer_expired \n");
-	 	vp_run_timers(&active_timers[VP_TIMER_REALTIME], 
-                    vp_get_clock(rt_clock));
+	 	//cpu_log7(current_cpu,"","host_alarm_handler \n");
+	 	//vp_run_timers(&active_timers[VP_TIMER_REALTIME], 
+       //             vp_get_clock(rt_clock));
 	 	}
 	 	 
 }
