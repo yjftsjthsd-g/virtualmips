@@ -6,7 +6,7 @@
 #include "vm.h"
 #include "jz4740.h"
 
-#include "jz4740_dev_uart.h"
+
 #include "vp_timer.h"
 extern cpu_mips_t *current_cpu;
 
