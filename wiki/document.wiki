@@ -8,6 +8,7 @@
 === Pavo ===
  # [ubootForPavo  	How to build u-boot for pavo borad]
  # [linuxkernelForPavo  How to build linux kernel for pavo borad]
+ # [pavonetwork How to use network in pavo emulation]
 
 === ADM5120 ===
  # [KernelForADM5120 How to build linux 2.6 kernel for ADM5120]
