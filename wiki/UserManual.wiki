@@ -88,7 +88,7 @@ cd virtualmips-0.03/run
 
 It will create a directory nandflash1GB containning nand flash file(One file one block).
 
-Since version 0.03, VirtualMIPS support network card emulation. JZ CS8900A network card is support in current version. Before using network card emulation, you need to create a tap device first.
+Since version 0.03, VirtualMIPS supports network card(cs8900a) emulation. Before using network card emulation, you need to create a tap device first.
 
 {{{
 tunctl
