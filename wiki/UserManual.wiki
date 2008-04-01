@@ -390,3 +390,4 @@ press *CTRL+\* to stop emulation. CTRL+C is sent to guest.
  * [gdbinterface how to use gdb to debug kernel]
  * [ubootForPavo  How to build u-boot for pavo borad]
  * [linuxkernelForPavo  How to build linux kernel for pavo borad]
+ * [pavonetwork How to use network in pavo emulation]
