@@ -107,7 +107,7 @@ If tunctl command is not found in your computer, please install uml_utilities fi
 sudo apt-get install uml-utilities
 }}}
 
-  * Archlinux
+* Archlinux
 {{{
 sudo pacman -S user-mode-linux
 sudo pacman -S uml_utilities
