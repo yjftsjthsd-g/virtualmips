@@ -48,8 +48,9 @@ Device Drivers  ->Graphics support   ->Support for frame buffer devices    ->< >
 
 Device Drivers ->Character device  -> JZSOC char device support ->< > JzSOC touchpanel driver support 
 
-3. *Exclude* the JZ CS8900A Ethernet support.
-Device Driver -> Network device suppor -> Ethernet (10 or 100Mbit) ->< >   JZ CS8900A Ethernet support 
+~~3. *Exclude* the JZ CS8900A Ethernet support.
+Device Driver -> Network device suppor -> Ethernet (10 or 100Mbit) ->< >   JZ CS8900A Ethernet support ~~
+(Since version 0.03, VirtualMIPS support cs8900a network card emulation)
 
 4. Change the nand config.
 
