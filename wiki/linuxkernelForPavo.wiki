@@ -68,6 +68,27 @@ Device Drivers -> < > MMC/SD card support
 
 Device Drivers ->Sound ->Advanced Linux Sound Architecture ->System on Chip audio support->< > SoC Audio for Ingenic jz4740 chip 
 
+8. Modify 8250 driver otherwise emulator always has the following warning message.
+
+{{{
+serial8250: too much work for irq9
+}}}
+QEMU also has the same problem.
+http://kerneltrap.org/mailarchive/linux-kernel/2008/2/7/769924
+
+Just comment line 1502 and 1503 in drivers/serial/8250.c.
+
+{{{
+1500                 if (l == i->head && pass_counter++ > PASS_LIMIT) {
+1501                         /* If we hit this, we're dead. */
+1502                 //        printk(KERN_ERR "serial8250: too much work for "
+1503                 //                "irq%d\n", irq);
+1504                         break;
+1505                 }
+
+}}}
+ 
+
 Saving the config option and make linux kernel. Type 'make' to make linux kernel or 'make uImage' to generate linux image for u-boot.
 {{{
 make
