@@ -29,7 +29,7 @@ tar zxvf -cd ../linux-2.6.24.3-jz-20080304.patch.gz | patch -p1
 
 You can config the kernel by yourself or copy the config file included in test suit.
 {{{
-cp test_suit-0.02/config.linux2.6.24.pavo linux-2.6.24.3/.config
+cp test_suit-0.03/config.linux2.6.24.pavo linux-2.6.24.3/.config
 make
 }}}
 
