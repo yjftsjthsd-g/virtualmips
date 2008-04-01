@@ -3,6 +3,7 @@
 
 Since version 0.03, VirtualMIPS emulates cs8900a network card which you can use it to communicate with your host pc. You can mount your host pc's file to guest using nfs or copying files into emulator using http/ftp protocol.
 
+CAUTION: CS8900a network card emulation is not fully tested. I will design a new method to communicate between host and emulator which is more efficient than cs8900a network card emulation.
 
 
 = Create TAP device =
