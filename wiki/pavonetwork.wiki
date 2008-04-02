@@ -109,5 +109,36 @@ valid_html3.2.gif    100% |*******************************|   230  --:--:-- ETA
 valid_html3.2.gif
 }}}
 
+= Using nfs =
+
+Configure nfs server in your pc before using nfs.
+
+In emulator
+{{{
+# ifconfig eth0 10.0.0.2
+# ping 10.0.0.100
+PING 10.0.0.100 (10.0.0.100): 56 data bytes
+64 bytes from 10.0.0.100: seq=0 ttl=64 time=30.000 ms
+
+--- 10.0.0.100 ping statistics ---
+1 packets transmitted, 1 packets received, 0% packet loss
+round-trip min/avg/max = 30.000/30.000/30.000 ms
+# mount -t nfs -o tcp 10.0.0.100:/nfs /mnt/nfs
+# cd /mnt/nfs
+# ls
+2                                   test4
+busybox                             test7
+jz-gcc4-glib236-src                 test9
+jz-gcc4-glib236-src.tar.gz          test999999999999999999999999999999
+test
+# rm -rf test
+# ls
+2                                   test4
+busybox                             test7
+jz-gcc4-glib236-src                 test9
+jz-gcc4-glib236-src.tar.gz          test999999999999999999999999999999
+#
+}}}
+
 
  
