@@ -154,10 +154,23 @@ typedef struct {
 
 #define N_ISL_HDR_SIZE  (sizeof(n_eth_llc_hdr_t) + sizeof(n_eth_isl_hdr_t))
 
-/* Check for a broadcast/multicast ethernet address */
+
+/* Check for a broadcast ethernet address */
+static inline int eth_addr_is_bcast(n_eth_addr_t *addr)
+{
+   return( (addr->eth_addr_byte[0] ==0xff)
+   				 &(addr->eth_addr_byte[1] ==0xff)
+   				 &(addr->eth_addr_byte[2] ==0xff)
+   				 &(addr->eth_addr_byte[3] ==0xff)
+   				 &(addr->eth_addr_byte[4] ==0xff)
+   				 &(addr->eth_addr_byte[5] ==0xff)
+   	);
+}
+
+/* Check for a multicast ethernet address */
 static inline int eth_addr_is_mcast(n_eth_addr_t *addr)
 {
-   return(addr->eth_addr_byte[0] & 1);
+   return((addr->eth_addr_byte[0] & 1)&&(!(eth_addr_is_bcast(addr))));
 }
 
 /* Check for Cisco ISL destination address */

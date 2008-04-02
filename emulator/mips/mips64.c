@@ -431,6 +431,8 @@ void mips64_trigger_exception(cpu_mips_t *cpu,u_int exc_code,int bd_slot)
 	/* Clear the pending IRQ flag */
 	cpu->irq_pending = 0;
 
+	//cpu_log8(cpu,"","irq occured\n");
+
 
 }
 

@@ -33,6 +33,48 @@ struct jz4740_gpio_data {
    m_uint32_t jz4740_gpio_size;
 };
 
+
+/* GPIO is in 4 groups. 32 per group*/
+/*
+
+48-79      0
+80-111    1
+112-143  2
+144-175  3
+
+#define IRQ_GPIO3	25
+#define IRQ_GPIO2	26
+#define IRQ_GPIO1	27
+#define IRQ_GPIO0	28
+#define IRQ_GPIO_0	48   48 to 175 for GPIO pin 0 to 127 */
+
+
+void dev_jz4740_gpio_setirq(int irq)
+{
+	int group_no;
+	int pin_no;
+	
+	ASSERT((irq>=IRQ_GPIO_0)&&(irq<IRQ_GPIO_0+128),"wrong gpio irq 0x%x\n",irq);
+	
+   group_no = (irq-IRQ_GPIO_0)/32;
+   pin_no = (irq-IRQ_GPIO_0)%32;
+	jz4740_gpio_table[GPIO_PXFLG(group_no)/4]  |= 1<<pin_no;
+}
+
+void dev_jz4740_gpio_clearirq(int irq)
+{
+	int group_no;
+	int pin_no;
+	
+	ASSERT((irq>=IRQ_GPIO_0)&&(irq<IRQ_GPIO_0+128),"wrong gpio irq 0x%x\n",irq);
+	
+   group_no = (irq-IRQ_GPIO_0)/32;
+   pin_no = (irq-IRQ_GPIO_0)%32;
+	jz4740_gpio_table[GPIO_PXFLG(group_no)/4]  &= ~(1<<pin_no);
+}
+
+
+                     
 void *dev_jz4740_gpio_access(cpu_mips_t *cpu,struct vdevice *dev,
                      m_uint32_t offset,u_int op_size,u_int op_type,
                      m_reg_t *data,m_uint8_t *has_set_value)

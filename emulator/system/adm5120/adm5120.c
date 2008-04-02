@@ -276,12 +276,7 @@ void adm5120_set_irq(vm_instance_t *vm,u_int irq)
 
 	int mips_irq_no;
 	m_uint32_t  int_bit_mask=0;
-	 static int interrupt_lock;
 
-//cpu_log7(vm->boot_cpu,"","adm5120_set_irq interrupt_lock %x\n",interrupt_lock);	 
-//if (!testandset(&interrupt_lock))
-{
-//cpu_log7(vm->boot_cpu,"","SS interrupt_lock %x\n",interrupt_lock);	 
 	int_bit_mask =  1<<irq;
 
 	/*set raw status */
@@ -305,8 +300,6 @@ void adm5120_set_irq(vm_instance_t *vm,u_int irq)
 	irq=mips_irq_no;
 	mips64_set_irq(vm->boot_cpu,irq);
 	mips64_update_irq_flag(vm->boot_cpu);
-	interrupt_lock=0;
-}
 
 }
 COMMON_CONFIG_INFO_ARRAY

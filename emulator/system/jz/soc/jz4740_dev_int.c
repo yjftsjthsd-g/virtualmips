@@ -60,7 +60,10 @@ else if (op_type==MTS_READ)
 }
 
 #endif
-
+if ((offset==INTC_IPR)&&(op_type==MTS_WRITE))
+{
+	cpu_log12(cpu,"","pc %x data %x \n",cpu->pc,*data);
+}
 switch (op_size)
       {
       case 1:

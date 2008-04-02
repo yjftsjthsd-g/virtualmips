@@ -1,3 +1,11 @@
+ /*
+ * Copyright (C) yajin 2008<yajinzhou@gmail.com >
+ *     
+ * This file is part of the virtualmips distribution. 
+ * See LICENSE file for terms of the license. 
+ *
+ */
+
 #include <stdlib.h>
  #include<string.h>
 #include "vp_timer.h"

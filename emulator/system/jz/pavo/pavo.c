@@ -28,7 +28,7 @@ http://www.ingenic.cn/pfwebplus/productServ/kfyd/Hardware/pffaqQuestionContent.a
 
 #include "pavo.h"
 #include "device.h"
-
+#include "dev_cs8900.h"
 
 
 extern m_uint32_t jz4740_int_table[JZ4740_INT_INDEX_MAX];
@@ -41,10 +41,12 @@ int dev_jz4740_rtc_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len
 int dev_jz4740_wdt_tcu_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
 int dev_jz4740_int_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
 int dev_jz4740_dma_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
+void dev_jz4740_gpio_setirq(int irq);
+void dev_jz4740_gpio_clearirq(int irq);
 
-void forced_inline virtual_jz4740_timer(cpu_mips_t *cpu);
 
-/* Initialize default parameters for a adm5120 */
+
+/* Initialize default parameters for  pavo */
 static void pavo_init_defaults(pavo_t *pavo)
 {
 	vm_instance_t *vm = pavo->vm;
@@ -56,7 +58,54 @@ static void pavo_init_defaults(pavo_t *pavo)
 	vm->kernel_filename=strdup(PAVO_DEFAULT_KERNEL_FILENAME);
 }
 
+ int pavo_init_cs8900(pavo_t *pavo,char *name,m_pa_t paddr,m_uint32_t len,int irq_no)
+{
 
+struct vm_instance *vm = pavo->vm;
+
+int nio_type=-1;
+netio_desc_t *nio;
+ int count;
+ char *tokens[10];
+ struct cs8900_data * d;
+	 
+ if ((count = m_strsplit(pavo->cs8900_iotype,':',tokens,10)) < 2) {
+      vm_error(vm,"unable to parse NIO description '%s'.\n",pavo->cs8900_iotype);
+      return(-1);
+   }
+ nio_type = netio_get_type(tokens[0]);  
+
+ switch (nio_type)
+ {
+ 	case NETIO_TYPE_TAP:
+ 		nio=netio_desc_create_tap(name,tokens[1]);
+ 		break;
+ 	case NETIO_TYPE_LINUX_ETH:
+ 		nio=netio_desc_create_lnxeth(name,tokens[1]);
+ 		break;
+ 	default:
+ 		return (-1);
+ }
+  if (!nio) 
+  {
+      vm_error(vm,"unable to create NETIO  descriptor %s\n",tokens[0]);
+      return (-1);
+   }
+d=dev_cs8900_init(vm,name,paddr,len,irq_no);
+if (!d)
+{
+	vm_error(vm,"unable to int cs8900\n");
+    return (-1);
+}
+  if (dev_cs8900_set_nio(d,nio)==-1)
+    	{
+    		vm_error(vm,"unable to set cs8900 nio \n");
+   			 return (-1);
+    	}
+
+return 0;
+ 
+}
 
 /* Initialize the PAVO Platform (MIPS) */
 static int pavo_init_platform(pavo_t *pavo)
@@ -64,8 +113,6 @@ static int pavo_init_platform(pavo_t *pavo)
 	struct vm_instance *vm = pavo->vm;
 	cpu_mips_t *cpu0; 
 	void *(*cpu_run_fn)(void *);
-
-
 
 	vm_init_vtty(vm);
 
@@ -106,7 +153,7 @@ static int pavo_init_platform(pavo_t *pavo)
   if (dev_jz4740_uart_init(vm,"JZ4740 UART1",JZ4740_UART1_BASE,JZ4740_UART1_SIZE,8,vm->vtty_con2)==-1)
     return (-1)  ;   
                      
-	   if (dev_jz4740_cpm_init(vm,"JZ4740 CPM",JZ4740_CPM_BASE,JZ4740_CPM_SIZE)==-1)
+  if (dev_jz4740_cpm_init(vm,"JZ4740 CPM",JZ4740_CPM_BASE,JZ4740_CPM_SIZE)==-1)
     return (-1);
   if (dev_jz4740_emc_init(vm,"JZ4740 EMC",JZ4740_EMC_BASE,JZ4740_EMC_SIZE)==-1)
     return (-1);
@@ -116,8 +163,14 @@ static int pavo_init_platform(pavo_t *pavo)
     return (-1);
      if (dev_jz4740_int_init(vm,"JZ4740 INT",JZ4740_INT_BASE,JZ4740_INT_SIZE)==-1)
     return (-1);
- if (dev_jz4740_dma_init(vm,"JZ4740 DMA",JZ4740_DMA_BASE,JZ4740_DMA_SIZE)==-1)
+ 	if (dev_jz4740_dma_init(vm,"JZ4740 DMA",JZ4740_DMA_BASE,JZ4740_DMA_SIZE)==-1)
     return (-1);
+
+ 	if (pavo->cs8900_enable==1)
+ 	{
+ 		if (pavo_init_cs8900(pavo,"CS8900A",CS8900_IO_BASE,CS8900_SIZE,CS8900_DEFAULT_IRQ)==-1)
+ 			return (-1);
+ 	}
      
 
 	return(0);
@@ -131,8 +184,6 @@ static int pavo_init_platform(pavo_t *pavo)
 static int pavo_boot(pavo_t *pavo)
 {   
 	vm_instance_t *vm = pavo->vm;
-	//cpu_mips_t *cpu;
-	//m_va_t kernel_entry_point;
 
 	if (!vm->boot_cpu)
 		return(-1);
@@ -159,38 +210,76 @@ void pavo_clear_irq(vm_instance_t *vm,u_int irq)
    
 
 }
+/*map irq to soc irq*/
+int forced_inline plat_soc_irq(u_int irq)
+{
+	 if ((irq>=48)&&(irq<=175))
+	 	{
+	 	dev_jz4740_gpio_setirq(irq);
+	 	/*GPIO IRQ*/
+		if ((irq>=48)&&(irq<=79))
+			irq= IRQ_GPIO0;
+		else if ((irq>=80)&&(irq<=111))
+			irq= IRQ_GPIO1;
+		else if ((irq>=112)&&(irq<=143))
+			irq= IRQ_GPIO2;
+		else if ((irq>=144)&&(irq<=175))
+			irq= IRQ_GPIO3;
+		
+	 	}
 
+	 	return irq;
+		
+		
+}
 
 
 void pavo_set_irq(vm_instance_t *vm,u_int irq)
 {
     m_uint32_t irq_mask;
-    static int interrupt_lock;
-    
-//if (!testandset(&interrupt_lock))
-{
+
+
+	 irq=plat_soc_irq(irq);
+	 
     irq_mask = 1<<irq;
-    /*first check ICMR. masked interrupt is invisible to cpu*/
+    /*first check ICMR. masked interrupt is **invisible** to cpu*/
     if (jz4740_int_table[INTC_IMR/4]&irq_mask)
       {
         /*the irq is masked. clear IPR*/
          jz4740_int_table[INTC_IPR/4] &= ~irq_mask;
-         
       }
     else
       {
          /*the irq is not masked*/
         jz4740_int_table[INTC_ISR/4] |= irq_mask;
         /*set IPR*/
-       jz4740_int_table[INTC_IPR/4] |= irq_mask;
+        /*
+        we set IPR, not *or* . yajin
+        
+		 JZ Kernel 'plat_irq_dispatch' determine which is the highest priority interrupt 
+		 and handle. 
+		 It uses a function ffs to find first set irq from least bit to highest bit.
+		 260         irq = ffs(intc_ipr) - 1;
+
+		 That means when tcu0 irq and gpio1 irq occurs at the same time ,INTC_IPR=0x8800000
+		 and irq handler will handle tcu0 irq(bit 23) not gpio1 irq(bit 27).
+
+		 In pavo gpio1->cs8900 int
+		
+		 TCU0 irq occurs every 10 ms and gpio1 occurs about 10ms (cs8900 has received a packet 
+		 or has txed a packet), jz kernel always handle tcu0 irq. gpio1 irq is hungry. So I just set 
+		 jz4740_int_table[INTC_IPR/4]= irq_mask not or(|) irq_mask. TCU0 irq may be lost. However,
+		 gpio1 irq is not so ofen so it is not a big problem.
+
+		 In emulator, irq is not a good method for hardware to tell kernel something has happened.
+		 Emulator likes polling more than interrupt :) .
+        
+        */
+       jz4740_int_table[INTC_IPR/4] = irq_mask;
+       
         mips64_set_irq(vm->boot_cpu,JZ4740_INT_TO_MIPS);
 	    mips64_update_irq_flag(vm->boot_cpu);
       }
-     interrupt_lock = 0;
-
-}
-
-
 }
 
 COMMON_CONFIG_INFO_ARRAY;
@@ -199,8 +288,15 @@ static void printf_configure(pavo_t *pavo)
 
 	vm_instance_t *vm=pavo->vm;
 	PRINT_COMMON_COFING_OPTION;
-
+	
 	/*print other configure information here*/
+	if (pavo->cs8900_enable==1)
+	{
+		printf("CS8900 net card enabled\n");  
+		printf("CS8900 iotype %s \n",pavo->cs8900_iotype);  
+	}
+	else 
+		printf("CS8900 net card disenabled\n");  
 
 }
 static void pavo_parse_configure(pavo_t *pavo)
@@ -209,7 +305,8 @@ static void pavo_parse_configure(pavo_t *pavo)
 	cfg_opt_t opts[] = {
 			COMMON_CONFIG_OPTION
 		  /*add other configure information here*/
-
+			CFG_SIMPLE_INT("cs8900_enable", &(pavo->cs8900_enable)),   
+			CFG_SIMPLE_STR("cs8900_iotype", &(pavo->cs8900_iotype)),   
 			CFG_END()
 	};
 	cfg_t *cfg;
@@ -225,6 +322,10 @@ static void pavo_parse_configure(pavo_t *pavo)
       {
         ASSERT(vm->boot_from==2,"boot_from must be 2(NAND Flash)\n pavo only can boot from NAND Flash.\n");   \
       }
+	if (pavo->cs8900_enable==1)
+	{
+		ASSERT(pavo->cs8900_iotype!=NULL,"You must set cs8900_enable \n");
+	}
 
 
     /*Print the configure information*/

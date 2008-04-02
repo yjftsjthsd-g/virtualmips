@@ -109,8 +109,6 @@ else if (op_type==MTS_READ)
 else
   assert(0);
 #endif
-if ((offset==0x40)||(offset==0x44)||(offset==0x48))
-	cpu_log6(cpu,"","offset %x *data %x type %x\n",offset,*data,op_type);
  switch (op_size)
       {
       case 1:
@@ -133,7 +131,6 @@ if ((offset==0x40)||(offset==0x44)||(offset==0x48))
 	      mask_data = (*data)&mask;
 	      jz4740_wdt_tcu_table[TCU_TSR/4] |= mask_data;
 	      *has_set_value=TRUE;
-	      cpu_log(cpu,"","S jz4740_wdt_tcu_table[TCU_TSR/4] %x \n",jz4740_wdt_tcu_table[TCU_TSR/4]);
 	      if (jz4740_wdt_tcu_table[TCU_TSR/4]&0x01)
 	      		dev_jz4740_tcu_unactive_timer0(d);
 	      if (jz4740_wdt_tcu_table[TCU_TSR/4]&WDT_TIMER_STOP)
@@ -145,7 +142,6 @@ if ((offset==0x40)||(offset==0x44)||(offset==0x48))
 	      mask_data = (*data)&mask;
 	      mask_data= ~(mask_data);
 	       jz4740_wdt_tcu_table[TCU_TSR/4]  &= mask_data;
-	      cpu_log(cpu,"","C jz4740_wdt_tcu_table[TCU_TSR/4] %x \n",jz4740_wdt_tcu_table[TCU_TSR/4]);
 	       *has_set_value=TRUE;
 	       if ((!jz4740_wdt_tcu_table[TCU_TSR/4]&0x01)&&(jz4740_wdt_tcu_table[TCU_TER/4]&0x01))
 	       	dev_jz4740_tcu_active_timer0(d);
@@ -157,7 +153,6 @@ if ((offset==0x40)||(offset==0x44)||(offset==0x48))
           assert (op_type==MTS_WRITE);
 	      mask_data = (*data)&mask;
 	      jz4740_wdt_tcu_table[TCU_TER/4] |= mask_data;
-	    //  cpu_log9(cpu,"","S jz4740_wdt_tcu_table[TCU_TER/4]%x \n",jz4740_wdt_tcu_table[TCU_TER/4]);
 	      *has_set_value=TRUE;
 	      if ((!jz4740_wdt_tcu_table[TCU_TSR/4]&0x01)&&(jz4740_wdt_tcu_table[TCU_TER/4]&0x01))
 	       	dev_jz4740_tcu_active_timer0(d);
@@ -167,7 +162,6 @@ if ((offset==0x40)||(offset==0x44)||(offset==0x48))
 	      mask_data = (*data)&mask;
 	      mask_data= ~(mask_data);
 	       jz4740_wdt_tcu_table[TCU_TER/4]  &= mask_data;
-	       cpu_log(cpu,"","C jz4740_wdt_tcu_table[TCU_TER/4]%x \n",jz4740_wdt_tcu_table[TCU_TER/4]);
 	       *has_set_value=TRUE;
 	        if (!(jz4740_wdt_tcu_table[TCU_TER/4]&0x01))
 	       	dev_jz4740_tcu_unactive_timer0(d);
@@ -217,7 +211,6 @@ if ((offset==0x40)||(offset==0x44)||(offset==0x48))
 	  				jz4740_tcu_clock[clock_index] =RTC_CLOCK;
 	  			else
 	  				ASSERT(0,"RTC and EXT clock is supported \n");
-	  			//cpu_log(cpu,"","jz4740_tcu_clock %llx clock_index %x *data %x \n",jz4740_tcu_clock[clock_index],clock_index,*data);
               
 
 	  			if ((((*data)&TCU_CLOCK_PRESCALE_MASK)>>TCU_CLOCK_PRESCALE_OFFSET)==0x1)
@@ -233,7 +226,6 @@ if ((offset==0x40)||(offset==0x44)||(offset==0x48))
 	  			else if ((((*data)&TCU_CLOCK_PRESCALE_MASK)>>TCU_CLOCK_PRESCALE_OFFSET)!=0x0)
 	  				ASSERT(0,"INVALID PRESCALE\n");
 
-	  			//cpu_log2(cpu,"","jz4740_tcu_clock %llx clock_index %x *data %x \n",jz4740_tcu_clock[clock_index],clock_index,*data);
 	  			
 	  		}
 	  	return((void *)(d->jz4740_wdt_tcu_ptr + offset));
@@ -340,7 +332,6 @@ m_int64_t current;
 m_uint32_t past_time;
 	 
 struct jz4740_wdt_tcu_data *d=(struct jz4740_wdt_tcu_data *)opaque;
-//cpu_log6(current_cpu, "","jz4740_wdt_tcu_table[WDT_TCNT/4] %x \n",jz4740_wdt_tcu_table[WDT_TCNT/4]);
 if (unlikely(jz4740_wdt_tcu_table[WDT_TCER/4]&0x01)&&(!(jz4740_wdt_tcu_table[TCU_TSR/4]&WDT_TIMER_STOP)))
 {
 	current=vp_get_clock(rt_clock);
@@ -348,10 +339,7 @@ if (unlikely(jz4740_wdt_tcu_table[WDT_TCER/4]&0x01)&&(!(jz4740_wdt_tcu_table[TCU
 
     {
       jz4740_wdt_tcu_table[WDT_TCNT/4] +=(jz4740_wdt_clock)/100;
-     // if (jz4740_wdt_tcu_table[WDT_TCNT/4]&0xffff0000)
-      //  jz4740_wdt_tcu_table[WDT_TCNT/4]=0;
      
-    //printf("jz4740_wdt_tcu_table[WDT_TCNT/4] %x jz4740_wdt_clock %x  \n",jz4740_wdt_tcu_table[WDT_TCNT/4],jz4740_wdt_clock);
      if (jz4740_wdt_tcu_table[WDT_TCNT/4]>=jz4740_wdt_tcu_table[WDT_TDR/4])
       {
         /*RESET soc*/
@@ -375,9 +363,7 @@ void dev_jz4740_tcu_cb(void *opaque)
 	m_uint32_t past_time;
 	current=vp_get_clock(rt_clock);
 	past_time=current-d->tcu_timer[0]->set_time;
-	// cpu_log7(current_cpu,"","dev_jz4740_tcu_cb\n");
 
-	cpu_log6(current_cpu,"","past_time %x jz4740_wdt_tcu_table[TCU_TDFR0/4]  %x  past_time* jz4740_tcu_clock[0])/100 %x \n",past_time,jz4740_wdt_tcu_table[TCU_TDFR0/4] ,(past_time* jz4740_tcu_clock[0])/1000);
 
 	jz4740_wdt_tcu_table[TCU_TCNT0/4] +=(past_time* jz4740_tcu_clock[0])/1000;
 	jz4740_wdt_tcu_table[TCU_TCNT0/4] &= 0xffff;
@@ -394,10 +380,12 @@ void dev_jz4740_tcu_cb(void *opaque)
           if (!(jz4740_wdt_tcu_table[TCU_TMR/4]&(0x1) ))
             {
                current_cpu->vm->set_irq(current_cpu->vm,IRQ_TCU0);
+               cpu_log12(current_cpu,"","TCU FR INT \n");
             }
            
            jz4740_wdt_tcu_table[TCU_TCNT0/4]=0;
         }
+	cpu_log12(current_cpu,"","dev_jz4740_tcu_cb \n");
 	dev_jz4740_tcu_active_timer0(d);
 	
 }

@@ -1,3 +1,13 @@
+ /*
+ * Copyright (C) yajin 2008<yajinzhou@gmail.com >
+ *     
+ * This file is part of the virtualmips distribution. 
+ * See LICENSE file for terms of the license. 
+ *
+ */
+ 
+
+
 #ifndef __VP_TIMER_H__
 #define __VP_TIMER_H__
 
