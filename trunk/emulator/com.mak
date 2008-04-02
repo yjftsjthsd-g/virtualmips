@@ -26,6 +26,7 @@ CFLAGS += -g -Wall -O3  -fomit-frame-pointer
 
 #enable to show emulation performance
 #CFLAGS+= -DDEBUG_MHZ
+
 RT_LIB =-lrt
 CONFUSE_LIB =-lconfuse
 PTHREAD_LIBS =-lpthread
@@ -41,7 +42,7 @@ $(patsubst %$(x),%.o,$(filter %$(x),$(SOURCES))))
 DEPS = $(foreach x,$(SRCEXTS), \
 $(patsubst %$(x),%.d,$(filter %$(x),$(SOURCES))))
 
-.PHONY : all clean
+.PHONY : all clean pavo
 
 # Rules for creating the dependency files (.d).
 #---------------------------------------------------

@@ -1463,13 +1463,19 @@ static void *netio_rxl_spec_thread(void *arg)
    struct netio_rx_listener *rxl = arg;
    netio_desc_t *nio = rxl->nio;
    ssize_t pkt_len;
-
    while(rxl->running) {
-      pkt_len = netio_recv(nio,nio->rx_pkt,sizeof(nio->rx_pkt));
-
-      if (pkt_len > 0)
-         rxl->rx_handler(nio,nio->rx_pkt,pkt_len,rxl->arg1,rxl->arg2);
-   }
+   
+   	  		 pkt_len = netio_recv(nio,nio->rx_pkt,sizeof(nio->rx_pkt));
+      		if (pkt_len > 0)
+      			{
+      				//printf("nio->can_recv %x\n",nio->can_recv);
+      			   //	while (nio->can_recv)
+   	  				//{
+   	  					rxl->rx_handler(nio,nio->rx_pkt,pkt_len,rxl->arg1,rxl->arg2);
+   	  				//	break;
+   	  				//}
+      			}
+  }
 
    return NULL;
 }
@@ -1519,7 +1525,7 @@ void *netio_rxl_gen_thread(void *arg)
 
       /* Wait for incoming packets */
       tv.tv_sec = 0;
-      tv.tv_usec = 20 * 1000;  /* 200 ms */
+      tv.tv_usec =  2*1000;  /* 2 ms */
       res = select(fd_max+1,&rfds,NULL,NULL,&tv);
 
       if (res == -1) {
@@ -1538,11 +1544,19 @@ void *netio_rxl_gen_thread(void *arg)
             continue;
 
          if (FD_ISSET(fd,&rfds)) {
+         	  	{
             pkt_len = netio_recv(nio,nio->rx_pkt,sizeof(nio->rx_pkt));
-
+			
             if (pkt_len > 0)
+           {
+           	//printf("nio->can_recv %x\n",nio->can_recv);
+           	 while (nio->can_recv){
                rxl->rx_handler(nio,nio->rx_pkt,pkt_len,rxl->arg1,rxl->arg2);
-         }
+				break;
+            	}
+            }
+         	  	}
+           }
       }
 
       NETIO_RXL_UNLOCK();
@@ -1572,7 +1586,7 @@ int netio_rxl_add(netio_desc_t *nio,netio_rx_handler_t rx_handler,
    rxl->arg1 = arg1;
    rxl->arg2 = arg2;
    rxl->running = TRUE;
-
+   
    if ((netio_get_fd(rxl->nio) == -1) &&
        pthread_create(&rxl->spec_thread,NULL,netio_rxl_spec_thread,rxl)) 
    {

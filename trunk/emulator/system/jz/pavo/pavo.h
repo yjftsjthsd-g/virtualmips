@@ -25,6 +25,9 @@ struct pavo_system {
    /* Associated VM instance */
    vm_instance_t *vm;
    nand_flash_1g_data_t *nand_flash;
+
+   m_uint32_t cs8900_enable;
+   char *cs8900_iotype;
 };
 
 

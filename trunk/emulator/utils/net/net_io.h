@@ -151,6 +151,9 @@ struct netio_desc {
    char *name;
    int debug;
    
+   /*can nio recv packet now?*/
+   u_int can_recv;
+   
    /* Frame Relay specific information */
    m_uint8_t fr_lmi_seq;
    void *fr_conn_list;
@@ -205,6 +208,7 @@ struct netio_rx_listener {
    void *arg1,*arg2;
    pthread_t spec_thread;
    struct netio_rx_listener *prev,*next;
+  
 };
 
 /* Get NETIO type given a description */

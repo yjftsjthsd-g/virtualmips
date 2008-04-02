@@ -78,7 +78,6 @@ See jz4740_host_alam.c */
   current_cpu->cp0.reg[MIPS_CP0_COUNT]+=ADM_FREQ/(2*1000);
   if (current_cpu->cp0.reg[MIPS_CP0_COMPARE]!=0)
     {
- //   cpu_log6(current_cpu,"","count %x compare %x \n",current_cpu->cp0.reg[MIPS_CP0_COUNT],current_cpu->cp0.reg[MIPS_CP0_COMPARE]);
 if (current_cpu->cp0.reg[MIPS_CP0_COUNT]>=current_cpu->cp0.reg[MIPS_CP0_COMPARE])
     {
       mips64_set_irq(current_cpu,MIPS_TIMER_INTERRUPT);
@@ -90,7 +89,6 @@ if (current_cpu->cp0.reg[MIPS_CP0_COUNT]>=current_cpu->cp0.reg[MIPS_CP0_COMPARE]
 	 if (sw_table[Timer_REG/4]&SW_TIMER_EN)
     {
           tim = sw_table[Timer_REG/4]&SW_TIMER_MASK;
-          cpu_log(current_cpu,"","tim %x \n",tim);
           if (tim==0)
             {
               tim=time_reload;

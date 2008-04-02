@@ -88,7 +88,21 @@ typedef m_uint32_t m_cp0_reg_t;
 /*FOR CS8900*/
 #define CS8900_IO_BASE  0x8000000
 #define CS8900_SIZE         0x10
-#define CIRRUS_DEFAULT_IRQ      107
+#define CS8900_DEFAULT_IRQ      107
+#define CS8900_GPIO_GROUP      1
+/* GPIO is in 4 groups. 32 per group*/
+/*
+
+48-79      0
+80-111    1
+112-143  2
+144-175  3
+
+so irq 107 is in gpio group 1
+*/
+
+
+
 
 
 

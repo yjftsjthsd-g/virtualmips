@@ -45,7 +45,6 @@ void *dev_jz4740_rtc_access(cpu_mips_t *cpu,struct vdevice *dev,
       *data = 0;
       return NULL;
    }
-	//cpu_log3(cpu,"rtc","offset %x data %x type %x\n",offset,*data,op_type);
   return((void *)(d->jz4740_rtc_ptr + offset));
   
 

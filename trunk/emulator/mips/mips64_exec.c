@@ -510,11 +510,14 @@ if (unlikely(instructions_executed==C_100MHZ))
 {
  cpu->pause_request |= mask;
 }*/
-
+extern  m_uint32_t jz4740_int_table[JZ4740_INT_INDEX_MAX];
 void mips64_main_loop_wait(cpu_mips_t *cpu,int timeout)
 {
 	vp_run_timers(&active_timers[VP_TIMER_REALTIME], 
                     vp_get_clock(rt_clock));
+   
+   cpu_log12(current_cpu,"","jz4740_int_table[INTC_IPR/4] = irq_mask %x \n",jz4740_int_table[INTC_IPR/4] );
+   cpu_log12(current_cpu,"","mips64_main_loop_wait end \n");
 }
 /* Run MIPS code in step-by-step mode */
 void *mips64_exec_run_cpu(cpu_mips_t *cpu)
@@ -554,7 +557,6 @@ void *mips64_exec_run_cpu(cpu_mips_t *cpu)
 			mips64_trigger_irq(cpu);
 			continue;
 		}
-       //cpu_log7(cpu,"","pc %x\n",cpu->pc);
 		/* Fetch and execute the instruction */      
 		res=mips64_exec_fetch(cpu,cpu->pc,&insn);
 
@@ -579,13 +581,9 @@ void *mips64_exec_run_cpu(cpu_mips_t *cpu)
 	}
 
 	while(cpu->cpu_thread_running) {
-	    //cpu_log6(cpu,"","cpu->state %x\n",cpu->state);
-	    //cpu_log6(cpu,"","cpu->pc ddd %x\n",cpu->pc);
-		//cpu->seq_state++;
 		switch(cpu->state) {
 		case CPU_STATE_RUNNING:
 			cpu->state = CPU_STATE_RUNNING;
-			//cpu_log7(cpu,"","going start\n");
 			goto start_cpu;
 
 		case CPU_STATE_HALTED:     
@@ -600,7 +598,6 @@ void *mips64_exec_run_cpu(cpu_mips_t *cpu)
 			mips64_main_loop_wait(cpu,0);
 			cpu->state = CPU_STATE_RUNNING;
 			cpu->pause_request &= ~CPU_INTERRUPT_EXIT;
-			//cpu_log7(cpu,"","cpu->pause_request %x\n",cpu->pause_request);
 			/*start cpu again*/
 			goto start_cpu;
 			
@@ -1304,7 +1301,6 @@ static    int mips64_exec_CLZ(cpu_mips_t *cpu,mips_insn_t insn)
 	int rd = bits(insn,11,15);
 	int i;
 	m_uint32_t val;
-
 	val=32;
 	for (i=31;i>=0;i--)
 	{
@@ -2035,9 +2031,9 @@ static    int mips64_exec_SUBU(cpu_mips_t *cpu,mips_insn_t insn)
 	int rt = bits(insn,16,20);
 	int rd = bits(insn,11,15);
 	m_uint32_t res;
-
 	res = (m_uint32_t)cpu->gpr[rs] - (m_uint32_t)cpu->gpr[rt];
 	cpu->gpr[rd] = sign_extend(res,32);
+
 	return(0);
 }
 
@@ -2162,7 +2158,6 @@ static  int mips64_exec_TNE(cpu_mips_t *cpu,mips_insn_t insn)
 /* wait */
 static    int mips64_exec_WAIT(cpu_mips_t *cpu,mips_insn_t insn)
 {
-   cpu_log(cpu,"","wait pc %x\n",cpu->pc);
 	return(0);
 }
 

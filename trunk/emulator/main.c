@@ -23,10 +23,13 @@
 #include "vm.h"
 #include "mips64_exec.h"
 #include "vp_timer.h"
+#include "crc.h"
+#include "net_io.h"
+#include "registry.h"
+#include "net_io_filter.h"
 
-
-char sw_version_tag[] = "20080321";
-#define VERSION  "0.02"
+char sw_version_tag[] = "20080401";
+#define VERSION  "0.03"
 
 void signal_gen_handler(int sig)
 {
@@ -76,14 +79,21 @@ int main(int argc,char *argv[])
 	printf("Build date: %s %s\n\n",__DATE__,__TIME__);
 
 	
-	/* Initialize CRC functions */
+	  /* Initialize object registry */
+   registry_init();
+   
+   /* Initialize CRC functions */
    crc_init();
 
    /* Initialize NetIO code */
    netio_rxl_init();
 
+   /* Initialize NetIO packet filters */
+   netio_filter_load_all();
+
    /* Initialize VTTY code */
 	vtty_init();
+   
    
 
 	/* Create the default instance */

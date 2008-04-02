@@ -92,7 +92,6 @@ static void  jz4740_tty_con_input(vtty_t *vtty)
       d->vm->set_irq(d->vm,d->irq);
     }
    d->lsr |= UART_LSR_DRY;
-   //printf("I am here\n");
       
 }
 
@@ -264,13 +263,15 @@ void dev_jz4740_uart_cb(void *opaque)
 
 	
  d->output=0;
+ cpu_log12(current_cpu,"","dev_jz4740_uart_cb \n");
  if (vtty_is_char_avail(d->vtty))
 	{
 		d->lsr |= UART_LSR_DRY;
 		if (d->ier & UART_IER_RDRIE)
     	{
      		 d->vm->set_irq(d->vm,d->irq);
-     		 vp_mod_timer(d->uart_timer, vp_get_clock(rt_clock)+1);
+     		  cpu_log12(current_cpu,"","URAT CHAR RECV INT \n");
+     		 vp_mod_timer(d->uart_timer, vp_get_clock(rt_clock)+5);
      		 return;
     	}
 		     		
@@ -280,12 +281,13 @@ void dev_jz4740_uart_cb(void *opaque)
     {
        d->output = TRUE;
        d->vm->set_irq(d->vm,d->irq);
-       vp_mod_timer(d->uart_timer, vp_get_clock(rt_clock)+1);
+       cpu_log12(current_cpu,"","URAT CHAR TX INT \n");
+       vp_mod_timer(d->uart_timer, vp_get_clock(rt_clock)+5);
        return;
       }
 
 	// d->uart_timer->set_time=vp_get_clock(rt_clock);
-   vp_mod_timer(d->uart_timer, vp_get_clock(rt_clock)+1);
+   vp_mod_timer(d->uart_timer, vp_get_clock(rt_clock)+5);
 
  
 }
@@ -317,7 +319,7 @@ int dev_jz4740_uart_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t le
    d->uart_timer=vp_new_timer(rt_clock, dev_jz4740_uart_cb, d);
    
    //d->uart_timer->set_time=vp_get_clock(rt_clock);
-   vp_mod_timer(d->uart_timer, vp_get_clock(rt_clock)+1);
+   vp_mod_timer(d->uart_timer, vp_get_clock(rt_clock)+5);
       
 	vm_bind_device(vm,d->dev);
 	

@@ -26,11 +26,11 @@ enum {
 
 /* Virtual CPU states */
 enum {
-	CPU_STATE_RUNNING = 0,
+	CPU_STATE_RUNNING = 0,  /*cpu is running*/
 	CPU_STATE_HALTED,
-	CPU_STATE_SUSPENDED,
-	CPU_STATE_RESTARTING,
-	CPU_STATE_PAUSING,
+	CPU_STATE_SUSPENDED,   /*CPU is SUSPENDED*/
+	CPU_STATE_RESTARTING, /*cpu is restarting*/
+	CPU_STATE_PAUSING,  /*cpu is pausing for timer*/
 };
 
 
