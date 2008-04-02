@@ -35,7 +35,7 @@ modprobe tun
 }}}
 
 
-= Configure pavo =
+= Configure pavo emulation =
 
 Change the pavo.conf in virtualmips-0.03/run to enable network card emulation.
 
@@ -52,7 +52,7 @@ Set an IP address for tap device.
 sudo ifconfig tap0 10.0.0.100    <-- in host
 }}}
 
-= run pavo emulation =
+= Run pavo emulation =
 
 When you entering emulator, configure the network card of emulator.
 
