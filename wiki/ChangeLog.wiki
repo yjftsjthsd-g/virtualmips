@@ -1,4 +1,9 @@
 #summary ChangeLog of VirtualMIPS
+= 2008-04-01 =
+VirtualMIPS v0.03
+  * redesign emulator clock to improve its accuracy
+  * add cs8900 network card emulation of pavo board
+  * fix the bug of mknandflash tool on AMD64
 
 = 2008-03-21 =
 
