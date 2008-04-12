@@ -80,9 +80,9 @@ netio_desc_t *nio;
  	case NETIO_TYPE_TAP:
  		nio=netio_desc_create_tap(name,tokens[1]);
  		break;
- 	case NETIO_TYPE_LINUX_ETH:
- 		nio=netio_desc_create_lnxeth(name,tokens[1]);
- 		break;
+ 	//case NETIO_TYPE_LINUX_ETH:
+ 	//	nio=netio_desc_create_lnxeth(name,tokens[1]);
+ 	//	break;
  	default:
  		return (-1);
  }
@@ -242,16 +242,17 @@ void pavo_set_irq(vm_instance_t *vm,u_int irq)
 	 irq=plat_soc_irq(irq);
 	 
     irq_mask = 1<<irq;
+    jz4740_int_table[INTC_ISR/4] |= irq_mask;
     /*first check ICMR. masked interrupt is **invisible** to cpu*/
-    if (jz4740_int_table[INTC_IMR/4]&irq_mask)
+    if (unlikely(jz4740_int_table[INTC_IMR/4]&irq_mask))
       {
         /*the irq is masked. clear IPR*/
-         jz4740_int_table[INTC_IPR/4] &= ~irq_mask;
+        jz4740_int_table[INTC_IPR/4] &= ~irq_mask;
       }
     else
       {
          /*the irq is not masked*/
-        jz4740_int_table[INTC_ISR/4] |= irq_mask;
+        
         /*set IPR*/
         /*
         we set IPR, not *or* . yajin
