@@ -14,12 +14,6 @@
 #include <pthread.h>
 #include "utils.h"
 
-#ifdef LINUX_ETH
-#include "linux_eth.h"
-#endif
-#ifdef GEN_ETH
-#include "gen_eth.h"
-#endif
 
 /* Maximum packet size */
 #define NETIO_MAX_PKT_SIZE  32768
@@ -152,29 +146,29 @@ struct netio_desc {
    int debug;
    
    /*can nio recv packet now?*/
-   u_int can_recv;
+   //u_int can_recv;
    
    /* Frame Relay specific information */
-   m_uint8_t fr_lmi_seq;
-   void *fr_conn_list;
+   //m_uint8_t fr_lmi_seq;
+   //void *fr_conn_list;
 
    /* Ethernet specific information */
-   u_int vlan_port_type;
-   m_uint16_t vlan_id;
-   void *vlan_input_vector;
+   //u_int vlan_port_type;
+   //m_uint16_t vlan_id;
+   //void *vlan_input_vector;
 
    union {
-      netio_unix_desc_t nud;
-      netio_vde_desc_t nvd;
+      //netio_unix_desc_t nud;
+      //netio_vde_desc_t nvd;
       netio_tap_desc_t ntd;
-      netio_inet_desc_t nid;
+      //netio_inet_desc_t nid;
 #ifdef LINUX_ETH
-      netio_lnxeth_desc_t nled;
+      //netio_lnxeth_desc_t nled;
 #endif
 #ifdef GEN_ETH
-      netio_geneth_desc_t nged;
+      //netio_geneth_desc_t nged;
 #endif
-      netio_fifo_desc_t nfd;
+      //netio_fifo_desc_t nfd;
    } u;
 
    /* Send and receive prototypes */
@@ -182,11 +176,11 @@ struct netio_desc {
    ssize_t (*recv)(void *desc,void *pkt,size_t len);
 
    /* Configuration saving */
-   void (*save_cfg)(netio_desc_t *nio,FILE *fd);
+   //void (*save_cfg)(netio_desc_t *nio,FILE *fd);
 
    /* Packet filters */
-   netio_pktfilter_t *rx_filter,*tx_filter,*both_filter;
-   void *rx_filter_data,*tx_filter_data,*both_filter_data;
+   //netio_pktfilter_t *rx_filter,*tx_filter,*both_filter;
+   //void *rx_filter_data,*tx_filter_data,*both_filter_data;
 
    /* Next pointer (for RX listener) */
    netio_desc_t *rxl_next;

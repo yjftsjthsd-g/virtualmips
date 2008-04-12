@@ -39,8 +39,8 @@ struct cs8900_data {
 
    
 
-   m_uint8_t want_tx;
-    m_uint8_t want_rx;
+ //  m_uint8_t want_tx;
+//    m_uint8_t want_rx;
    
 };
 

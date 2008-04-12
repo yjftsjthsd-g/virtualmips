@@ -42,7 +42,7 @@ $(patsubst %$(x),%.o,$(filter %$(x),$(SOURCES))))
 DEPS = $(foreach x,$(SRCEXTS), \
 $(patsubst %$(x),%.d,$(filter %$(x),$(SOURCES))))
 
-.PHONY : all clean pavo
+.PHONY : all clean 
 
 # Rules for creating the dependency files (.d).
 #---------------------------------------------------

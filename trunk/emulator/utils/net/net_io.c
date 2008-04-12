@@ -37,14 +37,14 @@
 #include <linux/if_tun.h>
 #endif
 
-#include "registry.h"
+
 #include "net.h"
 #include "net_io.h"
-#include "net_io_filter.h"
+
 
 /* Free a NetIO descriptor */
 static int netio_free(void *data,void *arg);
-
+#if 0
 /* NIO RX listener */
 static pthread_mutex_t netio_rxl_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t netio_rxq_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -59,6 +59,8 @@ static pthread_cond_t netio_rxl_cond;
 
 #define NETIO_RXQ_LOCK()   pthread_mutex_lock(&netio_rxq_mutex);
 #define NETIO_RXQ_UNLOCK() pthread_mutex_unlock(&netio_rxq_mutex);
+#endif
+
 
 /* NetIO type */
 typedef struct {
@@ -109,29 +111,6 @@ void netio_show_types(void)
    printf("\n");
 }
 
-/*
- * =========================================================================
- * Generic functions (abstraction layer)
- * =========================================================================
- */
-
-/* Acquire a reference to NIO from registry (increment reference count) */
-netio_desc_t *netio_acquire(char *name)
-{
-   return(registry_find(name,OBJ_TYPE_NIO));
-}
-
-/* Release an NIO (decrement reference count) */
-int netio_release(char *name)
-{
-   return(registry_unref(name,OBJ_TYPE_NIO));
-}
-
-/* Record an NIO in registry */
-static int netio_record(netio_desc_t *nio)
-{
-   return(registry_add(nio->name,OBJ_TYPE_NIO,nio));
-}
 
 /* Create a new NetIO descriptor */
 static netio_desc_t *netio_create(char *name)
@@ -154,36 +133,14 @@ static netio_desc_t *netio_create(char *name)
    return nio;
 }
 
-/* Delete a NetIO descriptor */
-int netio_delete(char *name)
-{
-   return(registry_delete_if_unused(name,OBJ_TYPE_NIO,netio_free,NULL));
-}
-
-/* Delete all NetIO descriptors */
-int netio_delete_all(void)
-{
-   return(registry_delete_type(OBJ_TYPE_NIO,netio_free,NULL));
-}
 
 /* Save the configuration of a NetIO descriptor */
-void netio_save_config(netio_desc_t *nio,FILE *fd)
-{
-   if (nio->save_cfg)
-      nio->save_cfg(nio,fd);
-}
+//void netio_save_config(netio_desc_t *nio,FILE *fd)
+//{
+ //  if (nio->save_cfg)
+  //    nio->save_cfg(nio,fd);
+//}
 
-/* Save configurations of all NetIO descriptors */
-static void netio_reg_save_config(registry_entry_t *entry,void *opt,int *err)
-{
-   netio_save_config((netio_desc_t *)entry->data,(FILE *)opt);
-}
-
-void netio_save_config_all(FILE *fd)
-{
-   registry_foreach_type(OBJ_TYPE_NIO,netio_reg_save_config,fd,NULL);
-   fprintf(fd,"\n");
-}
 
 /* Send a packet through a NetIO descriptor */
 ssize_t netio_send(netio_desc_t *nio,void *pkt,size_t len)
@@ -199,20 +156,20 @@ ssize_t netio_send(netio_desc_t *nio,void *pkt,size_t len)
    }
 
    /* Apply the TX filter */
-   if (nio->tx_filter != NULL) {
+ /*  if (nio->tx_filter != NULL) {
       res = nio->tx_filter->pkt_handler(nio,pkt,len,nio->tx_filter_data);
 
       if (res <= 0)
          return(-1);
-   }
+   }*/
 
    /* Apply the bidirectional filter */
-   if (nio->both_filter != NULL) {
+   /*if (nio->both_filter != NULL) {
       res = nio->both_filter->pkt_handler(nio,pkt,len,nio->both_filter_data);
 
       if (res == NETIO_FILTER_ACTION_DROP)
          return(-1);
-   }
+   }*/
 
    return(nio->send(nio->dptr,pkt,len));
 }
@@ -235,6 +192,7 @@ ssize_t netio_recv(netio_desc_t *nio,void *pkt,size_t max_len)
       mem_dump(stdout,pkt,len);
    }
 
+#if 0
    /* Apply the RX filter */
    if (nio->rx_filter != NULL) {
       res = nio->rx_filter->pkt_handler(nio,pkt,len,nio->rx_filter_data);
@@ -250,9 +208,9 @@ ssize_t netio_recv(netio_desc_t *nio,void *pkt,size_t max_len)
       if (res == NETIO_FILTER_ACTION_DROP)
          return(-1);
    }
-
+#endif
    return(len);
-}
+} 
 
 /* Get a NetIO FD */
 int netio_get_fd(netio_desc_t *nio)
@@ -260,30 +218,31 @@ int netio_get_fd(netio_desc_t *nio)
    int fd = -1;
 
    switch(nio->type) {
-      case NETIO_TYPE_UNIX:
-         fd = nio->u.nud.fd;
-         break;
-      case NETIO_TYPE_VDE:
-         fd = nio->u.nvd.data_fd;
-         break;
+      //case NETIO_TYPE_UNIX:
+      //   fd = nio->u.nud.fd;
+      //   break;
+      //case NETIO_TYPE_VDE:
+      //   fd = nio->u.nvd.data_fd;
+     //    break;
       case NETIO_TYPE_TAP:
          fd = nio->u.ntd.fd;
          break;
-      case NETIO_TYPE_TCP_CLI:
-      case NETIO_TYPE_TCP_SER:
-      case NETIO_TYPE_UDP:
-         fd = nio->u.nid.fd;
-         break;
-#ifdef LINUX_ETH
-      case NETIO_TYPE_LINUX_ETH:
-         fd = nio->u.nled.fd;
-         break;
-#endif
+      //case NETIO_TYPE_TCP_CLI:
+      //case NETIO_TYPE_TCP_SER:
+      //case NETIO_TYPE_UDP:
+      //   fd = nio->u.nid.fd;
+      //   break;
+//#ifdef LINUX_ETH
+//      case NETIO_TYPE_LINUX_ETH:
+//         fd = nio->u.nled.fd;
+//         break;
+//#endif
    }
    
    return(fd);
 }
 
+#if 0
 /*
  * =========================================================================
  * UNIX sockets
@@ -554,7 +513,7 @@ netio_desc_t *netio_desc_create_vde(char *nio_name,char *control,char *local)
 
    return nio;
 }
-
+#endif
 /*
  * =========================================================================
  * TAP devices
@@ -631,6 +590,9 @@ static int netio_tap_create(netio_tap_desc_t *ntd,char *tap_name)
               tap_name,strerror(errno));
       return(-1);
    }
+   /*SET NO BLOCKING*/
+   if (fcntl (ntd->fd, F_SETFL, O_NONBLOCK) == -1)
+    printf ("Set file descriptor to non-blocking mode failed\n");
 
    return(0);
 }
@@ -673,17 +635,18 @@ netio_desc_t *netio_desc_create_tap(char *nio_name,char *tap_name)
    nio->type     = NETIO_TYPE_TAP;
    nio->send     = (void *)netio_tap_send;
    nio->recv     = (void *)netio_tap_recv;
-   nio->save_cfg = netio_tap_save_cfg;
+   //nio->save_cfg = netio_tap_save_cfg;
    nio->dptr     = &nio->u.ntd;
 
-   if (netio_record(nio) == -1) {
-      netio_free(nio,NULL);
-      return NULL;
-   }
+   //if (netio_record(nio) == -1) {
+ //     netio_free(nio,NULL);
+ //     return NULL;
+ //  }
 
    return nio;
 }
 
+#if 0
 /*
  * =========================================================================
  * TCP sockets
@@ -1334,6 +1297,7 @@ netio_desc_t *netio_desc_create_null(char *nio_name)
 
    return nio;
 }
+#endif
 
 /* Free a NetIO descriptor */
 static int netio_free(void *data,void *arg)
@@ -1341,46 +1305,16 @@ static int netio_free(void *data,void *arg)
    netio_desc_t *nio = data;
 
    if (nio) {
-      netio_filter_unbind(nio,NETIO_FILTER_DIR_RX);
-      netio_filter_unbind(nio,NETIO_FILTER_DIR_TX);
-      netio_filter_unbind(nio,NETIO_FILTER_DIR_BOTH);
 
       switch(nio->type) {
-         case NETIO_TYPE_UNIX:
-            netio_unix_free(&nio->u.nud);
-            break;
-         case NETIO_TYPE_VDE:
-            netio_vde_free(&nio->u.nvd);
-            break;
          case NETIO_TYPE_TAP:
             netio_tap_free(&nio->u.ntd);
-            break;
-         case NETIO_TYPE_TCP_CLI:
-         case NETIO_TYPE_TCP_SER:
-            netio_tcp_free(&nio->u.nid);
-            break;
-         case NETIO_TYPE_UDP:
-            netio_udp_free(&nio->u.nid);
-            break;
-#ifdef LINUX_ETH
-         case NETIO_TYPE_LINUX_ETH:
-            netio_lnxeth_free(&nio->u.nled);
-            break;
-#endif
-#ifdef GEN_ETH
-         case NETIO_TYPE_GEN_ETH:
-            netio_geneth_free(&nio->u.nged);
-            break;
-#endif
-         case NETIO_TYPE_FIFO:
-            netio_fifo_free(&nio->u.nfd);
             break;
          case NETIO_TYPE_NULL:           
             break;
          default:
             fprintf(stderr,"NETIO: unknown descriptor type %u\n",nio->type);
       }
-
       free(nio->name);
       free(nio);
    }
@@ -1388,6 +1322,7 @@ static int netio_free(void *data,void *arg)
    return(TRUE);
 }
 
+#if 0
 /*
  * =========================================================================
  * RX Listeners
@@ -1468,12 +1403,7 @@ static void *netio_rxl_spec_thread(void *arg)
    	  		 pkt_len = netio_recv(nio,nio->rx_pkt,sizeof(nio->rx_pkt));
       		if (pkt_len > 0)
       			{
-      				//printf("nio->can_recv %x\n",nio->can_recv);
-      			   //	while (nio->can_recv)
-   	  				//{
    	  					rxl->rx_handler(nio,nio->rx_pkt,pkt_len,rxl->arg1,rxl->arg2);
-   	  				//	break;
-   	  				//}
       			}
   }
 
@@ -1549,10 +1479,7 @@ void *netio_rxl_gen_thread(void *arg)
 			
             if (pkt_len > 0)
            {
-           	//printf("nio->can_recv %x\n",nio->can_recv);
-           	 while (nio->can_recv){
                rxl->rx_handler(nio,nio->rx_pkt,pkt_len,rxl->arg1,rxl->arg2);
-				break;
             	}
             }
          	  	}
@@ -1628,3 +1555,4 @@ int netio_rxl_init(void)
    return(0);
 }
 
+#endif
