@@ -54,7 +54,6 @@ int jz4740_boot_from_nandflash(vm_instance_t *vm)
    
 }
 
-
 int jz4740_reset(vm_instance_t *vm)
 {
 cpu_mips_t *cpu;
