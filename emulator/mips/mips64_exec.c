@@ -449,6 +449,9 @@ float timeuse,performance;
 long  instructions_executed=0;
 #endif
 int ttt;
+
+
+
 /* Execute a single instruction */
 static forced_inline int 
 mips64_exec_single_instruction(cpu_mips_t *cpu,mips_insn_t instruction)
@@ -466,7 +469,6 @@ mips64_exec_single_instruction(cpu_mips_t *cpu,mips_insn_t instruction)
 	index = ilt_lookup(ilt,instruction);
 	tag = mips64_exec_get_insn(index);
 	exec = tag->exec;
-   
 	
 #if NJM_STATS_ENABLE
 	cpu->insn_exec_count++;
@@ -506,18 +508,15 @@ if (unlikely(instructions_executed==C_100MHZ))
 
 
 
-/*void mips64_pause(cpu_mips_t *cpu, int mask)
-{
- cpu->pause_request |= mask;
-}*/
-extern  m_uint32_t jz4740_int_table[JZ4740_INT_INDEX_MAX];
+
+//extern  m_uint32_t jz4740_int_table[JZ4740_INT_INDEX_MAX];
 void mips64_main_loop_wait(cpu_mips_t *cpu,int timeout)
 {
 	vp_run_timers(&active_timers[VP_TIMER_REALTIME], 
                     vp_get_clock(rt_clock));
    
-   cpu_log12(current_cpu,"","jz4740_int_table[INTC_IPR/4] = irq_mask %x \n",jz4740_int_table[INTC_IPR/4] );
-   cpu_log12(current_cpu,"","mips64_main_loop_wait end \n");
+   //cpu_log12(current_cpu,"","jz4740_int_table[INTC_IPR/4] = irq_mask %x \n",jz4740_int_table[INTC_IPR/4] );
+  // cpu_log12(current_cpu,"","mips64_main_loop_wait end \n");
 }
 /* Run MIPS code in step-by-step mode */
 void *mips64_exec_run_cpu(cpu_mips_t *cpu)
