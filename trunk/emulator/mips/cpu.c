@@ -62,7 +62,7 @@ char buffer[256];
 	va_list ap;
 
 	va_start(ap,format);
-	snprintf(buffer,sizeof(buffer),"CPU%u: %s",cpu->id,module);
+	//snprintf(buffer,sizeof(buffer),"CPU%u: %s",cpu->id,module);
 	vm_flog(cpu->vm,buffer,format,ap);
 	va_end(ap);
 	}
