@@ -112,6 +112,7 @@ valid_html3.2.gif
 = Using nfs =
 
 Configure nfs server in your pc before using nfs.
+When mounting nfs in emulator, please use * tcp * because emulator is not quick enough to process the incoming packets and some pcackets may be dropped.
 
 In emulator
 {{{
@@ -123,7 +124,7 @@ PING 10.0.0.100 (10.0.0.100): 56 data bytes
 --- 10.0.0.100 ping statistics ---
 1 packets transmitted, 1 packets received, 0% packet loss
 round-trip min/avg/max = 30.000/30.000/30.000 ms
-# mount -t nfs -o tcp 10.0.0.100:/nfs /mnt/nfs
+# mount -t nfs -o tcp 10.0.0.100:/nfs /mnt/nfs       
 # cd /mnt/nfs
 # ls
 2                                   test4
