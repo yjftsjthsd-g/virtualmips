@@ -9,9 +9,12 @@
 
  /*
 cs8900 net card emulation.
-NOT fully tested.
 Only works in linux 2.6.24(jz4740 driver).
 uboot can not use it.
+
+Please use TCP instead of UDP when using NFS.
+Throughput is about 50k-100k bytes per second when downloading a file from host using http.
+Maybe improved when JIT is implemented in the future.
 
  */
 
@@ -35,21 +38,21 @@ uboot can not use it.
 #include "net_io.h"
 #include "dev_cs8900.h"
 
-#define QUEUE_SIZE  128
+/*#define QUEUE_SIZE  128
 #define PACKET_LEN   1600
 m_uint8_t recv_buffer[QUEUE_SIZE][PACKET_LEN];
 m_uint8_t packet_len[QUEUE_SIZE];
 
 m_uint8_t read_index=0;
 m_uint8_t write_index=0;
-
+*/
 
 
 /*00:62:9c:61:cf:16*/
 static uint8_t cs8900a_default_mac[6]={0x00,0x62,0x9c,0x61,0xcf,0x16};
-#define CS8900_DEFAULT_RX_TIMEOUT  20
-#define CS8900_MIN_RX_TIMEOUT  50
-#define CS8900_MAX_RX_TIMEOUT  200
+#define CS8900_DEFAULT_RX_TIMEOUT  40
+#define CS8900_MIN_RX_TIMEOUT  20
+#define CS8900_MAX_RX_TIMEOUT  100
 #define CS8900_RX_TIMEOUT_STEP 5
 
 static m_uint32_t cs8900a_rx_timeout=CS8900_DEFAULT_RX_TIMEOUT;
@@ -519,16 +522,13 @@ void dev_cs8900_unactive_timer(struct cs8900_data *d)
 	vp_del_timer(d->cs8900_timer);
 }
 
-int i=0;
 
 void dev_cs8900_cb(void *opaque)
 {
 	struct cs8900_data *d=opaque;
 	m_uint8_t *ram_base = (m_uint8_t *)(&(d->internal_ram[0]));
 
-	fd_set rfds;
-	int fd,fd_max,res;
-	struct timeval tv;
+	int fd;
 	ssize_t pkt_len;
 
 	static  m_uint8_t status=0;
@@ -542,67 +542,44 @@ void dev_cs8900_cb(void *opaque)
 	 {
 	 	ASSERT(0,"can not get nio fd. init cs8900 nio first.\n");
 	 }
-	 tv.tv_sec = 0;
-    tv.tv_usec =  0;  
+
      
 	 
 
-  //    cpu_log13(current_cpu, "", "FD_ISSET(fd,&rfds) %x \n",FD_ISSET(fd,&rfds));
-
-  //    if (FD_ISSET(fd,&rfds)) 
-      {
           // cpu_log13(current_cpu, "", "FD_ISSET \n");
             pkt_len = netio_recv(d->nio,d->nio->rx_pkt,sizeof(d->nio->rx_pkt));
 			
             if (pkt_len > 0)
            {
                /*rx packet*/
-               cpu_log13(current_cpu, "", "rx pkt_len %x \n",pkt_len);
-               /*just put packet into buffer*/
-               memcpy(recv_buffer[write_index],d->nio->rx_pkt,pkt_len);
-               packet_len[write_index]=pkt_len;
-               write_index = (write_index+1)%QUEUE_SIZE;
+             dev_cs8900_rx(d->nio,
+                                     d->nio->rx_pkt,pkt_len,
+                                  d);
+					
+              /*Why we need to adjust CS8900_MAX_RX_TIMEOUT? yajin
+              If CS8900_MAX_RX_TIMEOUT is small, that means rx packets quickly. Tx can not get enough time to tell cpu
+              that tx ok.
+              If CS8900_MAX_RX_TIMEOUT is big, that means rx packets slow. This will decrease network throughtput and 
+              some applications will complain about rx timeout.
+              So I adjut the CS8900_MAX_RX_TIMEOUT dynamicly when receiving a packet .
 
-               cpu_log14(current_cpu,"","radindex %d write_index %d\n",read_index,write_index);
-              
-              /*if (cs8900a_rx_timeout>=CS8900_MAX_RX_TIMEOUT)
+              Please use TCP protocol instead of UDP when mounting directory using nfs.
+
+							*/
+              if (cs8900a_rx_timeout>=CS8900_MAX_RX_TIMEOUT)
                	status=1;
                else if  (cs8900a_rx_timeout<=CS8900_MIN_RX_TIMEOUT)
                	status=2;
 
 				 if (status==0)
-				 	cs8900a_rx_timeout += CS8900_RX_TIMEOUT_STEP;
+				 	cs8900a_rx_timeout -= CS8900_RX_TIMEOUT_STEP;
                if (status==1)
                	cs8900a_rx_timeout -= CS8900_RX_TIMEOUT_STEP;
                else if (status==2)
-               	cs8900a_rx_timeout += CS8900_RX_TIMEOUT_STEP;*/
+               	cs8900a_rx_timeout += CS8900_RX_TIMEOUT_STEP;
 
-               	
-               
-            }
-
-           //FD_ZERO(&rfds);
-	 		 //FD_SET(fd,&rfds);
-
-      	}
-
- if (write_index!=read_index)  
-  {
-  cpu_log14(current_cpu,"","i %d \n",i);
-  	if (i==10)
-  	{
-  		dev_cs8900_rx(d->nio,
-                                      recv_buffer[read_index],packet_len[read_index],
-                                    d);
-  		read_index = (read_index+1)%QUEUE_SIZE;
-  		 cpu_log14(current_cpu,"","radindex %d write_index %d\n",read_index,write_index);
-  		i=0;
-  		
-  	}
-  	else
-  		i++;
-  }
-  
+      		}
+						
   cs8900a_rx_timeout=CS8900_DEFAULT_RX_TIMEOUT;
   dev_cs8900_active_timer(d);
       
@@ -1010,30 +987,13 @@ struct cs8900_data *dev_cs8900_init(vm_instance_t *vm,char *name,m_pa_t phys_add
 
 int dev_cs8900_set_nio(struct cs8900_data *d,netio_desc_t *nio)
 {   
-	int fd;
-	fd_set rfds;
 	
    /* check that a NIO is not already bound */
    if (d->nio != NULL)
       return(-1);
 
    d->nio = nio;
-    if ((fd = netio_get_fd(d->nio)) == -1)
-	 {
-	 	ASSERT(0,"can not get nio fd. init cs8900 nio first.\n");
-	 }
-    FD_ZERO(&rfds);
-	 FD_SET(fd,&rfds);
-	//  res = select(fd+1,&rfds,NULL,NULL,&tv);
-  // cpu_log13(current_cpu, "", "res %x \n",res);
-  //    if (res == -1) {
-  //       if (errno != EINTR)
-  //          perror("dev_cs8900_cb: select");
-  //      return;
-  //   }
-	 
-
-   
+  
    return(0);
 }
 
