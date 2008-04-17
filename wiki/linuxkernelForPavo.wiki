@@ -1,4 +1,4 @@
-#summary How to build linux kernel for pavo
+#summary How to build linux kernel for jz4740
 
 = Introduction =
 
