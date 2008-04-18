@@ -56,8 +56,6 @@ Otherwise,the malloc space is not enough for function _env_relocate_spec_.
 }}}
 Because VirtualMIPS do not emulate LCD controller in current release.
 
-Then you can build u-boot by 
-
 3. build u-boot
 {{{
 cd u-boot-1.1.6
