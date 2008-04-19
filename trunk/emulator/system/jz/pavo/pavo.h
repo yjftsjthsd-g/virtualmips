@@ -12,12 +12,15 @@
 #include "jz4740.h"
 #include "dev_nand_flash_1g.h"
 
+#ifdef SIM_LCD
+#include "sdl.h"
+#endif
+
 #define PAVO_DEFAULT_CONFIG_FILE     "pavo.conf"
 #define PAVO_DEFAULT_RAM_SIZE           16
 #define PAVO_DEFAULT_BOOT_METHOD     BOOT_BINARY
 #define PAVO_DEFAULT_KERNEL_FILENAME     "vmlinux"
 #define PAVO_ADDR_BUS_MASK   0xffffffff   /*32bit phy address*/
-
 
 
 
@@ -28,6 +31,14 @@ struct pavo_system {
 
    m_uint32_t cs8900_enable;
    char *cs8900_iotype;
+
+
+ /*For LCD*/
+//#ifdef SIM_LCD 
+//struct DisplayState *ds;
+//#endif
+
+
 };
 
 

@@ -308,6 +308,9 @@ int vm_ram_init(vm_instance_t *vm,m_pa_t paddr)
    m_uint32_t len;
 
    len = vm->ram_size * 1048576;
+#ifdef SIM_PAVO
+len += 0x2000;
+#endif
    return(dev_ram_init(vm,"ram",paddr,len));
 }
 

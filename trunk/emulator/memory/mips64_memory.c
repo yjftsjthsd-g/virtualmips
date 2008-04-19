@@ -2469,7 +2469,8 @@ void *mips_mts32_access(cpu_mips_t *cpu,m_va_t vaddr,
 	cpu->mts_lookups++;
 #endif
 
-
+// if ((vaddr>=0x83f80000)&&(op_type==1))
+// 	cpu_log15(cpu,"","W vaddr %x \n",vaddr);
 
 
 	/* Slow lookup if nothing found in cache */

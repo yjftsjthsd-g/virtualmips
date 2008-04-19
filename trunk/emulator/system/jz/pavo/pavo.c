@@ -41,6 +41,8 @@ int dev_jz4740_rtc_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len
 int dev_jz4740_wdt_tcu_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
 int dev_jz4740_int_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
 int dev_jz4740_dma_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
+int dev_jz4740_lcd_init(vm_instance_t *vm,char *name,m_pa_t paddr,m_uint32_t len);
+
 void dev_jz4740_gpio_setirq(int irq);
 void dev_jz4740_gpio_clearirq(int irq);
 
@@ -166,11 +168,22 @@ static int pavo_init_platform(pavo_t *pavo)
  	if (dev_jz4740_dma_init(vm,"JZ4740 DMA",JZ4740_DMA_BASE,JZ4740_DMA_SIZE)==-1)
     return (-1);
 
+ 
+ 		
+
  	if (pavo->cs8900_enable==1)
  	{
  		if (pavo_init_cs8900(pavo,"CS8900A",CS8900_IO_BASE,CS8900_SIZE,CS8900_DEFAULT_IRQ)==-1)
  			return (-1);
  	}
+
+ 	/*LCD*/
+ 	#ifdef SIM_LCD 
+	
+ 	if (dev_jz4740_lcd_init(vm,"JZ4740 LCD",JZ4740_LCD_BASE,JZ4740_LCD_SIZE)==-1)
+    return (-1);
+ 	
+ 	#endif
      
 
 	return(0);
