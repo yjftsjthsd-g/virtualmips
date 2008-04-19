@@ -3,8 +3,8 @@
 #include <signal.h>
 
 
- SDL_Surface *screen;
-
+SDL_Surface *screen;
+SDL_Event ev; 
 
 static void sdl_update(DisplayState *ds, int x, int y, int w, int h)
 {
@@ -42,6 +42,19 @@ static void sdl_resize(DisplayState *ds, int w, int h)
         ds->bgr = 0;
     }
 }
+
+SDL_Event * sdl_getmouse_down()
+{
+	if (SDL_PollEvent(&ev))
+	{
+		if (ev.type==SDL_MOUSEBUTTONDOWN)
+		{
+			return &ev;
+		}
+	}
+	return NULL;
+}
+
 static void sdl_refresh(DisplayState *ds)
 {
 
@@ -80,6 +93,7 @@ void sdl_display_init(DisplayState *ds, int full_screen)
 
     sdl_resize(ds, ds->width , ds->height);
     sdl_update_caption();
+	//	SDL_ShowCursor(0);
     SDL_EnableUNICODE(1);
 
     atexit(sdl_cleanup);
