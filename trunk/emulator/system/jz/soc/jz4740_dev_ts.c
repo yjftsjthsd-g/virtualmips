@@ -17,20 +17,27 @@
 #include "vp_timer.h"
 #include "utils.h"
 
+extern cpu_mips_t *current_cpu;
 
+ #define TSMAXX 4096
+ #define TSMAXY 4096
+ #define TSMINX  0
+ #define TSMINY  0
 
+#define TS_TIMEOUT  14  //MS
  m_uint32_t jz4740_ts_table[JZ4740_TS_INDEX_MAX];
 
 struct jz4740_ts_data {
    struct vdevice *dev;
    m_uint8_t *jz4740_ts_ptr;
    m_uint32_t jz4740_ts_size;
-    vp_timer_t *ts_timer;
+   vp_timer_t *ts_timer;
 
-    m_uint8_t xyz; /*xyz of cfg*/
+   m_uint8_t xyz; /*xyz of cfg*/
 	m_uint8_t snum; /*snum of cfg*/
 	
     m_uint8_t read_index;
+	m_uint32_t x,y;
     
     
     struct DisplayState *ds;      /*malloc when init lcd controller*/
@@ -54,6 +61,10 @@ void *dev_jz4740_ts_access(cpu_mips_t *cpu,struct vdevice *dev,
 		 	if (op_type==MTS_WRITE)
 		 	{
 		 		ASSERT((*data&SADC_ENA_TSEN),"Only touche screen model is support in SADC \n");
+				if (*data&SADC_ENA_TSEN)
+					dev_jz4740_active_ts(d);
+				else
+					dev_jz4740_unactive_ts(d);
 		 	}
 		 	break;
 		 case SADC_CFG:
@@ -70,6 +81,8 @@ void *dev_jz4740_ts_access(cpu_mips_t *cpu,struct vdevice *dev,
 		 			d->snum *=2;
 		 		
 		 		d->read_index=0;
+
+				cpu_log15(current_cpu,"","d->snum %x ->read_index %x\n",d->snum,d->read_index);
 		 		
 		 		
 		 	}
@@ -77,34 +90,109 @@ void *dev_jz4740_ts_access(cpu_mips_t *cpu,struct vdevice *dev,
 		 case SADC_STATE:
 		 	if (op_type==MTS_WRITE)
 		 	{
-		 		jz4740_ts_table[SADC_STATE/8]= ~(*data);
+		 		jz4740_ts_table[SADC_STATE/4]= ~(*data);
 		 		*has_set_value=TRUE;
 		 		return NULL;
 		 	}
+			else
+			{
+				//cpu_log15(current_cpu,"","jz4740_ts_table[SADC_STATE/4]  %x\n",jz4740_ts_table[SADC_STATE/4] );
+				//jz4740_ts_table[SADC_STATE/4] &= 0x18;
+				*data=jz4740_ts_table[SADC_STATE/4]&0x1f;
+				*data |=  SADC_CTRL_TSRDYM;
+				//cpu_log15(current_cpu,"","*data %x\n",*data);
+				*has_set_value=TRUE;
+		 		return NULL;
+			}
 		 	break;
 		 	
 		 case SADC_TSDAT:
 		 	if (op_type==MTS_READ)
 		 	{
-		 		if (d->read_index==0)
+		 		
+		 		if ((d->read_index%2)==0)
 		 		{
-		 			*data=0;
+		 			*data=((d->x)&0x7fff)|((d->y&0x7ffff)<<16);
 		 		}
+				else
+				{
+					*data=((500)&0x7fff);
+				}
+				*has_set_value=TRUE;
 		 		d->read_index++;
+				cpu_log15(current_cpu,"","read_index %x *data %x d->x %x d->y %x \n",d->read_index,*data,d->x,d->y);
 		 		if (d->read_index==d->snum)
 		 			d->read_index=0;
+				return NULL;
 		 	}
+			break;
 		 
 		 	
 	}
 		
-	cpu_log15(cpu,"","offset %x op_type %x *data %x \n",offset,op_type,*data);
+	//cpu_log15(cpu,"","offset %x op_type %x *data %x \n",offset,op_type,*data);
 
 return((void *)(d->jz4740_ts_ptr + offset));
 }
 
+void dev_jz4740_active_ts(struct jz4740_ts_data *d)
+{
+	vp_mod_timer(d->ts_timer, vp_get_clock(rt_clock)+TS_TIMEOUT);
+}
+
+void dev_jz4740_unactive_ts(struct jz4740_ts_data *d)
+{
+	 vp_del_timer(d->ts_timer);
+}
 void dev_jz4740_ts_cb(void *opaque)
 {
+	struct jz4740_ts_data *d=opaque;
+	SDL_Event * ts_ev;
+	if ((jz4740_ts_table[SADC_ENA/4]&SADC_ENA_TSEN))
+	{
+		if ((jz4740_ts_table[SADC_CTRL/4]&SADC_CTRL_PENDM)==0)
+		{
+			ts_ev=sdl_getmouse_down();
+			/*Pen down interrupt*/
+			 if (ts_ev!=NULL)
+			 {
+			 	//printf("ts_ev->button.x %d\n",ts_ev->button.x);
+				//printf("ts_ev->button.y %d\n",ts_ev->button.y);
+			 	d->x=((ts_ev->button.x)*(TSMAXX-TSMINX)/480)+TSMINX;
+				d->y=((ts_ev->button.y)*(TSMAXY-TSMINY)/272)+TSMINY;
+				/*if (d->x==0)
+					d->x=90;
+				if (d->y==0)
+					d->y=105;
+				d->x+= 20;
+				d->y +=20;*/
+				/*Interrupt*/
+				current_cpu->vm->set_irq(current_cpu->vm,IRQ_SADC);
+				jz4740_ts_table[SADC_STATE/4] |= (SADC_STATE_PEND|SADC_STATE_TSRDY);
+				cpu_log15(current_cpu,"","PEN DOWN\n");
+			 }
+		}
+
+		if ((jz4740_ts_table[SADC_CTRL/4]&SADC_CTRL_PENUM)==0)
+		{
+			/*Pen UP interrupt*/
+			 if (d->read_index==0)
+			 {
+				/*Interrupt*/
+				current_cpu->vm->set_irq(current_cpu->vm,IRQ_SADC);
+				jz4740_ts_table[SADC_STATE/4] |= (SADC_STATE_PENU|SADC_STATE_TSRDY);
+				cpu_log15(current_cpu,"","PEN up\n");
+			 }
+		}
+
+
+
+		
+	
+	}
+	
+	dev_jz4740_active_ts(d);
+
 	
 }
 void dev_jz4740_ts_init_defaultvalue()

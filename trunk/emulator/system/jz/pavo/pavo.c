@@ -290,7 +290,10 @@ void pavo_set_irq(vm_instance_t *vm,u_int irq)
         
         */
        jz4740_int_table[INTC_IPR/4] = irq_mask;
-       
+
+		if (irq==IRQ_SADC)
+			cpu_log15(vm->boot_cpu,"","SADC IRQ\n");
+			 
         mips64_set_irq(vm->boot_cpu,JZ4740_INT_TO_MIPS);
 	    mips64_update_irq_flag(vm->boot_cpu);
       }
