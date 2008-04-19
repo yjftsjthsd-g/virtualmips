@@ -368,6 +368,187 @@ so irq 107 is in gpio group 1
 #define JZ4740_WDT_INDEX_MAX 0x28  /*0xa0/4*/
 
 
+/*-------------------LCD---------------------*/
+#define JZ4740_LCD_BASE 0x13050000
+#define JZ4740_LCD_SIZE  0x60
+
+ #define LCD_CFG         ( 0x00) /* LCD Configure Register */
+ #define LCD_VSYNC       ( 0x04) /* Vertical Synchronize Register */
+ #define LCD_HSYNC       ( 0x08) /* Horizontal Synchronize Register */
+ #define LCD_VAT         ( 0x0c) /* Virtual Area Setting Register */
+ #define LCD_DAH         ( 0x10) /* Display Area Horizontal Start/End Point */
+ #define LCD_DAV         ( 0x14) /* Display Area Vertical Start/End Point */
+ #define LCD_PS          ( 0x18) /* PS Signal Setting */
+ #define LCD_CLS         ( 0x1c) /* CLS Signal Setting */
+ #define LCD_SPL         ( 0x20) /* SPL Signal Setting */
+ #define LCD_REV         ( 0x24) /* REV Signal Setting */
+ #define LCD_CTRL        ( 0x30) /* LCD Control Register */
+ #define LCD_STATE       ( 0x34) /* LCD Status Register */
+ #define LCD_IID         ( 0x38) /* Interrupt ID Register */
+ #define LCD_DA0         ( 0x40) /* Descriptor Address Register 0 */
+ #define LCD_SA0         ( 0x44) /* Source Address Register 0 */
+ #define LCD_FID0        ( 0x48) /* Frame ID Register 0 */
+ #define LCD_CMD0        ( 0x4c) /* DMA Command Register 0 */
+ #define LCD_DA1         ( 0x50) /* Descriptor Address Register 1 */
+ #define LCD_SA1         ( 0x54) /* Source Address Register 1 */
+ #define LCD_FID1        ( 0x58) /* Frame ID Register 1 */
+ #define LCD_CMD1        ( 0x5c) /* DMA Command Register 1 */
+
+ #define LCD_CTRL_BST_BIT        28  /* Burst Length Selection */
+ #define LCD_CTRL_BST_MASK       (0x03 << LCD_CTRL_BST_BIT)
+   #define LCD_CTRL_BST_4        (0 << LCD_CTRL_BST_BIT) /* 4-word */
+   #define LCD_CTRL_BST_8        (1 << LCD_CTRL_BST_BIT) /* 8-word */
+   #define LCD_CTRL_BST_16       (2 << LCD_CTRL_BST_BIT) /* 16-word */
+ #define LCD_CTRL_RGB565         (0 << 27) /* RGB565 mode */
+ #define LCD_CTRL_RGB555         (1 << 27) /* RGB555 mode */
+ #define LCD_CTRL_OFUP           (1 << 26) /* Output FIFO underrun protection enable */
+ #define LCD_CTRL_FRC_BIT        24  /* STN FRC Algorithm Selection */
+ #define LCD_CTRL_FRC_MASK       (0x03 << LCD_CTRL_FRC_BIT)
+   #define LCD_CTRL_FRC_16       (0 << LCD_CTRL_FRC_BIT) /* 16 grayscale */
+   #define LCD_CTRL_FRC_4        (1 << LCD_CTRL_FRC_BIT) /* 4 grayscale */
+   #define LCD_CTRL_FRC_2        (2 << LCD_CTRL_FRC_BIT) /* 2 grayscale */
+ #define LCD_CTRL_PDD_BIT        16  /* Load Palette Delay Counter */
+ #define LCD_CTRL_PDD_MASK       (0xff << LCD_CTRL_PDD_BIT)
+ #define LCD_CTRL_EOFM           (1 << 13) /* EOF interrupt mask */
+ #define LCD_CTRL_SOFM           (1 << 12) /* SOF interrupt mask */
+ #define LCD_CTRL_OFUM           (1 << 11) /* Output FIFO underrun interrupt mask */
+ #define LCD_CTRL_IFUM0          (1 << 10) /* Input FIFO 0 underrun interrupt mask */
+ #define LCD_CTRL_IFUM1          (1 << 9)  /* Input FIFO 1 underrun interrupt mask */
+ #define LCD_CTRL_LDDM           (1 << 8)  /* LCD disable done interrupt mask */
+ #define LCD_CTRL_QDM            (1 << 7)  /* LCD quick disable done interrupt mask */
+ #define LCD_CTRL_BEDN           (1 << 6)  /* Endian selection */
+ #define LCD_CTRL_PEDN           (1 << 5)  /* Endian in byte:0-msb first, 1-lsb first */
+ #define LCD_CTRL_DIS            (1 << 4)  /* Disable indicate bit */
+ #define LCD_CTRL_ENA            (1 << 3)  /* LCD enable bit */
+ #define LCD_CTRL_BPP_BIT        0  /* Bits Per Pixel */
+ #define LCD_CTRL_BPP_MASK       (0x07 << LCD_CTRL_BPP_BIT)
+   #define LCD_CTRL_BPP_1        (0 << LCD_CTRL_BPP_BIT) /* 1 bpp */
+   #define LCD_CTRL_BPP_2        (1 << LCD_CTRL_BPP_BIT) /* 2 bpp */
+   #define LCD_CTRL_BPP_4        (2 << LCD_CTRL_BPP_BIT) /* 4 bpp */
+   #define LCD_CTRL_BPP_8        (3 << LCD_CTRL_BPP_BIT) /* 8 bpp */
+   #define LCD_CTRL_BPP_16       (4 << LCD_CTRL_BPP_BIT) /* 15/16 bpp */
+   #define LCD_CTRL_BPP_18_24    (5 << LCD_CTRL_BPP_BIT) /* 18/24/32 bpp */
+
+ /* Display Area Horizontal Start/End Point Register */
+ #define LCD_DAH_HDS_BIT         16  /* Horizontal display area start in dot clock */
+ #define LCD_DAH_HDS_MASK        (0xffff << LCD_DAH_HDS_BIT)
+ #define LCD_DAH_HDE_BIT         0   /* Horizontal display area end in dot clock */
+ #define LCD_DAH_HDE_MASK        (0xffff << LCD_DAH_HDE_BIT)
+ 
+ /* Display Area Vertical Start/End Point Register */
+ #define LCD_DAV_VDS_BIT         16  /* Vertical display area start in line clock */
+ #define LCD_DAV_VDS_MASK        (0xffff << LCD_DAV_VDS_BIT)
+ #define LCD_DAV_VDE_BIT         0   /* Vertical display area end in line clock */
+ #define LCD_DAV_VDE_MASK        (0xffff << LCD_DAV_VDE_BIT)
+
+  #define LCD_STATE_QD            (1 << 7) /* Quick Disable Done */
+ #define LCD_STATE_EOF           (1 << 5) /* EOF Flag */
+ #define LCD_STATE_SOF           (1 << 4) /* SOF Flag */
+ #define LCD_STATE_OFU           (1 << 3) /* Output FIFO Underrun */
+ #define LCD_STATE_IFU0          (1 << 2) /* Input FIFO 0 Underrun */
+ #define LCD_STATE_IFU1          (1 << 1) /* Input FIFO 1 Underrun */
+ #define LCD_STATE_LDD           (1 << 0) /* LCD Disabled */
+
+ #define LCD_CMD_SOFINT          (1 << 31)
+ #define LCD_CMD_EOFINT          (1 << 30)
+ #define LCD_CMD_PAL             (1 << 28)
+ #define LCD_CMD_LEN_BIT         0
+ #define LCD_CMD_LEN_MASK        (0xffffff << LCD_CMD_LEN_BIT)
+
+
+#define JZ4740_LCD_INDEX_MAX 0x18  /*0x60/4*/
+
+
+/*---------------------touch screen------------------*/
+#define JZ4740_TS_BASE 0x10070000
+#define JZ4740_TS_SIZE  0x28
+
+ #define SADC_ENA        ( 0x00)  /* ADC Enable Register */
+ #define SADC_CFG        ( 0x04)  /* ADC Configure Register */
+ #define SADC_CTRL       ( 0x08)  /* ADC Control Register */
+ #define SADC_STATE      ( 0x0C)  /* ADC Status Register*/
+ #define SADC_SAMETIME   ( 0x10)  /* ADC Same Point Time Register */
+ #define SADC_WAITTIME   ( 0x14)  /* ADC Wait Time Register */
+ #define SADC_TSDAT      ( 0x18)  /* ADC Touch Screen Data Register */
+ #define SADC_BATDAT     ( 0x1C)  /* ADC PBAT Data Register */
+ #define SADC_SADDAT     ( 0x20)  /* ADC SADCIN Data Register */
+
+ /* ADC Enable Register */
+ #define SADC_ENA_ADEN           (1 << 7)  /* Touch Screen Enable */
+ #define SADC_ENA_TSEN           (1 << 2)  /* Touch Screen Enable */
+ #define SADC_ENA_PBATEN         (1 << 1)  /* PBAT Enable */
+ #define SADC_ENA_SADCINEN       (1 << 0)  /* SADCIN Enable */
+ 
+ /* ADC Configure Register */
+ #define SADC_CFG_EXIN           (1 << 30)
+ #define SADC_CFG_CLKOUT_NUM_BIT 16
+ #define SADC_CFG_CLKOUT_NUM_MASK (0x7 << SADC_CFG_CLKOUT_NUM_BIT)
+ #define SADC_CFG_TS_DMA         (1 << 15)  /* Touch Screen DMA Enable */
+ #define SADC_CFG_XYZ_BIT        13  /* XYZ selection */
+ #define SADC_CFG_XYZ_MASK       (0x3 << SADC_CFG_XYZ_BIT)
+   #define SADC_CFG_XY           (0 << SADC_CFG_XYZ_BIT)
+   #define SADC_CFG_XYZ          (1 << SADC_CFG_XYZ_BIT)
+   #define SADC_CFG_XYZ1Z2       (2 << SADC_CFG_XYZ_BIT)
+ #define SADC_CFG_SNUM_BIT       10  /* Sample Number */
+ #define SADC_CFG_SNUM_MASK      (0x7 << SADC_CFG_SNUM_BIT)
+   #define SADC_CFG_SNUM_1       (0x0 << SADC_CFG_SNUM_BIT)
+   #define SADC_CFG_SNUM_2       (0x1 << SADC_CFG_SNUM_BIT)
+   #define SADC_CFG_SNUM_3       (0x2 << SADC_CFG_SNUM_BIT)
+   #define SADC_CFG_SNUM_4       (0x3 << SADC_CFG_SNUM_BIT)
+   #define SADC_CFG_SNUM_5       (0x4 << SADC_CFG_SNUM_BIT)
+   #define SADC_CFG_SNUM_6       (0x5 << SADC_CFG_SNUM_BIT)
+   #define SADC_CFG_SNUM_8       (0x6 << SADC_CFG_SNUM_BIT)
+   #define SADC_CFG_SNUM_9       (0x7 << SADC_CFG_SNUM_BIT)
+ #define SADC_CFG_CLKDIV_BIT     5  /* AD Converter frequency clock divider */
+ #define SADC_CFG_CLKDIV_MASK    (0x1f << SADC_CFG_CLKDIV_BIT)
+ #define SADC_CFG_PBAT_HIGH      (0 << 4)  /* PBAT >= 2.5V */
+ #define SADC_CFG_PBAT_LOW       (1 << 4)  /* PBAT < 2.5V */
+ #define SADC_CFG_CMD_BIT        0  /* ADC Command */
+ #define SADC_CFG_CMD_MASK       (0xf << SADC_CFG_CMD_BIT)
+   #define SADC_CFG_CMD_X_SE     (0x0 << SADC_CFG_CMD_BIT) /* X Single-End */
+   #define SADC_CFG_CMD_Y_SE     (0x1 << SADC_CFG_CMD_BIT) /* Y Single-End */
+   #define SADC_CFG_CMD_X_DIFF   (0x2 << SADC_CFG_CMD_BIT) /* X Differential */
+   #define SADC_CFG_CMD_Y_DIFF   (0x3 << SADC_CFG_CMD_BIT) /* Y Differential */
+   #define SADC_CFG_CMD_Z1_DIFF  (0x4 << SADC_CFG_CMD_BIT) /* Z1 Differential */
+   #define SADC_CFG_CMD_Z2_DIFF  (0x5 << SADC_CFG_CMD_BIT) /* Z2 Differential */
+   #define SADC_CFG_CMD_Z3_DIFF  (0x6 << SADC_CFG_CMD_BIT) /* Z3 Differential */
+   #define SADC_CFG_CMD_Z4_DIFF  (0x7 << SADC_CFG_CMD_BIT) /* Z4 Differential */
+   #define SADC_CFG_CMD_TP_SE    (0x8 << SADC_CFG_CMD_BIT) /* Touch Pressure */
+   #define SADC_CFG_CMD_PBATH_SE (0x9 << SADC_CFG_CMD_BIT) /* PBAT >= 2.5V */
+   #define SADC_CFG_CMD_PBATL_SE (0xa << SADC_CFG_CMD_BIT) /* PBAT < 2.5V */
+   #define SADC_CFG_CMD_SADCIN_SE (0xb << SADC_CFG_CMD_BIT) /* Measure SADCIN */
+   #define SADC_CFG_CMD_INT_PEN  (0xc << SADC_CFG_CMD_BIT) /* INT_PEN Enable */
+ 
+ /* ADC Control Register */
+ #define SADC_CTRL_PENDM         (1 << 4)  /* Pen Down Interrupt Mask */
+ #define SADC_CTRL_PENUM         (1 << 3)  /* Pen Up Interrupt Mask */
+ #define SADC_CTRL_TSRDYM        (1 << 2)  /* Touch Screen Data Ready Interrupt Mask */
+ #define SADC_CTRL_PBATRDYM      (1 << 1)  /* PBAT Data Ready Interrupt Mask */
+ #define SADC_CTRL_SRDYM         (1 << 0)  /* SADCIN Data Ready Interrupt Mask */
+ 
+ /* ADC Status Register */
+ #define SADC_STATE_TSBUSY       (1 << 7)  /* TS A/D is working */
+ #define SADC_STATE_PBATBUSY     (1 << 6)  /* PBAT A/D is working */
+ #define SADC_STATE_SBUSY        (1 << 5)  /* SADCIN A/D is working */
+ #define SADC_STATE_PEND         (1 << 4)  /* Pen Down Interrupt Flag */
+ #define SADC_STATE_PENU         (1 << 3)  /* Pen Up Interrupt Flag */
+ #define SADC_STATE_TSRDY        (1 << 2)  /* Touch Screen Data Ready Interrupt Flag */
+ #define SADC_STATE_PBATRDY      (1 << 1)  /* PBAT Data Ready Interrupt Flag */
+ #define SADC_STATE_SRDY         (1 << 0)  /* SADCIN Data Ready Interrupt Flag */
+ 
+ /* ADC Touch Screen Data Register */
+ #define SADC_TSDAT_DATA0_BIT    0
+ #define SADC_TSDAT_DATA0_MASK   (0xfff << SADC_TSDAT_DATA0_BIT)
+ #define SADC_TSDAT_TYPE0        (1 << 15)
+ #define SADC_TSDAT_DATA1_BIT    16
+ #define SADC_TSDAT_DATA1_MASK   (0xfff << SADC_TSDAT_DATA1_BIT)
+ #define SADC_TSDAT_TYPE1        (1 << 31)
+
+
+#define JZ4740_TS_INDEX_MAX 0xA  /*0x28/4*/
+
+
+
 /*--------------DMA--------------------*/
 #define JZ4740_DMA_BASE 0x13020000
 #define JZ4740_DMA_SIZE  0x310

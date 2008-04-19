@@ -32,7 +32,7 @@ CONFUSE_LIB =-lconfuse
 PTHREAD_LIBS =-lpthread
 ELF_LIBS =-lelf
 LIBS=-L/usr/lib -L.  $(PTHREAD_LIBS)  $(ELF_LIBS) $(CONFUSE_LIB) $(RT_LIB)
-LDFLAGS := -O3 
+LDFLAGS += -O3 
 LDFLAGS +=  $(LIBS) 
 
 SHELL = /bin/sh
