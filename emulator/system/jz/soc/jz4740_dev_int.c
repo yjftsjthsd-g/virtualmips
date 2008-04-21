@@ -25,6 +25,7 @@
 
 #define VALIDE_INT_OPERATION 0
 
+extern cpu_mips_t *current_cpu;
  m_uint32_t jz4740_int_table[JZ4740_INT_INDEX_MAX];
 
 struct jz4740_int_data {
@@ -95,6 +96,13 @@ switch(offset)
 	       jz4740_int_table[INTC_IMR/4]  &= mask_data;
 	       *has_set_value=TRUE;
 	      break;
+	   case INTC_IPR: /*clear*/
+	   		//cpu_log16(current_cpu,"","read IPR %x \n",jz4740_int_table[INTC_IPR/4]);
+	   		*data=jz4740_int_table[INTC_IPR/4];
+	   		//jz4740_int_table[INTC_IPR/4] &= ~(1<<IRQ_TCU0);
+	   		jz4740_int_table[INTC_IPR/4] =0;
+	   		*has_set_value=TRUE;
+	   		return NULL;
 	  default:
 	      return((void *)(d->jz4740_int_ptr + offset));
 }
