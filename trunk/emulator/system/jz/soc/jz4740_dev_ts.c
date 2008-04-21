@@ -19,12 +19,12 @@
 
 extern cpu_mips_t *current_cpu;
 
- #define TSMAXX 4096
- #define TSMAXY 4096
+ #define TSMAXX 4090
+ #define TSMAXY 4090
  #define TSMINX  0
  #define TSMINY  0
 
-#define TS_TIMEOUT  14  //MS
+#define TS_TIMEOUT  25  //MS
  m_uint32_t jz4740_ts_table[JZ4740_TS_INDEX_MAX];
 
 struct jz4740_ts_data {
@@ -82,7 +82,7 @@ void *dev_jz4740_ts_access(cpu_mips_t *cpu,struct vdevice *dev,
 		 		
 		 		d->read_index=0;
 
-				cpu_log15(current_cpu,"","d->snum %x ->read_index %x\n",d->snum,d->read_index);
+				cpu_log16(current_cpu,"","d->snum %x ->read_index %x\n",d->snum,d->read_index);
 		 		
 		 		
 		 	}
@@ -120,7 +120,7 @@ void *dev_jz4740_ts_access(cpu_mips_t *cpu,struct vdevice *dev,
 				}
 				*has_set_value=TRUE;
 		 		d->read_index++;
-				cpu_log15(current_cpu,"","read_index %x *data %x d->x %x d->y %x \n",d->read_index,*data,d->x,d->y);
+				cpu_log16(current_cpu,"","read_index %x *data %x d->x %x d->y %x \n",d->read_index,*data,d->x,d->y);
 		 		if (d->read_index==d->snum)
 		 			d->read_index=0;
 				return NULL;
@@ -160,6 +160,14 @@ void dev_jz4740_ts_cb(void *opaque)
 				//printf("ts_ev->button.y %d\n",ts_ev->button.y);
 			 	d->x=((ts_ev->button.x)*(TSMAXX-TSMINX)/480)+TSMINX;
 				d->y=((ts_ev->button.y)*(TSMAXY-TSMINY)/272)+TSMINY;
+				if (d->x>TSMAXX)
+					d->x=TSMAXX;
+				if (d->y>TSMAXY)
+					d->y=TSMAXY;
+				
+				//d->x += 200;
+			 	//d->y += 200;
+			 	//printf("x %d y %d \n",d->x,d->y);
 				/*if (d->x==0)
 					d->x=90;
 				if (d->y==0)
@@ -169,7 +177,7 @@ void dev_jz4740_ts_cb(void *opaque)
 				/*Interrupt*/
 				current_cpu->vm->set_irq(current_cpu->vm,IRQ_SADC);
 				jz4740_ts_table[SADC_STATE/4] |= (SADC_STATE_PEND|SADC_STATE_TSRDY);
-				cpu_log15(current_cpu,"","PEN DOWN\n");
+				cpu_log16(current_cpu,"","PEN DOWN\n");
 			 }
 		}
 
@@ -181,7 +189,7 @@ void dev_jz4740_ts_cb(void *opaque)
 				/*Interrupt*/
 				current_cpu->vm->set_irq(current_cpu->vm,IRQ_SADC);
 				jz4740_ts_table[SADC_STATE/4] |= (SADC_STATE_PENU|SADC_STATE_TSRDY);
-				cpu_log15(current_cpu,"","PEN up\n");
+				cpu_log16(current_cpu,"","PEN up\n");
 			 }
 		}
 

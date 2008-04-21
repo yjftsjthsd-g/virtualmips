@@ -284,6 +284,46 @@ so irq 107 is in gpio group 1
 #define RTC_HWRSR       ( 0x30) /* Hibernate Wakeup Status Register */
 #define RTC_HSPR        ( 0x34) /* Hibernate Scratch Pattern Register */
 
+ #define RTC_RCR_WRDY_BIT 7
+ #define RTC_RCR_WRDY    (1 << 7)  /* Write Ready Flag */
+ #define RTC_RCR_1HZ_BIT 6
+ #define RTC_RCR_1HZ     (1 << RTC_RCR_1HZ_BIT)  /* 1Hz Flag */
+ #define RTC_RCR_1HZIE   (1 << 5)  /* 1Hz Interrupt Enable */
+ #define RTC_RCR_AF_BIT  4
+ #define RTC_RCR_AF      (1 << RTC_RCR_AF_BIT)  /* Alarm Flag */
+ #define RTC_RCR_AIE     (1 << 3)  /* Alarm Interrupt Enable */
+ #define RTC_RCR_AE      (1 << 2)  /* Alarm Enable */
+ #define RTC_RCR_RTCE    (1 << 0)  /* RTC Enable */
+ 
+ /* RTC Regulator Register */
+ #define RTC_RGR_LOCK            (1 << 31) /* Lock Bit */
+ #define RTC_RGR_ADJC_BIT        16
+ #define RTC_RGR_ADJC_MASK       (0x3ff << RTC_RGR_ADJC_BIT)
+ #define RTC_RGR_NC1HZ_BIT       0
+ #define RTC_RGR_NC1HZ_MASK      (0xffff << RTC_RGR_NC1HZ_BIT)
+ 
+ /* Hibernate Control Register */
+ #define RTC_HCR_PD              (1 << 0)  /* Power Down */
+ 
+ /* Hibernate Wakeup Filter Counter Register */
+ #define RTC_HWFCR_BIT           5
+ #define RTC_HWFCR_MASK          (0x7ff << RTC_HWFCR_BIT)
+ 
+ /* Hibernate Reset Counter Register */
+ #define RTC_HRCR_BIT            5
+ #define RTC_HRCR_MASK           (0x7f << RTC_HRCR_BIT)
+ 
+ /* Hibernate Wakeup Control Register */
+ #define RTC_HWCR_EALM           (1 << 0)  /* RTC alarm wakeup enable */
+ 
+ /* Hibernate Wakeup Status Register */
+ #define RTC_HWRSR_HR            (1 << 5)  /* Hibernate reset */
+ #define RTC_HWRSR_PPR           (1 << 4)  /* PPR reset */
+ #define RTC_HWRSR_PIN           (1 << 1)  /* Wakeup pin status bit */
+ #define RTC_HWRSR_ALM           (1 << 0)  /* RTC alarm status bit */
+
+
+
 #define JZ4740_RTC_INDEX_MAX 0xe /*0x38/4*/
 
 

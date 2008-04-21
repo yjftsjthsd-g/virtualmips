@@ -293,6 +293,8 @@ void pavo_set_irq(vm_instance_t *vm,u_int irq)
 
 		if (irq==IRQ_SADC)
 			cpu_log15(vm->boot_cpu,"","SADC IRQ\n");
+		//if (irq==IRQ_TCU0)
+		//	cpu_log16(vm->boot_cpu,"","TCU0  \n");
 			 
         mips64_set_irq(vm->boot_cpu,JZ4740_INT_TO_MIPS);
 	    mips64_update_irq_flag(vm->boot_cpu);

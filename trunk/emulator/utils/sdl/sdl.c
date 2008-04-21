@@ -83,8 +83,8 @@ void sdl_display_init(DisplayState *ds, int full_screen)
     }
 #ifndef _WIN32
     /* NOTE: we still want Ctrl-C to work, so we undo the SDL redirections */
-    //signal(SIGINT, SIG_DFL);
-    //signal(SIGQUIT, SIG_DFL);
+    signal(SIGINT, SIG_DFL);
+    signal(SIGQUIT, SIG_DFL);
 #endif
 
     ds->dpy_update = sdl_update;
