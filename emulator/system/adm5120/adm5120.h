@@ -1,11 +1,11 @@
  /*
- * Copyright (C) yajin 2008 <yajinzhou@gmail.com >
- *     
- * This file is part of the virtualmips distribution. 
- * See LICENSE file for terms of the license. 
- *
- */
- 
+  * Copyright (C) yajin 2008 <yajinzhou@gmail.com >
+  *     
+  * This file is part of the virtualmips distribution. 
+  * See LICENSE file for terms of the license. 
+  *
+  */
+
 
 #ifndef __ADM5120_H__
 #define __ADM5120_H__
@@ -17,10 +17,10 @@ typedef m_uint32_t m_va_t;
 typedef m_uint32_t m_pa_t;
 typedef m_uint32_t m_reg_t;
 typedef m_int32_t m_ireg_t;
-typedef m_uint32_t m_cp0_reg_t; 
+typedef m_uint32_t m_cp0_reg_t;
 
 
-#define  DATA_WIDTH 32 /*64*/
+#define  DATA_WIDTH 32          /*64 */
 #define LL
 
 /*ADM5120 use soft fpu*/
@@ -42,7 +42,7 @@ typedef m_uint32_t m_cp0_reg_t;
 #define vmtoh16(x) (x)
 #define vmtoh32(x) (x)
 #define vmtoh64(x) (x)
-#elif HOST_BYTE_ORDER==ARCH_LITTLE_ENDIAN  //host:little guest:big
+#elif HOST_BYTE_ORDER==ARCH_LITTLE_ENDIAN       //host:little guest:big
 #define htovm16(x) (htons(x))
 #define htovm32(x) (htonl(x))
 #define htovm64(x) (swap64(x))
@@ -50,7 +50,7 @@ typedef m_uint32_t m_cp0_reg_t;
 #define vmtoh16(x) (ntohs(x))
 #define vmtoh32(x) (ntohl(x))
 #define vmtoh64(x) (swap64(x))
-#else   //host:big guest:little
+#else                           //host:big guest:little
 
 #define htovm16(x) (ntohs(x))
 #define htovm32(x) (ntohl(x))
@@ -67,10 +67,10 @@ typedef m_uint32_t m_cp0_reg_t;
 #define ADM5120_DEFAULT_RAM_SIZE     16
 #define ADM5120_DEFAULT_BOOT_METHOD     BOOT_ELF
 #define ADM5120_DEFAULT_KERNEL_FILENAME     "vmlinux"
-#define ADM5120_ADDR_BUS_MASK   0xffffffff   /*32bit phy address*/
+#define ADM5120_ADDR_BUS_MASK   0xffffffff      /*32bit phy address */
 
 #define ADM5120_CONFIG0  0x80000082
-#define ADM5120_CONFIG1 0x3E613080  /*CACHE (128SET*32 BYTES*2 WAY)= 8K*/
+#define ADM5120_CONFIG1 0x3E613080      /*CACHE (128SET*32 BYTES*2 WAY)= 8K */
 //#define ADM5120_CONFIG7 0x0  
 
 //#define SOC_CONFIG0 ADM5120_CONFIG0
@@ -78,11 +78,12 @@ typedef m_uint32_t m_cp0_reg_t;
 //#define SOC_CONFIG7 ADM5120_CONFIG7
 
 #define ADM5120_ROM_PC  0xbfc00000UL
-#define ADM5120_PRID    0x0001800b  
-#define ADM5120_DEFAULT_TLB_ENTRYNO   16 
+#define ADM5120_PRID    0x0001800b
+#define ADM5120_DEFAULT_TLB_ENTRYNO   16
 
 
-struct adm5120_system {
+struct adm5120_system
+{
    /* Associated VM instance */
    vm_instance_t *vm;
 };
@@ -95,7 +96,7 @@ typedef struct adm5120_system adm5120_t;
 
 
 vm_instance_t *create_instance(char *conf);
-int init_instance(vm_instance_t *vm);
+int init_instance(vm_instance_t * vm);
 
 //void virtual_timer(cpu_mips_t *cpu);
 
@@ -140,7 +141,7 @@ int init_instance(vm_instance_t *vm);
 #define Global_St_REG							0x0010
 #define PHY_st_REG								0x0014
 #define Port_st_REG								0x0018
-#define Mem_control_REG							0x001C	
+#define Mem_control_REG							0x001C
 #define SW_conf_REG								0x0020
 #define CPUp_conf_REG							0x0024
 #define Port_conf0_REG							0x0028
@@ -210,7 +211,7 @@ int init_instance(vm_instance_t *vm);
 #define Port3_LED_REG							0x010c
 #define Port4_LED_REG							0x0110
 
-#define SW_INDEX_MAX							0x45  //0x0114/4
+#define SW_INDEX_MAX							0x45    //0x0114/4
 
 
 /* Timer_int_REG */
@@ -285,7 +286,7 @@ int init_instance(vm_instance_t *vm);
 #define MPMC_SM_WAITWR3_REG						0x0274
 #define MPMC_SM_WAITTURN3_REG					0x0278
 
-#define MPMC_INDEX_MAX							0x9f  //0x027C/4
+#define MPMC_INDEX_MAX							0x9f    //0x027C/4
 
 
 /*===========================  UART Control Register  
@@ -359,26 +360,26 @@ int init_instance(vm_instance_t *vm);
 
 /*  uart_baudrate  */
 #define UART_230400bps_DIVISOR					UART_BAUDDIV(230400)
-// #define UART_115200bps_DIVISOR					UART_BAUDDIV(115200)
+// #define UART_115200bps_DIVISOR                                       UART_BAUDDIV(115200)
 #define UART_115200bps_DIVISOR					33
-// #define UART_76800bps_DIVISOR					UART_BAUDDIV(76800)
+// #define UART_76800bps_DIVISOR                                        UART_BAUDDIV(76800)
 #define UART_76800bps_DIVISOR					50
-// #define UART_57600bps_DIVISOR					UART_BAUDDIV(57600)
+// #define UART_57600bps_DIVISOR                                        UART_BAUDDIV(57600)
 #define UART_57600bps_DIVISOR					67
-//#define UART_38400bps_DIVISOR					UART_BAUDDIV(38400)
+//#define UART_38400bps_DIVISOR                                 UART_BAUDDIV(38400)
 #define UART_38400bps_DIVISOR					102
-//#define UART_19200bps_DIVISOR					UART_BAUDDIV(19200)
+//#define UART_19200bps_DIVISOR                                 UART_BAUDDIV(19200)
 #define UART_19200bps_DIVISOR					202
-//#define UART_14400bps_DIVISOR					UART_BAUDDIV(14400)
+//#define UART_14400bps_DIVISOR                                 UART_BAUDDIV(14400)
 #define UART_14400bps_DIVISOR					270
-//#define UART_9600bps_DIVISOR					UART_BAUDDIV(9600)
+//#define UART_9600bps_DIVISOR                                  UART_BAUDDIV(9600)
 #define UART_9600bps_DIVISOR					406
-//#define UART_2400bps_DIVISOR					UART_BAUDDIV(2400)
+//#define UART_2400bps_DIVISOR                                  UART_BAUDDIV(2400)
 #define UART_2400bps_DIVISOR					1627
-//#define UART_1200bps_DIVISOR					UART_BAUDDIV(1200)
+//#define UART_1200bps_DIVISOR                                  UART_BAUDDIV(1200)
 
 
-#define UART_INDEX_MAX							0x9 //0x024/4
+#define UART_INDEX_MAX							0x9     //0x024/4
 
 /* pci space 
 pci memory  0x1140 0000- 0x114f ffff
@@ -388,40 +389,40 @@ pci configuration data port       0x115ffff8
 
 */
 #define ADM5120_PCI_BASE						0x11400000
-#define PCI_INDEX_MAX                         0X80000 //0X200000/4
+#define PCI_INDEX_MAX                         0X80000   //0X200000/4
 
 
 
 /*==========================  Interrupt Controller  ==========================*/
 /* registers offset */
-#define IRQ_STATUS_REG							0x00	/* Read */
-#define IRQ_RAW_STATUS_REG						0x04	/* Read */
-#define IRQ_ENABLE_REG							0x08	/* Read/Write */
-#define IRQ_DISABLE_REG							0x0C	/* Write */
-#define IRQ_SOFT_REG							0x10	/* Write */
+#define IRQ_STATUS_REG							0x00    /* Read */
+#define IRQ_RAW_STATUS_REG						0x04    /* Read */
+#define IRQ_ENABLE_REG							0x08    /* Read/Write */
+#define IRQ_DISABLE_REG							0x0C    /* Write */
+#define IRQ_SOFT_REG							0x10    /* Write */
 
-#define IRQ_MODE_REG							0x14	/* Read/Write */
-#define FIQ_STATUS_REG							0x18	/* Read */
+#define IRQ_MODE_REG							0x14    /* Read/Write */
+#define FIQ_STATUS_REG							0x18    /* Read */
 
 /* test registers */
-#define IRQ_TESTSRC_REG							0x1c	/* Read/Write */
-#define IRQ_SRCSEL_REG							0x20	/* Read/Write */
-#define IRQ_LEVEL_REG							0x24	/* Read/Write */
+#define IRQ_TESTSRC_REG							0x1c    /* Read/Write */
+#define IRQ_SRCSEL_REG							0x20    /* Read/Write */
+#define IRQ_LEVEL_REG							0x24    /* Read/Write */
 
-#define INTCTRL_INDEX_MAX							0xa //0x028/4
+#define INTCTRL_INDEX_MAX							0xa     //0x028/4
 
 /* interrupt levels */
-#define INT_LVL_TIMER							0	/* Timer */
-#define INT_LVL_UART0							1	/* Uart 0 */
-#define INT_LVL_UART1							2	/* Uart 1 */
-#define INT_LVL_USBHOST							3	/* USB Host */
-#define INT_LVL_EXTIO_0							4	/* External I/O 0 */
-#define INT_LVL_EXTIO_1							5	/* External I/O 1 */
-#define INT_LVL_PCI_0							6	/* PCI 0 */
-#define INT_LVL_PCI_1							7	/* PCI 1 */
-#define INT_LVL_PCI_2							8	/* PCI 2 */
-#define INT_LVL_SWITCH							9	/* Switch */
-#define INT_LVL_MAX								INT_LVL_SWITCH	
+#define INT_LVL_TIMER							0       /* Timer */
+#define INT_LVL_UART0							1       /* Uart 0 */
+#define INT_LVL_UART1							2       /* Uart 1 */
+#define INT_LVL_USBHOST							3       /* USB Host */
+#define INT_LVL_EXTIO_0							4       /* External I/O 0 */
+#define INT_LVL_EXTIO_1							5       /* External I/O 1 */
+#define INT_LVL_PCI_0							6       /* PCI 0 */
+#define INT_LVL_PCI_1							7       /* PCI 1 */
+#define INT_LVL_PCI_2							8       /* PCI 2 */
+#define INT_LVL_SWITCH							9       /* Switch */
+#define INT_LVL_MAX								INT_LVL_SWITCH
 
 /* interrupts */
 #define IRQ_TIMER								(0x1 << INT_LVL_TIMER)
@@ -451,6 +452,3 @@ pci configuration data port       0x115ffff8
 
 
 #endif
-
-
-

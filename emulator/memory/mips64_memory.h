@@ -4,14 +4,14 @@
  */
 
  /*
- * Copyright (C) yajin 2008 <yajinzhou@gmail.com >
- *     
- * This file is part of the virtualmips distribution. 
- * See LICENSE file for terms of the license. 
- *
- */
+  * Copyright (C) yajin 2008 <yajinzhou@gmail.com >
+  *     
+  * This file is part of the virtualmips distribution. 
+  * See LICENSE file for terms of the license. 
+  *
+  */
 
- 
+
 #ifndef __MIPS64_MEM_H__
 #define __MIPS64_MEM_H__
 
@@ -45,11 +45,11 @@
 #define MTS_DEVOFF_MASK   0x03fffff0
 
 /* Memory access flags */
-#define MTS_ACC_OK  0x00000000   /* Access OK */
-#define MTS_ACC_AE  0x00000002   /* Address Error */
-#define MTS_ACC_T   0x00000004   /* TLB Exception */
-#define MTS_ACC_U   0x00000006   /* Unexistent */
-#define MTS_ACC_M   0x00000008   /* TLB MODE */
+#define MTS_ACC_OK  0x00000000  /* Access OK */
+#define MTS_ACC_AE  0x00000002  /* Address Error */
+#define MTS_ACC_T   0x00000004  /* TLB Exception */
+#define MTS_ACC_U   0x00000006  /* Unexistent */
+#define MTS_ACC_M   0x00000008  /* TLB MODE */
 
 /* Hash table size for MTS64 (default: [shift:16,bits:12]) */
 #define MTS64_HASH_SHIFT   12
@@ -74,29 +74,28 @@
 #define MTS32_CHUNK_SIZE   256
 
 /* MTS64: chunk definition */
-struct mts64_chunk {
-	mts64_entry_t entry[MTS64_CHUNK_SIZE];
-	struct mts64_chunk *next;
-	u_int count;
+struct mts64_chunk
+{
+   mts64_entry_t entry[MTS64_CHUNK_SIZE];
+   struct mts64_chunk *next;
+   u_int count;
 };
 
 /* MTS32: chunk definition */
-struct mts32_chunk {
-	mts32_entry_t entry[MTS32_CHUNK_SIZE];
-	struct mts32_chunk *next;
-	u_int count;
+struct mts32_chunk
+{
+   mts32_entry_t entry[MTS32_CHUNK_SIZE];
+   struct mts32_chunk *next;
+   u_int count;
 };
 
 
 /* Shutdown the MTS subsystem */
-void mips_mem_shutdown(cpu_mips_t *cpu);
+void mips_mem_shutdown(cpu_mips_t * cpu);
 
 /* Set the address mode */
-int mips_set_addr_mode(cpu_mips_t *cpu,u_int addr_mode);
+int mips_set_addr_mode(cpu_mips_t * cpu, u_int addr_mode);
 
-void physmem_dma_transfer(vm_instance_t *vm,m_pa_t src,m_pa_t dst,
-                          size_t len);
-void *physmem_get_hptr(vm_instance_t *vm,m_pa_t paddr,
-                                     u_int op_size,u_int op_type,
-                                     m_uint32_t *data);
+void physmem_dma_transfer(vm_instance_t * vm, m_pa_t src, m_pa_t dst, size_t len);
+void *physmem_get_hptr(vm_instance_t * vm, m_pa_t paddr, u_int op_size, u_int op_type, m_uint32_t * data);
 #endif

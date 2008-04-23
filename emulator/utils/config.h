@@ -1,12 +1,12 @@
  /*
- * Copyright (C) yajin 2008 <yajinzhou@gmail.com >
- *     
- * This file is part of the virtualmips distribution. 
- * See LICENSE file for terms of the license. 
- *
- */
+  * Copyright (C) yajin 2008 <yajinzhou@gmail.com >
+  *     
+  * This file is part of the virtualmips distribution. 
+  * See LICENSE file for terms of the license. 
+  *
+  */
 
- /*configure template*/
+ /*configure template */
 
 #ifndef __CONFIG_H__
 #define __CONFIG_H__
