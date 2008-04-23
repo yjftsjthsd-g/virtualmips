@@ -24,25 +24,27 @@
 #define CRC32_POLY  0xedb88320L
 
 /* CRC tables */
-m_uint16_t crc12_array[256],crc16_array[256];
+m_uint16_t crc12_array[256], crc16_array[256];
 m_uint32_t crc32_array[256];
 
 /* Initialize CRC-12 algorithm */
 static void crc12_init(void)
 {
-   m_uint16_t crc,c;
-   int i,j;
+   m_uint16_t crc, c;
+   int i, j;
 
-   for(i=0;i<256;i++) {
+   for (i = 0; i < 256; i++)
+   {
       crc = 0;
-      c = (m_uint16_t)i;
+      c = (m_uint16_t) i;
 
-      for(j=0;j<8;j++) {
+      for (j = 0; j < 8; j++)
+      {
          if ((crc ^ c) & 0x0001)
             crc = (crc >> 1) ^ CRC12_POLY;
          else
-            crc =  crc >> 1;
-         
+            crc = crc >> 1;
+
          c = c >> 1;
       }
 
@@ -53,19 +55,21 @@ static void crc12_init(void)
 /* Initialize CRC-16 algorithm */
 static void crc16_init(void)
 {
-   m_uint16_t crc,c;
-   int i,j;
+   m_uint16_t crc, c;
+   int i, j;
 
-   for(i=0;i<256;i++) {
+   for (i = 0; i < 256; i++)
+   {
       crc = 0;
-      c = (m_uint16_t)i;
+      c = (m_uint16_t) i;
 
-      for(j=0;j<8;j++) {
+      for (j = 0; j < 8; j++)
+      {
          if ((crc ^ c) & 0x0001)
             crc = (crc >> 1) ^ CRC16_POLY;
          else
-            crc =  crc >> 1;
-         
+            crc = crc >> 1;
+
          c = c >> 1;
       }
 
@@ -78,10 +82,12 @@ static void crc32_init(void)
 {
    unsigned long c;
    int n, k;
-   
-   for (n=0;n<256;n++) {
+
+   for (n = 0; n < 256; n++)
+   {
       c = (unsigned long) n;
-      for (k = 0; k < 8; k++) {
+      for (k = 0; k < 8; k++)
+      {
          if (c & 1)
             c = CRC32_POLY ^ (c >> 1);
          else
@@ -98,6 +104,3 @@ void crc_init(void)
    crc16_init();
    crc32_init();
 }
-
-
-

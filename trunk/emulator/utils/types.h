@@ -1,11 +1,11 @@
  /*
- * Copyright (C) yajin 2008 <yajinzhou@gmail.com >
- *     
- * This file is part of the virtualmips distribution. 
- * See LICENSE file for terms of the license. 
- *
- */
- 
+  * Copyright (C) yajin 2008 <yajinzhou@gmail.com >
+  *     
+  * This file is part of the virtualmips distribution. 
+  * See LICENSE file for terms of the license. 
+  *
+  */
+
 
 #ifndef __TYPES_H__
 #define __TYPES_H__
@@ -45,13 +45,13 @@ typedef signed long long int64_t;
 
 /*used in dynamips. so just typedef again*/
 /* Common types */
-typedef  uint8_t m_uint8_t;
+typedef uint8_t m_uint8_t;
 typedef int8_t m_int8_t;
 
 typedef uint16_t m_uint16_t;
 typedef int16_t m_int16_t;
 
-typedef uint32_t  m_uint32_t;
+typedef uint32_t m_uint32_t;
 typedef int32_t m_int32_t;
 
 typedef uint64_t m_uint64_t;
@@ -78,7 +78,8 @@ typedef m_uint32_t mips_insn_t;
 
 //for gdb interface
 /* Used for functions which can fail */
-enum result_t {SUCCESS, FAILURE, STALL, BUSERROR, SCFAILURE};
+enum result_t
+{ SUCCESS, FAILURE, STALL, BUSERROR, SCFAILURE };
 
 /* Forward declarations */
 typedef struct cpu_mips cpu_mips_t;
@@ -86,4 +87,3 @@ typedef struct vm_instance vm_instance_t;
 typedef struct vdevice vdevice_t;
 
 #endif
-
