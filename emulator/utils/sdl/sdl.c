@@ -1,4 +1,13 @@
+ /*
+  * Copyright (C) yajin 2008 <yajinzhou@gmail.com >
+  *     
+  * This file is part of the virtualmips distribution. 
+  * See LICENSE file for terms of the license. 
+  *
+  */
 
+
+#ifdef SIM_LCD
 #include "sdl.h"
 #include <signal.h>
 
@@ -15,7 +24,7 @@ static void sdl_resize(DisplayState * ds, int w, int h)
 {
    int flags;
 
-   printf("resizing to %d %d\n", w, h);
+   // printf("resizing to %d %d\n", w, h);
 
    flags = SDL_HWSURFACE | SDL_ASYNCBLIT | SDL_HWACCEL;
  again:
@@ -130,3 +139,5 @@ void sdl_display_init(DisplayState * ds, int full_screen)
 
    atexit(sdl_cleanup);
 }
+
+#endif

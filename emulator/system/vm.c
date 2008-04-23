@@ -317,6 +317,12 @@ int vm_ram_init(vm_instance_t * vm, m_pa_t paddr)
 
    len = vm->ram_size * 1048576;
 #ifdef SIM_PAVO
+/*
+Why plus 0x2000 (8k) for PAVO??
+It seems that jz4740 has an extra 8k boot memory.
+I am not sure. But uboot use the extra memory space beyond 64M memory space.
+So I just add 0x2000 to ram.
+*/
    len += 0x2000;
 #endif
    return (dev_ram_init(vm, "ram", paddr, len));

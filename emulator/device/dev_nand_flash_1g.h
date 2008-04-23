@@ -11,22 +11,6 @@
 
 #include "utils.h"
 
-#if 0
-#define NAND_FLASH_1G_TOTAL_SIZE  0x42000000    /*1G data BYTES +32M bytes SPARE BYTES */
-#define NAND_FLASH_1G_TOTAL_PAGES 0x100000
-#define NAND_FLASH_1G_TOTAL_BLOCKS 0x1000
-#define NAND_FLASH_1G_PAGES_PER_BLOCK  0x100
-
-
-#define NAND_FLASH_1G_PAGE_SIZE   0x420 /*1k bytes date size+32 bytes spare size */
-#define NAND_FLASH_1G_SPARE_SIZE  0x20  /*32 bytes */
-#define NAND_FLASH_1G_BLOCK_SIZE  0x42000       /*264k bytes */
-#define NAND_FLASH_1G_PAGE_DATA_SIZE 0x400      /*1k bytes */
-#define NAND_FLASH_1G_BLOCK_DATA_SIZE 0x40000   /*256k bytes */
-
-#define NAND_FLASH_1G_BLOCK_PAGE_OFFSET  0x8    /*64 page in a blcok */
-#define NAND_FLASH_1G_BLOCK_PAGE_MASK    0xff
-#endif
 
 #define NAND_FLASH_1G_BLOCK_PAGE_OFFSET  0x6    /*64 page in a blcok */
 #define NAND_FLASH_1G_BLOCK_PAGE_MASK    0x3f
@@ -67,7 +51,7 @@
 
 
 #define STATE_ERASE_START                  0x7
-//#define STATE_READ_STATUS                  0x8
+
 
 
 #define NAND_DATAPORT_OFFSET	0x00000000
