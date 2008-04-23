@@ -25,6 +25,8 @@
 #include "cpu.h"
 #include "jz4740.h"
 #include "vp_timer.h"
+
+
 #define RTC_TIMEOUT  1000       //1000MS=1S
 extern cpu_mips_t *current_cpu;
 m_uint32_t jz4740_rtc_table[JZ4740_RTC_INDEX_MAX];
@@ -37,19 +39,64 @@ struct jz4740_rtc_data
    vp_timer_t *rtc_timer;
 
 };
+static const unsigned int sum_monthday[13] = {
+   0,
+   31,
+   31 + 28,
+   31 + 28 + 31,
+   31 + 28 + 31 + 30,
+   31 + 28 + 31 + 30 + 31,
+   31 + 28 + 31 + 30 + 31 + 30,
+   31 + 28 + 31 + 30 + 31 + 30 + 31,
+   31 + 28 + 31 + 30 + 31 + 30 + 31 + 31,
+   31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30,
+   31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 31,
+   31 + 28 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 31 + 30,
+   365
+};
+static const unsigned int yearday[5] = { 0, 366, 366 + 365, 366 + 365 * 2, 366 + 365 * 3 };
+static const unsigned int sweekday = 6;
+unsigned int forced_inline jz_mktime(int year, int mon, int day, int hour, int min, int sec)
+{
+   unsigned int seccounter;
+
+   if (year < 2000)
+      year = 2000;
+   year -= 2000;
+   seccounter = (year / 4) * (365 * 3 + 366);
+   seccounter += yearday[year % 4];
+   if (year % 4)
+      seccounter += sum_monthday[mon - 1];
+   else if (mon >= 3)
+      seccounter += sum_monthday[mon - 1] + 1;  /* Feb is 29 days. */
+   else
+      seccounter += sum_monthday[mon - 1];
+   seccounter += day - 1;
+   seccounter *= 24;
+   seccounter += hour;
+   seccounter *= 60;
+   seccounter += min;
+   seccounter *= 60;
+   seccounter += sec;
+
+   return seccounter;
+}
+
 
 /*Set RTC Time. From Year 2000.*/
 void dev_jz4740_rtc_init_defaultvalue()
 {
-	 struct timeval tv;
+   time_t timep;
+   struct tm *p;
+
+
    memset(jz4740_rtc_table, 0x0, sizeof(jz4740_rtc_table));
-   /*Set RTC value to current time*/
-  
-      gettimeofday(&tv, NULL);
-      jz4740_rtc_table[RTC_RSR/4]=tv.tv_sec-30*365*24*3600;
-      printf("jz4740_rtc_table[RTC_RSR/4] %x\n",jz4740_rtc_table[RTC_RSR/4]);
-     // exit(1);
-   
+   /*Set RTC value to current time */
+   time(&timep);
+   p = localtime(&timep);
+   jz4740_rtc_table[RTC_RSR / 4] =
+       jz_mktime((1900 + p->tm_year), (1 + p->tm_mon), p->tm_mday, p->tm_hour, p->tm_min, p->tm_sec);
+
 
 }
 
@@ -109,6 +156,9 @@ void *dev_jz4740_rtc_access(cpu_mips_t * cpu, struct vdevice *dev,
 void dev_jz4740_rtc_cb(void *opaque)
 {
    struct jz4740_rtc_data *d = opaque;
+   time_t timep;
+   struct tm *p;
+
 
    if (jz4740_rtc_table[RTC_RCR / 4] & RTC_RCR_RTCE)
    {
@@ -119,7 +169,12 @@ void dev_jz4740_rtc_cb(void *opaque)
          current_cpu->vm->set_irq(current_cpu->vm, IRQ_RTC);
       }
 
-      jz4740_rtc_table[RTC_RSR / 4]++;
+      time(&timep);
+      p = localtime(&timep);
+      /*always get the current time from host */
+      jz4740_rtc_table[RTC_RSR / 4] =
+          jz_mktime((1900 + p->tm_year), (1 + p->tm_mon), p->tm_mday, p->tm_hour, p->tm_min, p->tm_sec);
+
       if (jz4740_rtc_table[RTC_RSR / 4] == jz4740_rtc_table[RTC_RSAR / 4])
       {
          if (jz4740_rtc_table[RTC_RCR / 4] & RTC_RCR_AE)

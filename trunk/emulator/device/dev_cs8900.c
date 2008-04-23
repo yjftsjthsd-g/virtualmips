@@ -9,7 +9,8 @@
 
  /*
     cs8900 net card emulation.
-    Only works in linux 2.6.24(jz4740 driver).
+    (jz4740 driver).
+    Only works in linux 2.6.24/2.6.22/2.4.20 
     uboot can not use it.
 
     Please use TCP instead of UDP when using NFS.

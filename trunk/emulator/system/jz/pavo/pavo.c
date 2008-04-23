@@ -190,11 +190,6 @@ static int pavo_init_platform(pavo_t * pavo)
    return (0);
 }
 
-
-
-
-
-
 static int pavo_boot(pavo_t * pavo)
 {
    vm_instance_t *vm = pavo->vm;
