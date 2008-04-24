@@ -2,20 +2,30 @@
 
 = Introduction =
 
-This page describes how to build linux kernel for pavo
+This page describes how to build linux 2.4 and 2.6 kernel for pavo demo board.
 
 
 = Build the toolchain =
 
-Follow [ftp://ftp.ingenic.cn/3sw/01linux/08doc/mips_toolchain_guide.pdf mipsel toolchain guide] to build the toolchain. Add it to $PATH.
+Linux 2.4 and 2.6 kernel uses different toolchain.
 
+Linux 2.4:
+	gcc-3.3.1 with glibc 2.3.2
+Linux 2.6
+	gcc-4.1.2 with glibc 2.3.5
+
+Follow [ftp://ftp.ingenic.cn/3sw/01linux/08doc/mips_toolchain_guide.pdf mipsel toolchain guide] to build the gcc-4.1.2 toolchain. Add it to $PATH.
 In ubuntu system, you need to change the default shell program to build the toolchain.
 {{{
 sudo dpkg-reconfigure dash
 }}}
 See [https://wiki.ubuntu.com/DashAsBinSh DashAsBinSh] for more information.
 
-= Download and patch linux kernel =
+For gcc-3.3.1 toolchain, download from jz website. [For ftp://ftp.ingenic.cn/3sw/01linux/00toolchain/mipseltools-gcc-3.3.1.tar.gz linux] [ftp://ftp.ingenic.cn/3sw/01linux/00toolchain/mipseltools-gcc-3.3.1-cygwin.tar.gz For cygwin].
+
+DO NOT forget to add toolchain path to your system's PATH.
+
+= Download and patch linux 2.6 kernel =
 
 Down [ftp://ftp.ingenic.cn/3sw/01linux/02kernel/linux-2.6.24/linux-2.6.24.3.tar.bz2 linux 2.6.24 kernel] and [ftp://ftp.ingenic.cn/3sw/01linux/02kernel/linux-2.6.24/linux-2.6.24.3-jz-20080304.patch.gz patch] from JZ's website.
 
@@ -25,11 +35,11 @@ cd linux-2.6.24.3
 tar zxvf -cd ../linux-2.6.24.3-jz-20080304.patch.gz | patch -p1
 }}}
 
-= Configure linux kernel =
+= Configure linux 2.6 kernel =
 
 You can config the kernel by yourself or copy the config file included in test suit.
 {{{
-cp test_suit-0.03/config.linux2.6.24.pavo linux-2.6.24.3/.config
+cp test_suit-0.04/pavo/config.linux2.6.24.pavo linux-2.6.24.3/.config
 make
 }}}
 
@@ -40,13 +50,15 @@ make pavo_defconfig
 make menuconfig
 }}}
 
-1. *Exclude* the LCD support because VirtualMIPS does not emulate LCD controller.
+~~1. *Exclude* the LCD support because VirtualMIPS does not emulate LCD controller.
 
-Device Drivers  ->Graphics support   ->Support for frame buffer devices    ->< >   JZSOC LCD controller support 
+Device Drivers  ->Graphics support   ->Support for frame buffer devices    ->< >   JZSOC LCD controller support ~~
+(Since version 0.04, VirtualMIPS support touchscreen emulation)
 
-2. *Exclude* the touch screen support.
+~~2. *Exclude* the touch screen support.
 
-Device Drivers ->Character device  -> JZSOC char device support ->< > JzSOC touchpanel driver support 
+Device Drivers ->Character device  -> JZSOC char device support ->< > JzSOC touchpanel driver support ~~
+(Since version 0.04, VirtualMIPS support LCD emulation)
 
 ~~3. *Exclude* the JZ CS8900A Ethernet support.
 Device Driver -> Network device suppor -> Ethernet (10 or 100Mbit) ->< >   JZ CS8900A Ethernet support ~~
@@ -97,6 +109,32 @@ make uImage
 
 uImage will be created in arch/mips/boot/ directory.
 
+
+= Download and patch linux 2.4 kernel =
+
+Down [ftp://ftp.ingenic.cn/3sw/01linux/02kernel/celinux/celinux-040503.tar.bz2 celinux-040503.tar.bz2] and [ftp://ftp.ingenic.cn/3sw/01linux/02kernel/celinux/celinux-040503-jz-20080409.patch.gz patch] from JZ's website.
+
+{{{
+tar jxvf celinux-040503.tar.bz2
+cd celinux-040503
+tar zxvf -cd ../celinux-040503-jz-20080409.patch.gz | patch -p1
+}}}
+
+= Configure linux 2.4 kernel =
+
+You can config the kernel by yourself or copy the config file included in test suit.
+{{{
+cp test_suit-0.04/pavo/config.linux2.4.20.pavo celinux-040503/.config
+make
+}}}
+
+Type 'make' to make linux kernel or 'make uImage' to generate linux image for u-boot.
+{{{
+make
+make uImage
+}}}
+
+uImage will be created in arch/mips/uboot/ directory.
 
 = Links =
  * [UserManual  How to build and run VirtualMIPS]
