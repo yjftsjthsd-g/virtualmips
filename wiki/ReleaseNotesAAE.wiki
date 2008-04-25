@@ -7,6 +7,7 @@ Changes and improvements include:
   * add touchscreen support of JZ4740 Soc 
   * support rtc emulation of JZ4740 Soc
   * fix cs8900a network card emulation bug.
+  * use scons building system instead of make
 
 Supported SOC:
  * ADM5120
