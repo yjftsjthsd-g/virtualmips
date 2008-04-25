@@ -1,4 +1,13 @@
 #summary ChangeLog of VirtualMIPS
+
+= 2008-04-25 =
+VirtualMIPS v0.04
+  * add LCD emulation of JZ4740 Soc
+  * add touchscreen support of JZ4740 Soc 
+  * support rtc emulation of JZ4740 Soc
+  * fix cs8900a network card emulation bug.
+  * use scons building system instead of make
+
 = 2008-04-01 =
 VirtualMIPS v0.03
   * redesign emulator clock to improve its accuracy

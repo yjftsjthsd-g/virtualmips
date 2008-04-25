@@ -2,15 +2,19 @@
 
 === VirtualMIPS ===
 
- # [UserManual How to build and run VirtualMIPS]
+ # [UserManual How to build VirtualMIPS]
  # [gdbinterface How to use gdb interface to debug kernel]
 
 === Pavo ===
+ # [PavoEmulation How to run pavo emulation]
+ # [PavoLCDEmulation How to run pavo LCD emulation]
+ # [pavonetwork How to use network in pavo emulation]
  # [ubootForPavo  	How to build u-boot for pavo borad]
  # [linuxkernelForPavo  How to build linux kernel for pavo borad]
- # [pavonetwork How to use network in pavo emulation]
+ 
 
 === ADM5120 ===
+ # [ADM5120Emulation How to run adm5120 emulation]
  # [KernelForADM5120 How to build linux 2.6 kernel for ADM5120]
 
 === Misc ===
