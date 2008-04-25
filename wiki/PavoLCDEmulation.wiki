@@ -1,0 +1,93 @@
+#summary How to build pavo LCD emulation
+
+= Introduction =
+
+Since version 0.04, VirtualMIPS emulates LCD controller and touch screen for JZ4740. You can test and run your GUI application(QT/GTK for example) in VirtualMIPS. 
+
+= Build VirtualMIPS =
+
+Build VirtualMIPS with lcd support. LibSDL is needed in LCD emulation. Please install it before building VirtualMIPS.
+
+{{{
+#scons pavo lcd=1
+}}}
+
+= Run qtopia in 2.4 kernel =
+
+Copy uImage-2.4 and uboot image into VirtualMIPS.
+
+{{{
+cp test_suit-0.04/pavo/u-boot-nand.bin  virtualmips-0.04/build
+cp test_suit-0.04/pavo/uImage-2.4  virtualmips-0.04/build
+}}}
+
+Make yaffs2 root filesystem. You need to download [ftp://ftp.ingenic.cn/3sw/01linux/03root/rootfs-20080409.tgz rootfs for pavo]from JZ's website first.
+
+{{{
+tar zxvf rootfs-20080409.tgz
+cd rootfs-20080409
+mkyaffs2image 1 root24 root.yaffs2
+}}}
+
+Make nand falsh image with uboot/kernel/rootfs.
+
+{{{
+cp rootfs-20080409/root.yaffs2  virtualmips-0.04/build
+cd virtualmips-0.04/build
+./mknandflash
+}}}
+
+Run pavo.
+
+{{{
+virtualmips-0.04/build
+./pavo
+}}}
+
+When you enter linux 2.4 shell. Type 'runqpe'.
+
+{{{
+# runqpe
+}}}
+
+= Run qtopia in 2.6 kernel =
+
+Run qtopia in 2.6 is similiar with in 2.4 kernel. The difference is that JZ does not provide qtopia for linux 2.6 kernel. But donot worry. Just copy the qtopia for linux 2.4 rootfs to linux 2.6 rootfs.
+{{{
+cd rootfs-20080409
+cp -rf root24/opt/* root26/opt/
+mkyaffs2image 1 root26 root.yaffs2
+}}}
+
+Copy it to VirtualMIPS
+
+{{{
+cp rootfs-20080409/root.yaffs2  virtualmips-0.04/build
+}}}
+
+Chage the nandflash.conf in virtualmips-0.04/build and make nandflash image.
+
+{{{
+kernel_startaddress=0x400000
+kernel_file="uImage-2.6"  ##Makesure this value is your linux 2.6 kernel.
+kernel_has_spare=0
+}}}
+
+{{{
+cd virtualmips-0.04/build
+./mknandflash
+}}}
+
+Run pavo.
+
+{{{
+virtualmips-0.04/build
+./pavo
+}}}
+
+When you enter linux 2.6 shell. Type 'runqpe'.
+
+{{{
+# runqpe
+}}}
+
