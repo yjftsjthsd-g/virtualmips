@@ -1,6 +1,7 @@
 #summary How to build VirtualMIPS
 
----
+----
+
 You need to download VirtualMIPS first. The [http://virtualmips.googlecode.com/files/virtualmips-0.04.tar.bz2 latest version] is v0.04. 
 
 Supported systems:
@@ -68,13 +69,13 @@ Compile Options:
         debug:                  Set to 1 to compile with debug. Default 0.
         lcd:                    Set to 1 to compile VirtualMIPS with LCD support(pavo only). Default 0.
 
-# scons pavo lcd=1 <--build VirtualMIPS for pavo emulation *with* LCD support
-# scons pavo lcd=0 <--build VirtualMIPS for pavo emulation *without* LCD support
-# scons adm5120 <--build VirtualMIPS for adm5120 emulation.
-# scons mknandflash <--build mknandflash tool.
-# scons pavo -c <--clean the build of VirtualMIPS for pavo.
-# scons adm5120 -c <--clean the build of VirtualMIPS for adm5120.
-# scons mknandflash -c <--clean the build of mknandflash tool.
+# scons pavo lcd=1   		<--build VirtualMIPS for pavo emulation *with* LCD support
+# scons pavo lcd=0   		<--build VirtualMIPS for pavo emulation *without* LCD support
+# scons adm5120      		<--build VirtualMIPS for adm5120 emulation.
+# scons mknandflash  		<--build mknandflash tool.
+# scons pavo -c      		<--clean the build of VirtualMIPS for pavo.
+# scons adm5120 -c   		<--clean the build of VirtualMIPS for adm5120.
+# scons mknandflash -c 	<--clean the build of mknandflash tool.
 }}}
 
 If everything goes well, file 'adm5120'/'pavo'/'mknandflash' will be created in virtualmips-0.04/build.
