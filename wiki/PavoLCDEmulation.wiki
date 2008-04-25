@@ -101,6 +101,7 @@ When you enter linux 2.6 shell. Type 'runqpe'.
 
 Do not forget to calibrate touchscreen in qtopia before playing with it.
 Settings->recalibrate
+
 [http://virtualmips.googlepages.com/calibrate.jpg]
 
 
