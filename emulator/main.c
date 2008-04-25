@@ -27,8 +27,8 @@
 #include "net_io.h"
 
 
-char sw_version_tag[] = "20080401";
-#define VERSION  "0.03"
+char sw_version_tag[] = "20080425";
+#define VERSION  "0.04"
 
 void signal_gen_handler(int sig)
 {

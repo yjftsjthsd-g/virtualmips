@@ -8,8 +8,8 @@
 
 /*
 Timer routine.
-Emulator has many timer. Every 1ms, emulator will check 
-whether there are timer request and hold up the cpu when 
+Emulator has many timers. Every 1ms, emulator will check 
+whether there is timer request and pause the cpu when 
 processing timer event. 
 Codes are from qemu.
 yajin
