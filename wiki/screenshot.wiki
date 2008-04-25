@@ -1,4 +1,12 @@
 #summary Screen shot of VirtualMIPS
 
-== pave board of u-boot ==
-[http://virtualmips.googlepages.com/Screenshot-Terminal-1.png]
+== pavo ==
+
+qtopia desktop
+[http://virtualmips.googlepages.com/desktop.jpg]
+
+qtopia in 2.4 kernel
+[http://virtualmips.googlepages.com/system-info.jpg]
+
+qtopia in 2.6 kernel
+[http://virtualmips.googlepages.com/system-info26.jpg]
