@@ -144,13 +144,6 @@ NAND:1024 MiB
 *** Warning - bad CRC or NAND, using default environment
 
 [LCD] Initializing LCD frambuffer at 83f80000
-vid->vl_row = 0x00000110   vid->vl_col 0x000001e0 NBITS (vid->vl_bpix) vid->vl_c
-ol 0x00000020
-palette_mem_size = 0x00000200
-lcdbase = 0x83f80000
-fb_size = 0x0007f800
-fbi->palette = 0x84000600
-fbi = 0x83f428a8
 [LCD] Drawing the logo...
 Logo: width 160  height 96  colors 31  cmap 62
 In:    serial
@@ -290,6 +283,8 @@ VCEI exceptions         : not available
 = How to stop emulation =
 
 press *CTRL+\* to stop emulation. CTRL+C is sent to guest.
+
+= Links =
 
 * [PavoLCDEmulation How to run pavo LCD emulation]
 * [pavonetwork How to use network in pavo emulation]
