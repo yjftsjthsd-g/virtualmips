@@ -278,7 +278,7 @@ VCEI exceptions         : not available
 
 }}}
 
-[http://virtualmips.googlepages.com/system-info26.jpg]
+[http://virtualmips.googlepages.com/system-info.jpg]
 
 = How to stop emulation =
 
