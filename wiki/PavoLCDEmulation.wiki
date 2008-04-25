@@ -50,6 +50,8 @@ When you enter linux 2.4 shell. Type 'runqpe'.
 # runqpe
 }}}
 
+[http://virtualmips.googlepages.com/system-info.jpg]
+
 = Run qtopia in 2.6 kernel =
 
 Run qtopia in 2.6 is similiar with in 2.4 kernel. The difference is that JZ does not provide qtopia for linux 2.6 kernel. But donot worry. Just copy the qtopia for linux 2.4 rootfs to linux 2.6 rootfs.
@@ -90,4 +92,16 @@ When you enter linux 2.6 shell. Type 'runqpe'.
 {{{
 # runqpe
 }}}
+
+[http://virtualmips.googlepages.com/system-info26.jpg]
+
+= Calibrate touchscreen in qtopia =
+
+Do not forget to calibrate touchscreen in qtopia before playing with it.
+
+= Links =
+
+ * [UserManual How to build VirtualMIPS]
+ * [pavonetwork How to use network in pavo emulation]
+
 
