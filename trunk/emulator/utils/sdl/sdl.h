@@ -12,7 +12,7 @@
 #define __VSDL_H__
 
 
-#ifdef SIM_LCD                  /*defined in Makefile */
+#ifdef SIM_LCD            /*defined in Makefile */
 
 #include "utils.h"
 #include "SDL/SDL.h"

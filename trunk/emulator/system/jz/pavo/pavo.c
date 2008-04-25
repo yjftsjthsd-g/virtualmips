@@ -181,7 +181,7 @@ static int pavo_init_platform(pavo_t * pavo)
 
     /*LCD*/
 #ifdef SIM_LCD
-       if (dev_jz4740_lcd_init(vm, "JZ4740 LCD", JZ4740_LCD_BASE, JZ4740_LCD_SIZE) == -1)
+if (dev_jz4740_lcd_init(vm, "JZ4740 LCD", JZ4740_LCD_BASE, JZ4740_LCD_SIZE) == -1)
       return (-1);
 
 #endif
@@ -201,11 +201,6 @@ static int pavo_boot(pavo_t * pavo)
 
 
 }
-
-
-
-
-
 
 void pavo_clear_irq(vm_instance_t * vm, u_int irq)
 {
@@ -235,12 +230,8 @@ int forced_inline plat_soc_irq(u_int irq)
          irq = IRQ_GPIO2;
       else if ((irq >= 144) && (irq <= 175))
          irq = IRQ_GPIO3;
-
    }
-
    return irq;
-
-
 }
 
 
@@ -406,3 +397,5 @@ int init_instance(vm_instance_t * vm)
    return (pavo_boot(pavo));
 
 }
+
+
