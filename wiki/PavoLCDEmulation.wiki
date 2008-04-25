@@ -4,6 +4,8 @@
 
 Since version 0.04, VirtualMIPS emulates LCD controller and touch screen for JZ4740. You can test and run your GUI application(QT/GTK for example) in VirtualMIPS. 
 
+The emulation speed of LCD emulation is slow, please be patient. It will be improved in next release using JIT.
+
 = Build VirtualMIPS =
 
 Build VirtualMIPS with lcd support. LibSDL is needed in LCD emulation. Please install it before building VirtualMIPS.
