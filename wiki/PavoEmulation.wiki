@@ -2,7 +2,7 @@
 
 = Download the test suit =
 
-You need to download the [http://virtualmips.googlecode.com/files/test_suit-0.04.tar.bz2 test suit] to run VirtualMIPS.
+Download the [http://virtualmips.googlecode.com/files/test_suit-0.04.tar.bz2 test suit] first.
 
 {{{
 tar -jxvf test_suit-0.04.tar.bz2
@@ -38,6 +38,14 @@ It will create the yaffs2 root file system root.yaffs2. Copy it to VirtualMIPS d
 cp rootfs-20080409/root.yaffs2  virtualmips-0.04/build
 }}}
 
+Copy u-boot image and linux kernel image to VirtualMIPS.
+
+{{{
+cp test_suit-0.04/pavo/u-boot-nand.bin  virtualmips-0.04/build
+cp test_suit-0.04/pavo/uImage-2.4  virtualmips-0.04/build
+cp test_suit-0.04/pavo/uImage-2.6  virtualmips-0.04/build
+}}}
+
 VirtualMIPS provides a tool "mknandflash" to create the nand flash file(Source code is tool/mknandflash.c). Make sure you have setten the right u-boot/kernel image file name and root filesytem file name/startaddress in the configure file of mknandflash(nandflash.conf in directory virtualmips-0.04/build).See nandflash.conf for more information.
 
 {{{
@@ -63,7 +71,7 @@ Set 'tap0' persistent and owned by uid 0
 
 If tunctl command is not found in your computer, please install uml_utilities first.
 
-* Debian/Ubuntu
+* Debian etch
 {{{
 sudo apt-get install uml-utilities
 }}}
@@ -75,7 +83,7 @@ sudo pacman -S uml_utilities
 modprobe tun
 }}}
 
-Change the pavo.conf in virtualmips-0.03/run to enable network card emulation.
+Change the pavo.conf in virtualmips-0.04/build to enable network card emulation.
 
 {{{
 cs8900_enable = 1
@@ -92,39 +100,10 @@ cd virtualmips-0.04/build
 ./pavo
 }}}
 
+
 {{{
-KILL-BILL:/home/root/newdevelop/release/V0.04/1/virtualmips/build# ./pavo
-VirtualMIPS (version 0.03)
-Copyright (c) 2008 yajin.
-Build date: Apr 24 2008 19:10:15
-
-Using configure file: pavo.conf
-ram_size: 64M bytes 
-boot_method: Binary 
-flash_type: NAND FLASH 
-flash_size: 1024M bytes 
-boot_from: NAND FLASH 
-CS8900 net card enabled
-CS8900 iotype tap:tap0 
-
-loaded 914 nand flash file from directory "nandflash1GB". 
-VM 'pavo': starting simulation (CPU0 PC=0x80000004), JIT disabled.
-
-
-NAND Secondary Program Loader
-
-Starting U-Boot ...
-
-
-U-Boot 1.1.6 (Apr 24 2008 - 19:48:05)
-
-Board: Ingenic PAVO (CPU Speed 336 MHz)
-DRAM:  64 MB
-Flash:  0 kB
-NAND:1024 MiB
-no device!cpu->pc bfc00380 vaddr bfc00000 paddr 1fc00000 
-KILL-BILL:/home/root/newdevelop/release/V0.04/1/virtualmips/build# ./pavo
-VirtualMIPS (version 0.03)
+KILL-BILL:virtualmips/build# ./pavo
+VirtualMIPS (version 0.04)
 Copyright (c) 2008 yajin.
 Build date: Apr 24 2008 19:10:15
 
@@ -284,12 +263,34 @@ NET: Registered protocol family 1
 NET: Registered protocol family 17
 RPC: Registered udp transport module.
 RPC: Registered tcp transport module.
-yaffs: dev is 32505858 na
+yaffs: dev is 32505858 name is "mtdblock2"
+yaffs: Attempting MTD mount on 31.2, "mtdblock2"
+VFS: Mounted root (yaffs2 filesystem).
+Freeing unused kernel memory: 172k freed
+Algorithmics/MIPS FPU Emulator v1.5
+# cat /proc/cpuinfo 
+system type             : JZ4740
+processor               : 0
+cpu model               : Ingenic JZRISC V4.15
+BogoMIPS                : 89.49
+wait instruction        : yes
+microsecond timers      : no
+tlb_entries             : 32
+extra interrupt vector  : yes
+hardware watchpoint     : no
+ASEs implemented        :
+shadow register sets    : 1
+VCED exceptions         : not available
+VCEI exceptions         : not available
 
 }}}
 
 [http://virtualmips.googlepages.com/system-info26.jpg]
- 
- 
- 
+
+= How to stop emulation =
+
+press *CTRL+\* to stop emulation. CTRL+C is sent to guest.
+
+* [PavoLCDEmulation How to run pavo LCD emulation]
+* [pavonetwork How to use network in pavo emulation]
  
