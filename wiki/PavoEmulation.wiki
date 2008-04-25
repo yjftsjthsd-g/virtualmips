@@ -286,6 +286,6 @@ press *CTRL+\* to stop emulation. CTRL+C is sent to guest.
 
 = Links =
 
-* [PavoLCDEmulation How to run pavo LCD emulation]
-* [pavonetwork How to use network in pavo emulation]
+ * [PavoLCDEmulation How to run pavo LCD emulation]
+ * [pavonetwork How to use network in pavo emulation]
  
