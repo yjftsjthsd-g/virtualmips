@@ -75,7 +75,7 @@ Compile Options:
 # scons mknandflash  		<--build mknandflash tool.
 # scons pavo -c      		<--clean the build of VirtualMIPS for pavo.
 # scons adm5120 -c   		<--clean the build of VirtualMIPS for adm5120.
-# scons mknandflash -c 	<--clean the build of mknandflash tool.
+# scons mknandflash -c	<--clean the build of mknandflash tool.
 }}}
 
 If everything goes well, file 'adm5120'/'pavo'/'mknandflash' will be created in virtualmips-0.04/build.
