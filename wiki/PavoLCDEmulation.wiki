@@ -1,4 +1,4 @@
-#summary How to build pavo LCD emulation
+#summary How to run pavo LCD emulation
 
 = Introduction =
 
