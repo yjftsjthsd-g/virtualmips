@@ -6,13 +6,13 @@
 Qtopia works of pavo emulation.
 
 Qtopia desktop
-[http://code.google.com/p/virtualmips/svn/wiki/img/desktop.jpg]
+[http://code.google.com/svn/wiki/img/desktop.jpg]
 
 System info of kernel 2.4
-[http://code.google.com/p/virtualmips/svn/wiki/img/system-info.jpg]
+[http://code.google.com/svn/wiki/img/system-info.jpg]
 
 System info of kernel 2.6
-[http://code.google.com/p/virtualmips/svn/wiki/img/system-info26.jpg]
+[http://code.google.com/svn/wiki/img/system-info26.jpg]
 
 Calibrate touch screen
-[http://code.google.com/p/virtualmips/svn/wiki/img/system-info26.jpg]
+[http://code.google.com/svn/wiki/img/system-info26.jpg]
