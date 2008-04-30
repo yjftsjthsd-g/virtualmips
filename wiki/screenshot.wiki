@@ -1,14 +1,18 @@
 #summary Screen shot of VirtualMIPS
 
 
-=== 2008-01-19 - Qtopia ===
+=== 2008-04-24 - Qtopia ===
 
 Qtopia works of pavo emulation.
 
-[img/desktop.jpg  test]
+Qtopia desktop
+[http://code.google.com/p/virtualmips/wiki/img/desktop.jpg]
 
-[http://virtualmips.googlepages.com/desktop.jpg]
+System info of kernel 2.4
+[http://code.google.com/p/virtualmips/wiki/img/system-info.jpg]
 
-[http://virtualmips.googlepages.com/system-info.jpg]
+System info of kernel 2.6
+[http://code.google.com/p/virtualmips/wiki/img/system-info26.jpg]
 
-[http://virtualmips.googlepages.com/system-info26.jpg]
+Calibrate touch screen
+[http://code.google.com/p/virtualmips/wiki/img/system-info26.jpg]
