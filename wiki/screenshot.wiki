@@ -19,4 +19,4 @@ System info of kernel 2.6
 
 Calibrate touch screen
 
-[http://virtualmips.googlecode.com/svn/wiki/img/system-info26.jpg]
+[http://virtualmips.googlecode.com/svn/wiki/img/calibrate.jpg]
