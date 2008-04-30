@@ -50,16 +50,19 @@ make pavo_defconfig
 make menuconfig
 }}}
 
-~~1. *Exclude* the LCD support because VirtualMIPS does not emulate LCD controller.
-Device Drivers  ->Graphics support   ->Support for frame buffer devices    ->< >   JZSOC LCD controller support ~~
+~~1. *Exclude* the LCD support because VirtualMIPS does not emulate LCD controller.~~
+
+~~Device Drivers  ->Graphics support   ->Support for frame buffer devices    ->< >   JZSOC LCD controller support ~~
 (Since version 0.04, VirtualMIPS support touchscreen emulation)
 
-~~2. *Exclude* the touch screen support.
-Device Drivers ->Character device  -> JZSOC char device support ->< > JzSOC touchpanel driver support ~~
+~~2. *Exclude* the touch screen support.~~
+
+~~Device Drivers ->Character device  -> JZSOC char device support ->< > JzSOC touchpanel driver support ~~
 (Since version 0.04, VirtualMIPS support LCD emulation)
 
-~~3. *Exclude* the JZ CS8900A Ethernet support.
-Device Driver -> Network device suppor -> Ethernet (10 or 100Mbit) ->< >   JZ CS8900A Ethernet support ~~
+~~3. *Exclude* the JZ CS8900A Ethernet support.~~
+
+~~Device Driver -> Network device suppor -> Ethernet (10 or 100Mbit) ->< >   JZ CS8900A Ethernet support ~~
 (Since version 0.03, VirtualMIPS support cs8900a network card emulation)
 
 4. Change the nand config.
