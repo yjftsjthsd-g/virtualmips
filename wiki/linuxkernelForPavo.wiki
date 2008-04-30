@@ -51,12 +51,10 @@ make menuconfig
 }}}
 
 ~~1. *Exclude* the LCD support because VirtualMIPS does not emulate LCD controller.
-
 Device Drivers  ->Graphics support   ->Support for frame buffer devices    ->< >   JZSOC LCD controller support ~~
 (Since version 0.04, VirtualMIPS support touchscreen emulation)
 
 ~~2. *Exclude* the touch screen support.
-
 Device Drivers ->Character device  -> JZSOC char device support ->< > JzSOC touchpanel driver support ~~
 (Since version 0.04, VirtualMIPS support LCD emulation)
 
