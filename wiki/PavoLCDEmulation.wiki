@@ -11,6 +11,7 @@ The emulation speed of LCD emulation is slow, please be patient. It will be impr
 Build VirtualMIPS with lcd support. LibSDL is needed in LCD emulation. Please install it before building VirtualMIPS.
 
 {{{
+#cd virtualmips-0.04/build
 #scons pavo lcd=1
 }}}
 
@@ -109,5 +110,3 @@ Settings->recalibrate
 
  * [UserManual How to build VirtualMIPS]
  * [pavonetwork How to use network in pavo emulation]
-
-
