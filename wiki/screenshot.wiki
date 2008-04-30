@@ -3,7 +3,7 @@
 
 === 2008-04-24 - Qtopia ===
 
-Qtopia works of pavo emulation.
+Qtopia works on pavo emulation.
 
 Qtopia desktop
 
