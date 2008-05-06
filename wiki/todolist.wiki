@@ -1,22 +1,25 @@
 #summary What is going on next?
 
+== high priority ==
 
- * add support of [http://www.ingenic.cn JZ] Soc(high priority)
+ * ~~add support of [http://www.ingenic.cn JZ] 4740 Soc.~~ (finished in 2008-04-24)
 
  * dynamic binary translation(JIT)(high priority) 
-  * In order to improve the performance of emulator, jit is used to translate the guest code into host code, mips to x86 for example. QEMU has an excellent architectural of JIT. However, it relays on the specific version of gcc(gcc-3). We want to design and implement a framework of JIT which *DOES NOT* relay on the version of compiler and host architectural.
+  * In order to improve the performance of emulator, jit is used to translate the guest code into host code, mips to x86 for example, on the fly. QEMU has an excellent architectural of JIT. However, it relays on the specific version of gcc(gcc-3). We want to design and implement a framework of JIT which *DOES NOT* relay on the version of compiler and host architectural.
+  * Similiar architectural JIT optimization. Both loogson and JZ-4740/PSP?? are MIPS based. JIT can be optimized in loogson.
 
- * Profile support (middle priority) 
-  * It is useful for emulator to support program profiling so that you can know where is the critical path of program and then optimize it. 
+ * add support of PSP??.
 
- * Code instrumentation (middle priority) 
-  * Just like [http://www.valgrind.org/ valgirnd], but we can provide a system level code instrumentation not only application level.
+== middle priority ==
 
- * OKL4 porting (middle priority) 
+ * Code instrumentation
+  * Just like [http://www.valgrind.org/ valgrind], but we can provide a system level code instrumentation not only application level.
+
+ * OKL4 porting 
   * porting [http://www.ok-labs.com/products/okl4 OKL4] to jz4740. OKL4 is a good virtualization platform and it is very cool to see two operating system running on VirutalMIPS at the same time.
 
- * add support of swarm board (BCM1250)(low priority) 
+== low priority ==
 
- * add support of [http://www.linux-mips.org/wiki/Fulong fulong] (Low priority)
-
- * add support of au1200 (low priority)
+ * add support of swarm board (BCM1250)
+ * add support of [http://www.linux-mips.org/wiki/Fulong fulong] 
+ * ~~add support of au1200 (low priority)~~ ([http://www.skyeye.org Skyeye] is working on this)
