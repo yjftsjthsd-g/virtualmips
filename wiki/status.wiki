@@ -6,13 +6,13 @@
 
 == ADM5120 ==
  * Device
-  * 4MB Nor Flash
+  * 4MB NorFlash
  * OS
   * Linux 2.6.12
 
 == pavo ==
  * Device
-  * 1G Bytes Nand-flash
+  * 1G Bytes NandFlash(Samsung K9F8G08)
   * LCD Controller and touchscreen
   * CS8900a network card
   * RTC
