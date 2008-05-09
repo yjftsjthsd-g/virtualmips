@@ -11,7 +11,7 @@
    *
    */
 
-#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -111,6 +111,8 @@ void mips_access_special(cpu_mips_t * cpu, m_va_t vaddr, m_uint32_t mask,
    }
 }
 
+#if   0
+64 bit operation. for future use. yajin
 /* === MTS for 64-bit address space ======================================= */
 #ifdef  MTS_ADDR_SIZE
 #undef MTS_ADDR_SIZE
@@ -1050,7 +1052,7 @@ void mips_mts64_init_memop_vectors(cpu_mips_t * cpu)
 
 
 
-
+#endif
 
 
 
@@ -1160,10 +1162,6 @@ static no_inline mts32_entry_t *mips_mts32_map(cpu_mips_t * cpu, u_int op_type, 
 {
    struct vdevice *dev;
    m_uint32_t offset;
-   // m_iptr_t host_ptr;
-   //  int cow;
-
-
 
    if (!(dev = dev_lookup(cpu->vm, map->paddr)))
    {
@@ -2124,7 +2122,7 @@ void mips_mts32_init_memop_vectors(cpu_mips_t * cpu)
    cpu->mts_rebuild = mips_mts32_api_rebuild;
 
    /* Show statistics */
-   cpu->mts_show_stats = mips_mts32_show_stats;
+   //cpu->mts_show_stats = mips_mts32_show_stats;
 
    cpu->mips_mts_gdb_lb = mips_mts32_gdb_lb;
 
@@ -2170,7 +2168,7 @@ void mips_mts32_init_memop_vectors(cpu_mips_t * cpu)
 }
 
 
-
+#if 0
 /* === Specific operations for MTS64 ====================================== */
 
 /* MTS64 slow lookup */
@@ -2290,6 +2288,7 @@ static mts64_entry_t *mips_mts64_slow_lookup(cpu_mips_t * cpu, m_uint64_t vaddr,
    return NULL;
 }
 
+
 /* MTS64 access */
 static void *mips_mts64_access(cpu_mips_t * cpu, m_va_t vaddr,
                                u_int op_code, u_int op_size,
@@ -2364,6 +2363,7 @@ static int mips_mts64_translate(cpu_mips_t * cpu, m_va_t vaddr, m_uint32_t * phy
    return (0);
 }
 
+#endif
 /* === Specific operations for MTS32 ====================================== */
 
 
@@ -2430,7 +2430,8 @@ static mts32_entry_t *mips_mts32_slow_lookup(cpu_mips_t * cpu, m_uint64_t vaddr,
 
    case 0x06:                  /* ksseg */
    case 0x07:                  /* kseg3 */
-      /* trigger TLB exception if no matching entry found */
+   		//ASSERT(0,"not implemented upper 1G memory space \n");
+   		      /* trigger TLB exception if no matching entry found */
       if (!mips64_cp0_tlb_lookup(cpu, vaddr, &map))
          goto err_tlb;
       if ((map.valid & 0x1) != 0x1)
@@ -2442,6 +2443,8 @@ static mts32_entry_t *mips_mts32_slow_lookup(cpu_mips_t * cpu, m_uint64_t vaddr,
          goto err_undef;
 
       return (entry);
+      
+      break;
    }
  err_mod:
    if (is_fromgdb)
@@ -2474,10 +2477,7 @@ static forced_inline int mips_mts32_check_tlbcache(cpu_mips_t * cpu, m_va_t vadd
       if ((!entry->g_bit) && (asid != entry->asid))
          return 0;
    }
-
    return 1;
-
-
 }
 
 /* MTS32 access */
@@ -2519,18 +2519,17 @@ yajin
 */
    if (MTS_HALF_WORD == op_size)
    {
-      if ((vaddr & 0x00000001UL) != 0x0)
+      if (unlikely((vaddr & 0x00000001UL) != 0x0))
       {
          goto err_addr;
       }
    }
-
-   if (MTS_WORD == op_size)
+  else if (MTS_WORD == op_size)
    {
       if ((op_code != MIPS_MEMOP_LWL) && (op_code != MIPS_MEMOP_LWR)
           && (op_code != MIPS_MEMOP_SWL) && (op_code != MIPS_MEMOP_SWR))
       {
-         if ((vaddr & 0x00000003UL) != 0x0)
+         if (unlikely((vaddr & 0x00000003UL) != 0x0))
             goto err_addr;
       }
 
@@ -2614,10 +2613,11 @@ int mips_set_addr_mode(cpu_mips_t * cpu, u_int addr_mode)
          mips_mts32_init(cpu);
          mips_mts32_init_memop_vectors(cpu);
          break;
-      case 64:
+      /*case 64:
+      	  TODO: 64 bit memory operation
          mips_mts64_init(cpu);
          mips_mts64_init_memop_vectors(cpu);
-         break;
+         break;*/
       default:
          fprintf(stderr, "mts_set_addr_mode: internal error (addr_mode=%u)\n", addr_mode);
          exit(EXIT_FAILURE);
@@ -2633,9 +2633,10 @@ int mips_set_addr_mode(cpu_mips_t * cpu, u_int addr_mode)
 
 
 
-/* Get host pointer for the physical address */
+/* Get host pointer for the physical ram address */
 void *physmem_get_hptr(vm_instance_t * vm, m_pa_t paddr, u_int op_size, u_int op_type, m_uint32_t * data)
 {
+	
    struct vdevice *dev;
    m_uint32_t offset;
 
@@ -2644,6 +2645,7 @@ void *physmem_get_hptr(vm_instance_t * vm, m_pa_t paddr, u_int op_size, u_int op
    if (!(dev = dev_lookup(vm, paddr)))
       return NULL;
 
+	/*Only for RAM*/
    if ((dev->host_addr != 0) && !(dev->flags & VDEVICE_FLAG_NO_MTS_MMAP))
       return ((void *) dev->host_addr + (paddr - dev->phys_addr));
 

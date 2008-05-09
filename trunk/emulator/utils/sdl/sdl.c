@@ -70,6 +70,19 @@ SDL_Event *sdl_getmouse_down()
    return NULL;
 }
 
+SDL_Event *sdl_getmouse_up()
+{
+   if (SDL_PollEvent(&ev))
+   {
+      if (ev.type == SDL_MOUSEBUTTONUP)
+      {
+         return &ev;
+      }
+   }
+   return NULL;
+}
+
+
 static void sdl_refresh(DisplayState * ds)
 {
 
@@ -109,6 +122,7 @@ static void sdl_display_logo(void)
 
 static void sdl_cleanup(void)
 {
+	printf("SDL Clean \n");
    SDL_Quit();
 }
 void sdl_display_init(DisplayState * ds, int full_screen)
@@ -122,7 +136,6 @@ void sdl_display_init(DisplayState * ds, int full_screen)
       exit(1);
    }
 #ifndef _WIN32
-   /* NOTE: we still want Ctrl-C to work, so we undo the SDL redirections */
    signal(SIGINT, SIG_DFL);
    signal(SIGQUIT, SIG_DFL);
 #endif
@@ -134,7 +147,6 @@ void sdl_display_init(DisplayState * ds, int full_screen)
    sdl_resize(ds, ds->width, ds->height);
    sdl_update_caption();
    sdl_display_logo();
-   //      SDL_ShowCursor(0);
    SDL_EnableUNICODE(1);
 
    atexit(sdl_cleanup);

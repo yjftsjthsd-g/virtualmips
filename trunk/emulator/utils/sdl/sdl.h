@@ -91,6 +91,7 @@ static inline void draw_pixel(SDL_Surface *screen, Uint8 R, Uint8 G, Uint8 B,Uin
 */
 void sdl_display_init(DisplayState * ds, int full_screen);
 SDL_Event *sdl_getmouse_down();
+SDL_Event *sdl_getmouse_up();
 #endif
 
 #endif

@@ -116,6 +116,7 @@ int mips64_reg_get(cpu_mips_t * cpu, u_int reg, m_reg_t * val)
 
 }
 
+#if 0
 /* Dump registers of a MIPS64 processor */
 void mips64_dump_regs(cpu_mips_t * cpu)
 {
@@ -163,7 +164,7 @@ void mips64_dump_regs(cpu_mips_t * cpu)
 
 }
 
-
+#endif
 
 
 /* Delete a MIPS64 processor */
@@ -201,9 +202,9 @@ int mips64_init(cpu_mips_t * cpu)
    /* Set the CPU methods */
    cpu->reg_get = (void *) mips64_reg_get;
    cpu->reg_set = (void *) mips64_reg_set;
-   cpu->reg_dump = (void *) mips64_dump_regs;
-   cpu->mmu_dump = (void *) mips64_tlb_dump;
-   cpu->mmu_raw_dump = (void *) mips64_tlb_raw_dump;
+   //cpu->reg_dump = (void *) mips64_dump_regs;
+   //cpu->mmu_dump = (void *) mips64_tlb_dump;
+   //cpu->mmu_raw_dump = (void *) mips64_tlb_raw_dump;
 
    /* Set the startup parameters */
    mips64_reset(cpu);
