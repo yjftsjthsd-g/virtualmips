@@ -256,11 +256,6 @@ void *mips64_exec_run_cpu(cpu_mips_t * cpu)
       if (unlikely(cpu->state != CPU_STATE_RUNNING))
          break;
 
-      /*virtual clock for cpu. */
-      /*We do not need this anymore.
-         Work has been done in host alarm */
-      /*virtual_timer(); */
-
       if (unlikely((cpu->pause_request) & CPU_INTERRUPT_EXIT))
       {
          cpu->state = CPU_STATE_PAUSING;
@@ -285,9 +280,9 @@ void *mips64_exec_run_cpu(cpu_mips_t * cpu)
          /*exception when fetching instruction */
          continue;
       }
-      if ((cpu->vm->mipsy_debug_mode)
+      if (unlikely((cpu->vm->mipsy_debug_mode)
           && ((cpu_hit_breakpoint(cpu->vm, cpu->pc) == SUCCESS) || (cpu->vm->gdb_interact_sock == -1)
-              || (cpu->vm->mipsy_break_nexti == MIPS_BREAKANYCPU)))
+              || (cpu->vm->mipsy_break_nexti == MIPS_BREAKANYCPU))))
       {
          if (mips_debug(cpu->vm, 1))
          {
