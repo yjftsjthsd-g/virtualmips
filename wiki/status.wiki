@@ -1,0 +1,29 @@
+#summary Current status of VirtualMIPS.
+#labels Featured
+
+== Supported SOC ==
+ * ADM5120
+ * pavo board(JZ4740 soc) 
+
+== ADM5120 ==
+ * Device
+  * 4MB Nor Flash
+ * OS
+  * Linux 2.6.12
+
+== pavo ==
+ * Device
+  * 1G Bytes Nand-flash
+  * LCD Controller and touchscreen
+  * CS8900a network card
+  * RTC
+ * bootloader
+  * u-boot 1.1.6
+ * OS
+  * Linux 2.6.24 
+  * Linux 2.6.22 
+  * Linux 2.4.20 
+ * GUI
+  * Qtopia 1.6.1
+
+
