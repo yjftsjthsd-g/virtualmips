@@ -18,6 +18,7 @@
  # [KernelForADM5120 How to build linux 2.6 kernel for ADM5120]
 
 === Misc ===
+ # [status Current status of VirtualMIPS]
  # [screenshot Screenshot of VirtualMIPS]
  # [ChangeLog ChangeLog of VirtualMIPS]
  # [todolist Todolist of VirtualMIPS]
