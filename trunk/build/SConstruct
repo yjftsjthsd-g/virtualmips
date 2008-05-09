@@ -1,3 +1,6 @@
+#Build script of virtualmips.
+#Scons is really an excellent tool to build software!
+
 import os,platform,SCons,glob,re
 
 
