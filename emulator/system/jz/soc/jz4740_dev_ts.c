@@ -33,9 +33,12 @@ extern cpu_mips_t *current_cpu;
 #define TSMINX  0
 #define TSMINY  0
 
-#define TS_TIMEOUT  25          //MS
+#define TS_TIMEOUT  15         //MS
 m_uint32_t jz4740_ts_table[JZ4740_TS_INDEX_MAX];
 
+#define MOUSE_DOWN  1
+#define MOUSE_UP       2
+#define MOUSE_MOVE   3
 struct jz4740_ts_data
 {
    struct vdevice *dev;
@@ -49,6 +52,8 @@ struct jz4740_ts_data
    m_uint8_t read_index;
    m_uint32_t x, y;
 
+   /*mouse status*/
+   	m_uint8_t  mouse_status;
 
    struct DisplayState *ds;
 };
@@ -93,15 +98,17 @@ void dev_jz4740_ts_cb(void *opaque)
          /*Pen UP interrupt */
          if (d->read_index == 0)
          {
-            /*Interrupt */
-            current_cpu->vm->set_irq(current_cpu->vm, IRQ_SADC);
-            jz4740_ts_table[SADC_STATE / 4] |= (SADC_STATE_PENU | SADC_STATE_TSRDY);
+         	  /*
+         	  TODO: Mouse up checking.
+         	  We do not check whether mouse up. JUST assume when clicked, it is always mouseup.
+         	  Can not use hand writing in qtopia.
+         	  */
+          	  	/*Interrupt */
+            	current_cpu->vm->set_irq(current_cpu->vm, IRQ_SADC);
+            	jz4740_ts_table[SADC_STATE / 4] |= (SADC_STATE_PENU | SADC_STATE_TSRDY);
+        
          }
       }
-
-
-
-
 
    }
 

@@ -12,7 +12,7 @@
   * See LICENSE file for terms of the license. 
   *
   */
-#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

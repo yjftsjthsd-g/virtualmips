@@ -409,15 +409,15 @@ struct cpu_mips
    /* Methods */
    int (*reg_get) (cpu_mips_t * cpu, u_int reg, m_reg_t * val);
    void (*reg_set) (cpu_mips_t * cpu, u_int reg_index, m_reg_t val);
-   void (*reg_dump) (cpu_mips_t * cpu);
-   void (*mmu_dump) (cpu_mips_t * cpu);
-   void (*mmu_raw_dump) (cpu_mips_t * cpu);
+   //void (*reg_dump) (cpu_mips_t * cpu);
+   //void (*mmu_dump) (cpu_mips_t * cpu);
+   //void (*mmu_raw_dump) (cpu_mips_t * cpu);
    //void (*add_breakpoint)(cpu_mips_t *cpu,m_va_t addr);
    //void (*remove_breakpoint)(cpu_mips_t *cpu,m_va_t addr);
    //void (*set_idle_pc)(cpu_mips_t *cpu,m_va_t addr);
    //void (*get_idling_pc)(cpu_mips_t *cpu);   
    void (*mts_rebuild) (cpu_mips_t * cpu);
-   void (*mts_show_stats) (cpu_mips_t * cpu);
+   //void (*mts_show_stats) (cpu_mips_t * cpu);
     u_int(*mips_mts_gdb_lb) (cpu_mips_t * cpu, m_va_t vaddr, void *cur);
 
    /* Memory access log for fault debugging */

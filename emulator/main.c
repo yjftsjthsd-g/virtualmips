@@ -94,7 +94,10 @@ int main(int argc, char *argv[])
    /*set seed for random value */
    srand((int) time(0));
 
+#ifdef _USE_ILT_
    mips64_exec_create_ilt(vm->name);
+#endif
+
    setup_signals();
    init_timers();
    if (init_instance(vm) < 0)

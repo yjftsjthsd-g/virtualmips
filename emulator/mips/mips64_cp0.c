@@ -24,7 +24,7 @@
 #include "mips64_memory.h"
 #include "mips64_cp0.h"
 #include "cpu.h"
-extern int ttt;
+
 /* MIPS cp0 registers names */
 char *mips64_cp0_reg_names[MIPS64_CP0_REG_NR] = {
    "index",
@@ -465,6 +465,7 @@ static char *get_page_size_str(char *buffer, size_t len, m_uint32_t page_mask)
    return buffer;
 }
 
+#if 0
 /* Dump the specified TLB entry */
 void mips64_tlb_dump_entry(cpu_mips_t * cpu, u_int index)
 {
@@ -509,6 +510,7 @@ void mips64_tlb_dump_entry(cpu_mips_t * cpu, u_int index)
 }
 
 
+
 /* Human-Readable dump of the TLB */
 void mips64_tlb_dump(cpu_mips_t * cpu)
 {
@@ -543,3 +545,5 @@ void mips64_tlb_raw_dump(cpu_mips_t * cpu)
    printf("\n");
 
 }
+#endif
+
