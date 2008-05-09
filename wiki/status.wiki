@@ -1,5 +1,4 @@
 #summary Current status of VirtualMIPS.
-#labels Featured
 
 == Supported SOC ==
  * ADM5120
@@ -25,5 +24,3 @@
   * Linux 2.4.20 
  * GUI
   * Qtopia 1.6.1
-
-
