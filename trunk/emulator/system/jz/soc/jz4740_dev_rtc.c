@@ -83,6 +83,7 @@ unsigned int forced_inline jz_mktime(int year, int mon, int day, int hour, int m
 }
 
 
+
 /*Set RTC Time. From Year 2000.*/
 void dev_jz4740_rtc_init_defaultvalue()
 {
@@ -174,7 +175,6 @@ void dev_jz4740_rtc_cb(void *opaque)
       /*always get the current time from host */
       jz4740_rtc_table[RTC_RSR / 4] =
           jz_mktime((1900 + p->tm_year), (1 + p->tm_mon), p->tm_mday, p->tm_hour, p->tm_min, p->tm_sec);
-
       if (jz4740_rtc_table[RTC_RSR / 4] == jz4740_rtc_table[RTC_RSAR / 4])
       {
          if (jz4740_rtc_table[RTC_RCR / 4] & RTC_RCR_AE)

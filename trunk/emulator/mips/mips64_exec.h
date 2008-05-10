@@ -18,7 +18,6 @@
 #include "system.h"
 
 
-
 /* MIPS instruction recognition */
 struct mips64_insn_exec_tag
 {
@@ -30,15 +29,6 @@ struct mips64_insn_exec_tag
    m_uint64_t count;
 };
 
-/* Initialize instruction lookup table */
-void mips64_exec_create_ilt(char *ilt_name);
-
-/* Run MIPS code in step-by-step mode */
-void *mips64_exec_run_cpu(cpu_mips_t * cpu);
-
-
-
-
  struct mips64_op_desc {
   char       *opname;
   int (*func) (cpu_mips_t *, mips_insn_t);
@@ -46,6 +36,19 @@ void *mips64_exec_run_cpu(cpu_mips_t * cpu);
 };
 #define MAJOR_OP(_inst) (((uint)_inst >> 26) & 0x3f )
 
+ struct mips64_label_desc {
+  char  *labelname;
+  void *label;
+  m_uint16_t num;
+};
+
+
+
+/* Initialize instruction lookup table */
+void mips64_exec_create_ilt(char *ilt_name);
+
+/* Run MIPS code in step-by-step mode */
+void * mips64_exec_run_cpu(cpu_mips_t * cpu);
 
 
 

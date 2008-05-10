@@ -9,13 +9,16 @@
 
 /*---------------------------code dispatch table-----------------------*/
 
-int unknown_op(cpu_mips_t * cpu, mips_insn_t insn)
+
+
+
+static int unknown_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    printf("unknown instruction. pc %x insn %x\n", cpu->pc, insn);
    exit(EXIT_FAILURE);
 }
 
-int add_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int add_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -25,11 +28,10 @@ int add_op(cpu_mips_t * cpu, mips_insn_t insn)
    /* TODO: Exception handling */
    res = (m_reg_t) (m_uint32_t) cpu->gpr[rs] + (m_uint32_t) cpu->gpr[rt];
    cpu->gpr[rd] = sign_extend(res, 32);
-   return (0);
-
+	return (0);
 }
 
-int addi_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int addi_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -42,7 +44,7 @@ int addi_op(cpu_mips_t * cpu, mips_insn_t insn)
    return (0);
 }
 
-int addiu_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int addiu_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -56,7 +58,7 @@ int addiu_op(cpu_mips_t * cpu, mips_insn_t insn)
    return (0);
 }
 
-int addu_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int addu_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -70,7 +72,7 @@ int addu_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 
 
-int and_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int and_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -81,7 +83,7 @@ int and_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int andi_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int andi_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -91,13 +93,13 @@ int andi_op(cpu_mips_t * cpu, mips_insn_t insn)
    return (0);
 }
 
-int bcond_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int bcond_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    uint16_t special_func = bits(insn, 16, 20);
    return mips_bcond_opcodes[special_func].func(cpu, insn);
 }
 
-int beq_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int beq_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -124,7 +126,7 @@ int beq_op(cpu_mips_t * cpu, mips_insn_t insn)
    return (1);
 }
 
-int beql_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int beql_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -151,7 +153,7 @@ int beql_op(cpu_mips_t * cpu, mips_insn_t insn)
    return (1);
 }
 
-int bgez_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int bgez_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int offset = bits(insn, 0, 15);
@@ -184,7 +186,7 @@ int bgez_op(cpu_mips_t * cpu, mips_insn_t insn)
    return (1);
 }
 
-int bgezal_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int bgezal_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int offset = bits(insn, 0, 15);
@@ -217,7 +219,7 @@ int bgezal_op(cpu_mips_t * cpu, mips_insn_t insn)
    return (1);
 }
 
-int bgezall_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int bgezall_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int offset = bits(insn, 0, 15);
@@ -246,7 +248,7 @@ int bgezall_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int bgezl_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int bgezl_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int offset = bits(insn, 0, 15);
@@ -272,7 +274,7 @@ int bgezl_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int bgtz_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int bgtz_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int offset = bits(insn, 0, 15);
@@ -301,7 +303,7 @@ int bgtz_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int bgtzl_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int bgtzl_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int offset = bits(insn, 0, 15);
@@ -326,7 +328,7 @@ int bgtzl_op(cpu_mips_t * cpu, mips_insn_t insn)
    return (1);
 }
 
-int blez_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int blez_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int offset = bits(insn, 0, 15);
@@ -355,7 +357,7 @@ int blez_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int blezl_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int blezl_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int offset = bits(insn, 0, 15);
@@ -380,7 +382,7 @@ int blezl_op(cpu_mips_t * cpu, mips_insn_t insn)
    return (1);
 }
 
-int bltz_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int bltz_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int offset = bits(insn, 0, 15);
@@ -411,7 +413,7 @@ int bltz_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int bltzal_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int bltzal_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int offset = bits(insn, 0, 15);
@@ -444,7 +446,7 @@ int bltzal_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int bltzall_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int bltzall_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int offset = bits(insn, 0, 15);
@@ -473,7 +475,7 @@ int bltzall_op(cpu_mips_t * cpu, mips_insn_t insn)
 }
 
 
-int bltzl_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int bltzl_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int offset = bits(insn, 0, 15);
@@ -499,7 +501,7 @@ int bltzl_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int bne_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int bne_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -529,7 +531,7 @@ int bne_op(cpu_mips_t * cpu, mips_insn_t insn)
    return (1);
 }
 
-int bnel_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int bnel_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -560,7 +562,7 @@ int bnel_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int break_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int break_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    u_int code = bits(insn, 6, 25);
 
@@ -569,7 +571,7 @@ int break_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int cache_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int cache_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int base = bits(insn, 21, 25);
    int op = bits(insn, 16, 20);
@@ -579,7 +581,7 @@ int cache_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int cfc0_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int cfc0_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
@@ -603,13 +605,13 @@ static int clz_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int cop0_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int cop0_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    uint16_t special_func = bits(insn, 21, 25);
    return mips_cop0_opcodes[special_func].func(cpu, insn);
 }
 
-int cop1_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int cop1_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
 #if SOFT_FPU
    mips64_exec_soft_fpu(cpu);
@@ -619,7 +621,7 @@ int cop1_op(cpu_mips_t * cpu, mips_insn_t insn)
 #endif
 }
 
-int cop1x_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int cop1x_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
 #if SOFT_FPU
    mips64_exec_soft_fpu(cpu);
@@ -629,48 +631,44 @@ int cop1x_op(cpu_mips_t * cpu, mips_insn_t insn)
 #endif
 }
 
-int cop2_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int cop2_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int dadd_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int dadd_op(cpu_mips_t * cpu, mips_insn_t insn)
+{
+   return unknown_op(cpu, insn);
+}
+
+static int daddi_op(cpu_mips_t * cpu, mips_insn_t insn)
+{
+   return unknown_op(cpu, insn);
+}
+
+static int daddiu_op(cpu_mips_t * cpu, mips_insn_t insn)
+{
+   return unknown_op(cpu, insn);
+}
+
+static int daddu_op(cpu_mips_t * cpu, mips_insn_t insn)
+{
+   return unknown_op(cpu, insn);
+}
+
+static int ddiv_op(cpu_mips_t * cpu, mips_insn_t insn)
+{
+   return unknown_op(cpu, insn);
+}
+
+static int ddivu_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
 
 
-
-
-int daddi_op(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   return unknown_op(cpu, insn);
-}
-
-int daddiu_op(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   return unknown_op(cpu, insn);
-}
-
-int daddu_op(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   return unknown_op(cpu, insn);
-}
-
-int ddiv_op(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   return unknown_op(cpu, insn);
-}
-
-int ddivu_op(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   return unknown_op(cpu, insn);
-}
-
-
-
-int div_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int div_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -684,7 +682,7 @@ int div_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int divu_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int divu_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -701,92 +699,92 @@ int divu_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int dmfc0_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int dmfc0_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 
 }
 
-int dmtc0_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int dmtc0_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 
 }
 
-int dmult_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int dmult_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int dmultu_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int dmultu_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int dsll_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int dsll_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int dsllv_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int dsllv_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int dsrlv_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int dsrlv_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int dsrav_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int dsrav_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int dsub_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int dsub_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int dsubu_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int dsubu_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
 
 
-int dsrl_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int dsrl_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int dsra_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int dsra_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int dsll32_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int dsll32_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int dsrl32_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int dsrl32_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int dsra32_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int dsra32_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int eret_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int eret_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    mips64_exec_eret(cpu);
    return (1);
 }
 
-int j_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int j_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    u_int instr_index = bits(insn, 0, 25);
    m_va_t new_pc;
@@ -802,7 +800,7 @@ int j_op(cpu_mips_t * cpu, mips_insn_t insn)
    return (1);
 }
 
-int jal_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int jal_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    u_int instr_index = bits(insn, 0, 25);
    m_va_t new_pc;
@@ -821,7 +819,7 @@ int jal_op(cpu_mips_t * cpu, mips_insn_t insn)
    return (1);
 }
 
-int jalr_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int jalr_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rd = bits(insn, 11, 15);
@@ -840,7 +838,7 @@ int jalr_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int jr_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int jr_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    m_va_t new_pc;
@@ -855,7 +853,7 @@ int jr_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int lb_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int lb_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int base = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -864,7 +862,7 @@ int lb_op(cpu_mips_t * cpu, mips_insn_t insn)
    return (mips64_exec_memop2(cpu, MIPS_MEMOP_LB, base, offset, rt, TRUE));
 }
 
-int lbu_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int lbu_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int base = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -874,33 +872,33 @@ int lbu_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int ld_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int ld_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int ldc1_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int ldc1_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int ldc2_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int ldc2_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
 
-int ldl_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int ldl_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int ldr_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int ldr_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int lh_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int lh_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int base = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -910,7 +908,7 @@ int lh_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int lhu_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int lhu_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int base = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -918,7 +916,7 @@ int lhu_op(cpu_mips_t * cpu, mips_insn_t insn)
    return (mips64_exec_memop2(cpu, MIPS_MEMOP_LHU, base, offset, rt, TRUE));
 }
 
-int ll_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int ll_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int base = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -928,12 +926,12 @@ int ll_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int lld_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int lld_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int lui_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int lui_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rt = bits(insn, 16, 20);
    int imm = bits(insn, 0, 15);
@@ -942,7 +940,7 @@ int lui_op(cpu_mips_t * cpu, mips_insn_t insn)
    return (0);
 }
 
-int lw_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int lw_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int base = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -952,7 +950,7 @@ int lw_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int lwc1_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int lwc1_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
 #if SOFT_FPU
    mips64_exec_soft_fpu(cpu);
@@ -963,12 +961,12 @@ int lwc1_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int lwc2_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int lwc2_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int lwl_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int lwl_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int base = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -978,7 +976,7 @@ int lwl_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int lwr_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int lwr_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int base = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -988,7 +986,7 @@ int lwr_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int lwu_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int lwu_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int base = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -998,13 +996,13 @@ int lwu_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int mad_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int mad_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int index = bits(insn, 0, 5);
    return mips_mad_opcodes[index].func(cpu, insn);
 }
 
-int madd_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int madd_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1024,7 +1022,7 @@ int madd_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int maddu_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int maddu_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1045,7 +1043,7 @@ int maddu_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int mfc0_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int mfc0_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rt = bits(insn, 16, 20);
    int rd = bits(insn, 11, 15);
@@ -1057,7 +1055,7 @@ int mfc0_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int mfhi_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int mfhi_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rd = bits(insn, 11, 15);
 
@@ -1067,7 +1065,7 @@ int mfhi_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int mflo_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int mflo_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rd = bits(insn, 11, 15);
 
@@ -1077,12 +1075,12 @@ int mflo_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int movc_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int movc_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int movz_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int movz_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rd = bits(insn, 11, 15);
@@ -1095,7 +1093,7 @@ int movz_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int movn_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int movn_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rd = bits(insn, 11, 15);
@@ -1108,7 +1106,7 @@ int movn_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int msub_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int msub_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1130,7 +1128,7 @@ int msub_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int msubu_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int msubu_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1152,7 +1150,7 @@ int msubu_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int mtc0_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int mtc0_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rt = bits(insn, 16, 20);
    int rd = bits(insn, 11, 15);
@@ -1163,7 +1161,7 @@ int mtc0_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int mthi_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int mthi_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
 
@@ -1171,7 +1169,7 @@ int mthi_op(cpu_mips_t * cpu, mips_insn_t insn)
    return (0);
 }
 
-int mtlo_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int mtlo_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
 
@@ -1180,7 +1178,7 @@ int mtlo_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int mul_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int mul_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1194,7 +1192,7 @@ int mul_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int mult_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int mult_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1209,7 +1207,7 @@ int mult_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int multu_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int multu_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1223,7 +1221,7 @@ int multu_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int nor_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int nor_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1234,7 +1232,7 @@ int nor_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int or_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int or_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1245,7 +1243,7 @@ int or_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int ori_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int ori_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1256,12 +1254,12 @@ int ori_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int pref_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int pref_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return (0);
 }
 
-int sb_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int sb_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int base = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1269,7 +1267,7 @@ int sb_op(cpu_mips_t * cpu, mips_insn_t insn)
    return (mips64_exec_memop2(cpu, MIPS_MEMOP_SB, base, offset, rt, FALSE));
 }
 
-int sc_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int sc_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int base = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1279,17 +1277,17 @@ int sc_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int scd_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int scd_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int sd_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int sd_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int sdc1_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int sdc1_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
 #if SOFT_FPU
    mips64_exec_soft_fpu(cpu);
@@ -1300,23 +1298,23 @@ int sdc1_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int sdc2_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int sdc2_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
 
-int sdl_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int sdl_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int sdr_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int sdr_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int sh_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int sh_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int base = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1326,7 +1324,7 @@ int sh_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int sll_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int sll_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rt = bits(insn, 16, 20);
    int rd = bits(insn, 11, 15);
@@ -1339,7 +1337,7 @@ int sll_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int sllv_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int sllv_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1352,7 +1350,7 @@ int sllv_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int slt_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int slt_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1366,7 +1364,7 @@ int slt_op(cpu_mips_t * cpu, mips_insn_t insn)
    return (0);
 }
 
-int slti_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int slti_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1382,7 +1380,7 @@ int slti_op(cpu_mips_t * cpu, mips_insn_t insn)
 }
 
 
-int sltiu_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int sltiu_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1397,7 +1395,7 @@ int sltiu_op(cpu_mips_t * cpu, mips_insn_t insn)
    return (0);
 }
 
-int sltu_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int sltu_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1413,13 +1411,13 @@ int sltu_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int spec_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int spec_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    uint16_t special_func = bits(insn, 0, 5);
    return mips_spec_opcodes[special_func].func(cpu, insn);
 }
 
-int sra_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int sra_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rt = bits(insn, 16, 20);
    int rd = bits(insn, 11, 15);
@@ -1432,7 +1430,7 @@ int sra_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int srav_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int srav_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1445,7 +1443,7 @@ int srav_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int srl_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int srl_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rt = bits(insn, 16, 20);
    int rd = bits(insn, 11, 15);
@@ -1458,7 +1456,7 @@ int srl_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int srlv_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int srlv_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1471,7 +1469,7 @@ int srlv_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int sub_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int sub_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1485,7 +1483,7 @@ int sub_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int subu_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int subu_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1498,7 +1496,7 @@ int subu_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int sw_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int sw_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int base = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1508,7 +1506,7 @@ int sw_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int swc1_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int swc1_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
 #if SOFT_FPU
    mips64_exec_soft_fpu(cpu);
@@ -1519,12 +1517,12 @@ int swc1_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int swc2_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int swc2_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int swl_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int swl_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int base = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1534,7 +1532,7 @@ int swl_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int swr_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int swr_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int base = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1544,18 +1542,18 @@ int swr_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int sync_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int sync_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return (0);
 }
 
-int syscall_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int syscall_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    mips64_exec_syscall(cpu);
    return (1);
 }
 
-int teq_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int teq_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1570,7 +1568,7 @@ int teq_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int teqi_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int teqi_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int imm = bits(insn, 0, 15);
@@ -1586,31 +1584,31 @@ int teqi_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int tlb_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int tlb_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    uint16_t func = bits(insn, 0, 5);
    return mips_tlb_opcodes[func].func(cpu, insn);
 }
 
-int tlbp_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int tlbp_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    mips64_cp0_exec_tlbp(cpu);
    return (0);
 }
 
-int tlbr_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int tlbr_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    mips64_cp0_exec_tlbr(cpu);
    return (0);
 }
 
-int tlbwi_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int tlbwi_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    mips64_cp0_exec_tlbwi(cpu);
    return (0);
 }
 
-int tlbwr_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int tlbwr_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    mips64_cp0_exec_tlbwr(cpu);
    return (0);
@@ -1618,48 +1616,48 @@ int tlbwr_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 
 
-int tge_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int tge_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int tgei_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int tgei_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int tgeiu_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int tgeiu_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int tgeu_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int tgeu_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int tlt_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int tlt_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int tlti_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int tlti_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int tltiu_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int tltiu_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
 
-int tltu_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int tltu_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int tne_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int tne_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1675,17 +1673,17 @@ int tne_op(cpu_mips_t * cpu, mips_insn_t insn)
 
 }
 
-int tnei_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int tnei_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int wait_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int wait_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return (0);
 }
 
-int xor_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int xor_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1695,7 +1693,7 @@ int xor_op(cpu_mips_t * cpu, mips_insn_t insn)
    return (0);
 }
 
-int xori_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int xori_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    int rs = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
@@ -1707,38 +1705,36 @@ int xori_op(cpu_mips_t * cpu, mips_insn_t insn)
 }
 
 
-int undef_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int undef_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int unknownBcondOp(cpu_mips_t * cpu, mips_insn_t insn)
+static int unknownBcondOp(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 
 }
 
 
-
-
-int unknowncop0_op(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   return unknown_op(cpu, insn);
-}
-
-
-int unknownmad_op(cpu_mips_t * cpu, mips_insn_t insn)
+static int unknowncop0_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
 
-int unknownSpecOp(cpu_mips_t * cpu, mips_insn_t insn)
+static int unknownmad_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }
 
-int unknowntlb_op(cpu_mips_t * cpu, mips_insn_t insn)
+
+static int unknownSpecOp(cpu_mips_t * cpu, mips_insn_t insn)
+{
+   return unknown_op(cpu, insn);
+}
+
+static int unknowntlb_op(cpu_mips_t * cpu, mips_insn_t insn)
 {
    return unknown_op(cpu, insn);
 }

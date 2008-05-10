@@ -107,8 +107,11 @@ int main(int argc, char *argv[])
       exit(EXIT_FAILURE);
    }
 
-   vm_monitor(vm);
+  /*we touch here,because the cpu is not running now*/
+  vm_monitor(vm);
 
-   return (0);
+  printf("VM shut down \n");
+  return (0);
+
 
 }

@@ -448,7 +448,7 @@ int mips64_cp0_tlb_lookup(cpu_mips_t * cpu, m_va_t vaddr, mts_map_t * res)
 
 
 }
-
+#if 0
 /* Write page size in buffer */
 static char *get_page_size_str(char *buffer, size_t len, m_uint32_t page_mask)
 {
@@ -465,7 +465,7 @@ static char *get_page_size_str(char *buffer, size_t len, m_uint32_t page_mask)
    return buffer;
 }
 
-#if 0
+
 /* Dump the specified TLB entry */
 void mips64_tlb_dump_entry(cpu_mips_t * cpu, u_int index)
 {
