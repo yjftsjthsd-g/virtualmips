@@ -258,7 +258,7 @@ void dev_jz4740_uart_reset(cpu_mips_t * cpu, struct vdevice *dev)
 }
 extern cpu_mips_t *current_cpu;
 
-/*1ms*/
+#define UART_TIME_OUT     25
 void dev_jz4740_uart_cb(void *opaque)
 {
 
@@ -274,7 +274,7 @@ void dev_jz4740_uart_cb(void *opaque)
       if (d->ier & UART_IER_RDRIE)
       {
          d->vm->set_irq(d->vm, d->irq);
-         vp_mod_timer(d->uart_timer, vp_get_clock(rt_clock) + 5);
+         vp_mod_timer(d->uart_timer, vp_get_clock(rt_clock) + UART_TIME_OUT);
          return;
       }
 
@@ -284,12 +284,12 @@ void dev_jz4740_uart_cb(void *opaque)
    {
       d->output = TRUE;
       d->vm->set_irq(d->vm, d->irq);
-      vp_mod_timer(d->uart_timer, vp_get_clock(rt_clock) + 5);
+      vp_mod_timer(d->uart_timer, vp_get_clock(rt_clock) + UART_TIME_OUT);
       return;
    }
 
    // d->uart_timer->set_time=vp_get_clock(rt_clock);
-   vp_mod_timer(d->uart_timer, vp_get_clock(rt_clock) + 5);
+   vp_mod_timer(d->uart_timer, vp_get_clock(rt_clock) + UART_TIME_OUT);
 
 
 }
@@ -321,7 +321,7 @@ int dev_jz4740_uart_init(vm_instance_t * vm, char *name, m_pa_t paddr, m_uint32_
    d->uart_timer = vp_new_timer(rt_clock, dev_jz4740_uart_cb, d);
 
    //d->uart_timer->set_time=vp_get_clock(rt_clock);
-   vp_mod_timer(d->uart_timer, vp_get_clock(rt_clock) + 5);
+   vp_mod_timer(d->uart_timer, vp_get_clock(rt_clock) + UART_TIME_OUT);
 
    vm_bind_device(vm, d->dev);
 

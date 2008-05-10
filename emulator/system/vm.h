@@ -138,6 +138,4 @@ int vm_suspend(vm_instance_t * vm);
 int vm_resume(vm_instance_t * vm);
 int vm_stop(vm_instance_t * vm);
 void vm_monitor(vm_instance_t * vm);
-
-
 #endif
