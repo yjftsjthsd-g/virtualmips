@@ -256,7 +256,7 @@ FAT: bogus logical sector size 65535
 
 }}}
 
-[http://virtualmips.googlepages.com/system-info.jpg]
+[http://virtualmips.googlecode.com/svn/wiki/img/system-info.jpg]
 
 = How to stop emulation =
 
