@@ -2,7 +2,7 @@
 
 ----
 
-You need to download VirtualMIPS first. The [http://virtualmips.googlecode.com/files/virtualmips-0.04.tar.bz2 latest version] is v0.04. 
+You need to download VirtualMIPS first. The [http://virtualmips.googlecode.com/files/virtualmips-0.05.tar.bz2 latest version] is v0.05. 
 
 Supported systems:
  * JZ [http://www.ingenic.cn/pfwebplus/productServ/kfyd/Hardware/pffaqQuestionContent.aspx?Category=2&Question=3 Pavo demo borad](with LCD controller).
@@ -50,11 +50,12 @@ sudo apt-get install scons
 
 
 {{{
-tar -jxvf virtualmips-0.04.tar.bz2
-cd virtualmips-0.04/build
+tar -jxvf virtualmips-0.05.tar.bz2
+cd virtualmips-0.05/build
 }}}
 
 Use scons-h to see the build options of VirtualMIPS. 
+
 {{{
 # scons -h
 
@@ -63,22 +64,33 @@ Usage:
 Targets:
         adm5120:                Build VirtualMIPS for adm5120 emulation
         pavo:                   Build VirtualMIPS for pavo emulation
-        mknandflash:            Build mknandflash tool for VirtualMIPS
+        mknandflash:            Build mknandflash tool
 
 Compile Options:
-        debug:                  Set to 1 to compile with debug. Default 0.
-        lcd:                    Set to 1 to compile VirtualMIPS with LCD support(pavo only). Default 0.
+        lcd:                    Set to 0 to compile VirtualMIPS *without* LCD support(pavo only). Default 1.
+        mhz:                    Set to 1 to test emulator's speed. Default 0.
+        debug:                  Set to 1 to compile with -g. Default 0.
+        o:                      Set optimization level.Default 3.
+        cc:                     Set compiler.Default "gcc". You can set cc=gcc-3.4 to use gcc 3.4.
+}}}
 
+example:
+{{{
 # scons pavo lcd=1   		<--build VirtualMIPS for pavo emulation *with* LCD support
 # scons pavo lcd=0   		<--build VirtualMIPS for pavo emulation *without* LCD support
 # scons adm5120      		<--build VirtualMIPS for adm5120 emulation.
 # scons mknandflash  		<--build mknandflash tool.
 # scons pavo -c      		<--clean the build of VirtualMIPS for pavo.
 # scons adm5120 -c   		<--clean the build of VirtualMIPS for adm5120.
-# scons mknandflash -c	<--clean the build of mknandflash tool.
+# scons mknandflash -c	        <--clean the build of mknandflash tool.
+# scons pavo o=3                <--build VirtualMIPS with O3 optimization.
+# scons pavo cc=gcc-3.4         <--build VirtualMIPS with gcc-3.4
 }}}
 
-If everything goes well, file 'adm5120'/'pavo'/'mknandflash' will be created in virtualmips-0.04/build.
+
+
+
+If everything goes well, file 'adm5120'/'pavo'/'mknandflash' will be created in virtualmips-0.05/build.
 
 
 = Links =
