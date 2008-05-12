@@ -227,7 +227,7 @@ void parse_configure_file(int argc, char *argv[])
    printf("custom5_startaddress 0x%x\n", custom4_start_address);
    printf("custom5_file %s\n", custom4_file_name);
    printf("custom5_has_spare %x\n", custom5_has_spare);
-
+   printf("------------------------------\n");
 
 
 }
@@ -492,15 +492,6 @@ int main(int argc, char *argv[])
       }
    }
 
-
-
-
-
-
    printf("done\n");
-
-
-
-
 
 }
