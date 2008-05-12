@@ -453,11 +453,7 @@ struct cpu_mips
    m_va_t njm_exec_page;
    mips_insn_t *njm_exec_ptr;
    
-#ifdef _USE_DIRECT_THREAED_
-	/*current exec guest page  */
-   m_pa_t njm_exec_guest_page;
-   char *njm_exec_fun_ptr;  /*intepreter routine ptr*/
-#endif
+
 
   
 

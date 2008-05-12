@@ -5,7 +5,7 @@
   * See LICENSE file for terms of the license. 
   *
   */
-  
+
 #ifndef __DEV_CS8900_H__
 #define __DEV_CS8900_H__
 

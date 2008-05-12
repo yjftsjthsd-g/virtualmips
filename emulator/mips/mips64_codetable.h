@@ -28,7 +28,7 @@ static int add_op(cpu_mips_t * cpu, mips_insn_t insn)
    /* TODO: Exception handling */
    res = (m_reg_t) (m_uint32_t) cpu->gpr[rs] + (m_uint32_t) cpu->gpr[rt];
    cpu->gpr[rd] = sign_extend(res, 32);
-	return (0);
+   return (0);
 }
 
 static int addi_op(cpu_mips_t * cpu, mips_insn_t insn)
@@ -2099,5 +2099,3 @@ static struct mips64_op_desc mips_tlb_opcodes[] = {
    {"unknowntlb_op", unknowntlb_op, 0x3f},
 
 };
-
-

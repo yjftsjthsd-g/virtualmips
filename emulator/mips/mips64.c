@@ -202,9 +202,6 @@ int mips64_init(cpu_mips_t * cpu)
    /* Set the CPU methods */
    cpu->reg_get = (void *) mips64_reg_get;
    cpu->reg_set = (void *) mips64_reg_set;
-   //cpu->reg_dump = (void *) mips64_dump_regs;
-   //cpu->mmu_dump = (void *) mips64_tlb_dump;
-   //cpu->mmu_raw_dump = (void *) mips64_tlb_raw_dump;
 
    /* Set the startup parameters */
    mips64_reset(cpu);

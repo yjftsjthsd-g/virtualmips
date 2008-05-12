@@ -130,7 +130,6 @@ int m_strsplit(char *str, char delim, char **array, int max_count)
       pos++;
    }
    while (*ptr);
-
    return (pos);
 
  error:

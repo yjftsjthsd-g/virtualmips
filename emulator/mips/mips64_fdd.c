@@ -1,13 +1,16 @@
+/*
+ * Copyright (C) yajin 2008 <yajinzhou@gmail.com >
+ *     
+ * This file is part of the virtualmips distribution. 
+ * See LICENSE file for terms of the license. 
+ *
+ */
+
 
 /*This is the basic fetch-decode-dispatch(fdd) routine.
 Emulation speed is slow but easy to debug.
-In basic fetch-decode-dispatch, two methods can be used to decode the instruction.
-One is instrution lookup table used by dynamips, the other is instrution table array.
-Default using instrution table array in mips64_codetable.h.
-_USE_ILT_ to turn on/off ilt.
 */
 
-/*macro  _USE_FDD_  turu on/off it.*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,7 +29,6 @@ _USE_ILT_ to turn on/off ilt.
 #include "vm.h"
 #include "mips64_exec.h"
 #include "mips64_memory.h"
-#include "ins_lookup.h"
 #include "mips64.h"
 #include "mips64_cp0.h"
 #include "debug.h"
@@ -36,19 +38,12 @@ _USE_ILT_ to turn on/off ilt.
 
 #ifdef  _USE_FDD_
 
-#ifdef _USE_ILT_
-/* Forward declaration of instruction array */
-static struct mips64_insn_exec_tag mips64_exec_tags[];
-static insn_lookup_t *ilt = NULL;
-static void *mips64_exec_get_insn(int index);
-#else
 static struct mips64_op_desc mips_opcodes[];
 static struct mips64_op_desc mips_spec_opcodes[];
 static struct mips64_op_desc mips_bcond_opcodes[];
 static struct mips64_op_desc mips_cop0_opcodes[];
 static struct mips64_op_desc mips_mad_opcodes[];
 static struct mips64_op_desc mips_tlb_opcodes[];
-#endif
 
 extern cpu_mips_t *current_cpu;
 
@@ -65,13 +60,13 @@ float timeuse, performance;
 m_uint64_t instructions_executed = 0;
 #endif
 
-void forced_inline mips64_main_loop_wait(cpu_mips_t * cpu, int timeout)
+static void forced_inline mips64_main_loop_wait(cpu_mips_t * cpu, int timeout)
 {
    vp_run_timers(&active_timers[VP_TIMER_REALTIME], vp_get_clock(rt_clock));
 }
 
 /* Execute a memory operation (2) */
-int forced_inline mips64_exec_memop2(cpu_mips_t * cpu, int memop,
+static int forced_inline mips64_exec_memop2(cpu_mips_t * cpu, int memop,
                                             m_va_t base, int offset, u_int dst_reg, int keep_ll_bit)
 {
    m_va_t vaddr = cpu->gpr[base] + sign_extend(offset, 16);
@@ -131,34 +126,16 @@ static forced_inline int mips64_exec_single_instruction(cpu_mips_t * cpu, mips_i
    }
 #endif
 
-#ifdef _USE_ILT_
-/*use instruction lookup table for instruction decoding.
-from dynamips.
-*/
-   register int (*exec) (cpu_mips_t *, mips_insn_t) = NULL;
-   struct mips64_insn_exec_tag *tag;
-   int index;
-
-   /* Lookup for instruction */
-
-   index = ilt_lookup(ilt, instruction);
-   tag = mips64_exec_get_insn(index);
-   exec = tag->exec;
-
-   return (exec(cpu, instruction));
-
-#else
-
    register uint op;
    op = MAJOR_OP(instruction);
 
    return mips_opcodes[op].func(cpu, instruction);
-#endif
+
 
 }
 
 
-  /*MIPS64 fetch->decode->dispatch main loop*/
+  /*MIPS64 fetch->decode->dispatch main loop */
 void *mips64_cpu_fdd(cpu_mips_t * cpu)
 {
    mips_insn_t insn = 0;
@@ -202,8 +179,8 @@ void *mips64_cpu_fdd(cpu_mips_t * cpu)
          continue;
       }
       if (unlikely((cpu->vm->mipsy_debug_mode)
-          && ((cpu_hit_breakpoint(cpu->vm, cpu->pc) == SUCCESS) || (cpu->vm->gdb_interact_sock == -1)
-              || (cpu->vm->mipsy_break_nexti == MIPS_BREAKANYCPU))))
+                   && ((cpu_hit_breakpoint(cpu->vm, cpu->pc) == SUCCESS) || (cpu->vm->gdb_interact_sock == -1)
+                       || (cpu->vm->mipsy_break_nexti == MIPS_BREAKANYCPU))))
       {
          if (mips_debug(cpu->vm, 1))
          {
@@ -270,16 +247,7 @@ static forced_inline int mips64_exec_bdslot(cpu_mips_t * cpu)
 }
 
 
-
-
-#ifdef _USE_ILT_
-/*Which method to decode instruction.
-ILT is good for debuging but not efficient.*/
-#include "mips64_ilt.h"
-#else
-/*The default one*/
 #include "mips64_codetable.h"
-#endif
+
 
 #endif
-
