@@ -1,0 +1,6 @@
+2008-3-14
+1.add reset command support of u-boot
+2.fix build failure problem of gcc 3.4
+ 
+2008-3-27
+1. redesign guest timer implement
