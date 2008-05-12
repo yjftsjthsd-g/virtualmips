@@ -1,5 +1,9 @@
 #summary Current status of VirtualMIPS.
 
+== Supprted Host ==
+ * X86
+ * AMD 64
+
 == Supported SOC ==
  * [http://www.linux-mips.org/wiki/Adm5120 ADM5120] WITHOUT switch core 
  * [http://www.ingenic.cn/pfwebplus/productServ/kfyd/Hardware/pffaqQuestionContent.aspx?Category=2&Question=3 pavo demo board] ([http://www.ingenic.cn/pfwebplus/productServ/App/JZ4740/pfCustomPage.aspx JZ 4740 Soc]) WITHOUT USB/MMC/Sound
