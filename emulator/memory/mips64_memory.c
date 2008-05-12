@@ -1175,17 +1175,6 @@ static no_inline mts32_entry_t *mips_mts32_map(cpu_mips_t * cpu, u_int op_type, 
       return NULL;
    }
 
-
-   /* if (dev->flags & VDEVICE_FLAG_SPARSE) {
-      host_ptr = dev_sparse_get_host_addr(cpu->vm,dev,map->paddr,op_type,&cow);
-
-      entry->gvpa  = map->vaddr;
-      entry->gppa  = map->paddr;
-      entry->hpa   = host_ptr;
-      entry->flags = (cow) ? MTS_FLAG_COW : 0;
-      return entry;
-      } */
-
    if (!dev->host_addr || (dev->flags & VDEVICE_FLAG_NO_MTS_MMAP))
    {
       offset = map->paddr - dev->phys_addr;
@@ -1194,9 +1183,6 @@ static no_inline mts32_entry_t *mips_mts32_map(cpu_mips_t * cpu, u_int op_type, 
       alt_entry->gppa = map->paddr;
       alt_entry->hpa = (dev->id << MTS_DEVID_SHIFT) + offset;
       alt_entry->flags = MTS_FLAG_DEV;
-      //alt_entry->asid = map->asid;
-      //alt_entry->g_bit = map->g_bit;
-      //alt_entry->dirty_bit=map->dirty;
       alt_entry->mapped = map->mapped;
       return alt_entry;
    }
@@ -1219,8 +1205,6 @@ static void *mips_mts32_lookup(cpu_mips_t * cpu, m_va_t vaddr)
    u_int exc;
    m_uint8_t has_set_value = FALSE;
    return (mips_mts32_access(cpu, vaddr, MIPS_MEMOP_LOOKUP, 4, MTS_READ, &data, &exc, &has_set_value, 0));
-   // return(mips_mts32_access(cpu,vaddr,MIPS_MEMOP_LW,4,MTS_READ,
-   //                        &data,&exc,&has_set_value,0));
 }
 
 /* === MIPS Memory Operations ============================================= */
@@ -2540,7 +2524,6 @@ yajin
    hash_bucket = MTS32_HASH(vaddr);
    entry = &cpu->mts_u.mts32_cache[hash_bucket];
 
-
    if (unlikely(mips_mts32_check_tlbcache(cpu, vaddr, op_type, entry) == 0))
    {
       entry = mips_mts32_slow_lookup(cpu, vaddr, op_code, op_size, op_type, data, exc, &alt_entry, is_fromgdb);
@@ -2555,8 +2538,17 @@ yajin
          return (dev_access_fast(cpu, dev_id, haddr, op_size, op_type, data, has_set_value));
       }
    }
-
-
+   
+#ifdef _USE_DIRECT_THREAED_
+extern m_hiptr_t *threaded_code;
+    /*for self-modify code*/
+   if (MTS_WRITE==op_type)
+   	{
+   		m_hiptr_t *code_ptr_w;
+   		code_ptr_w= threaded_code + ((entry->gppa >> MIPS_MIN_PAGE_SHIFT) <<(MIPS_MIN_PAGE_SHIFT-2));  
+   		code_ptr_w[(vaddr & MIPS_MIN_PAGE_IMASK) >> 2] =0;
+   	}
+#endif
    /* Raw memory access */
    haddr = entry->hpa + (vaddr & MIPS_MIN_PAGE_IMASK);
    return ((void *) haddr);
@@ -2568,27 +2560,36 @@ yajin
 
 }
 
-/* MTS32 virtual address to physical page translation */
-static int mips_mts32_translate(cpu_mips_t * cpu, m_va_t vaddr, m_uint32_t * phys_page)
+/* MTS32 virtual address to physical address translation */
+static int mips_mts32_translate(cpu_mips_t * cpu, m_va_t vaddr, m_pa_t * phys_page)
 {
    mts32_entry_t *entry, alt_entry;
    m_uint32_t hash_bucket;
    m_reg_t data = 0;
    u_int exc = 0;
 
+
    hash_bucket = MTS32_HASH(vaddr);
    entry = &cpu->mts_u.mts32_cache[hash_bucket];
 
-   /* Slow lookup if nothing found in cache */
-   if (unlikely(((m_uint32_t) vaddr & MIPS_MIN_PAGE_MASK) != entry->gvpa))
+
+   if (unlikely(mips_mts32_check_tlbcache(cpu, vaddr, MTS_READ, entry) == 0))
    {
       entry = mips_mts32_slow_lookup(cpu, vaddr, MIPS_MEMOP_LOOKUP, 4, MTS_READ, &data, &exc, &alt_entry, 0);
       if (!entry)
          return (-1);
-   }
+      
+      //ASSERT(!(entry->flags&MTS_FLAG_DEV),"error when translating virtual address to phyaddrss \n");
+      }
+   
+	//cpu_log1(cpu,"","vaddr %x\n",vaddr);
 
    *phys_page = entry->gppa >> MIPS_MIN_PAGE_SHIFT;
-   return (0);
+		if (cpu->pc==0x83f2c008)
+		cpu_log1(cpu,"","vaddr %x pc %x entry->gppa %x page %x \n",vaddr,cpu->pc,entry->gppa,*phys_page);
+return (0);
+
+
 }
 
 /* ======================================================================== */

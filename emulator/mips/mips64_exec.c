@@ -28,6 +28,8 @@ cpu_mips_t *current_cpu;
 void * mips64_exec_run_cpu(cpu_mips_t * cpu)
 {
 #ifdef _USE_DIRECT_THREAED_
+	if (mips64_cpu_direct_threaded_init(cpu)==-1)
+		return NULL;
 	return mips64_cpu_direct_threaded(cpu);
 #endif
 

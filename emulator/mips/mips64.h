@@ -381,6 +381,20 @@ struct cpu_mips
    /* CPU identifier for MP systems */
    u_int id;
    u_int type;
+
+   m_va_t pc, ret_pc;
+   m_reg_t gpr[MIPS64_GPR_NR];
+   m_reg_t lo, hi;
+   /* VM instance */
+   vm_instance_t *vm;
+	/* Next CPU in group */
+   cpu_mips_t *next;
+	/* System coprocessor (CP0) */
+   mips_cp0_t cp0;
+   
+
+   
+   
    /* CPU states */
    volatile u_int state, prev_state;
    volatile m_uint64_t seq_state;
@@ -390,44 +404,14 @@ struct cpu_mips
    pthread_t cpu_thread;
    int cpu_thread_running;
 
+	/*pause request. INTERRUPT will pause cpu*/
    m_uint32_t pause_request;
-
-   /*when wdt reset cpu, this flag is set */
-//      int reset_flag;
-
-
-
-
-   /* VM instance */
-   vm_instance_t *vm;
-
-   /* Next CPU in group */
-   cpu_mips_t *next;
-
-
 
    /* Methods */
    int (*reg_get) (cpu_mips_t * cpu, u_int reg, m_reg_t * val);
    void (*reg_set) (cpu_mips_t * cpu, u_int reg_index, m_reg_t val);
-   //void (*reg_dump) (cpu_mips_t * cpu);
-   //void (*mmu_dump) (cpu_mips_t * cpu);
-   //void (*mmu_raw_dump) (cpu_mips_t * cpu);
-   //void (*add_breakpoint)(cpu_mips_t *cpu,m_va_t addr);
-   //void (*remove_breakpoint)(cpu_mips_t *cpu,m_va_t addr);
-   //void (*set_idle_pc)(cpu_mips_t *cpu,m_va_t addr);
-   //void (*get_idling_pc)(cpu_mips_t *cpu);   
    void (*mts_rebuild) (cpu_mips_t * cpu);
-   //void (*mts_show_stats) (cpu_mips_t * cpu);
     u_int(*mips_mts_gdb_lb) (cpu_mips_t * cpu, m_va_t vaddr, void *cur);
-
-   /* Memory access log for fault debugging */
-   //u_int memlog_pos;
-   //memlog_access_t memlog_array[MEMLOG_COUNT];
-
-   /* Statistics */
-   //m_uint64_t dev_access_counter;
-
-
 
    /* MTS32/MTS64 caches */
    union
@@ -438,53 +422,44 @@ struct cpu_mips
 
    /* General Purpose Registers, Pointer Counter, LO/HI, IRQ */
    m_uint32_t irq_pending, irq_cause, ll_bit;
-   m_va_t pc, ret_pc;
-   m_reg_t gpr[MIPS64_GPR_NR];
-   m_reg_t lo, hi;
+   
 
    /* Virtual address to physical page translation */
    int (*translate) (cpu_mips_t * cpu, m_va_t vaddr, m_uint32_t * phys_page);
-
    /* Memory access functions */
    mips_memop_fn mem_op_fn[MIPS_MEMOP_MAX];
-
    /* Memory lookup function (to load ELF image,...) */
    void *(*mem_op_lookup) (cpu_mips_t * cpu, m_va_t vaddr);
 
-   /* System coprocessor (CP0) */
-   mips_cp0_t cp0;
 
-   /* FPU (CP1) */
-   //mips_cp1_t fpu;
+
 
    /* Address bus mask for physical addresses */
    m_va_t addr_bus_mask;
 
-   /* IRQ disable flag */
-   volatile u_int irq_disable;
-
    /* MTS map/unmap/rebuild operations */
    void (*mts_map) (cpu_mips_t * cpu, m_va_t vaddr, m_pa_t paddr, m_uint32_t len, int cache_access, int tlb_index);
-
    void (*mts_unmap) (cpu_mips_t * cpu, m_va_t vaddr, m_uint32_t len, m_uint32_t val, int tlb_index);
-
    void (*mts_shutdown) (cpu_mips_t * cpu);
-
    /* MTS cache statistics */
    m_uint64_t mts_misses, mts_lookups;
 
    /* Address mode (32 or 64 bits) */
    u_int addr_mode;
+
+    int is_in_bdslot;
+   
    /* Current exec page (non-JIT) info */
    m_va_t njm_exec_page;
    mips_insn_t *njm_exec_ptr;
+   
+#ifdef _USE_DIRECT_THREAED_
+	/*current exec guest page  */
+   m_pa_t njm_exec_guest_page;
+   char *njm_exec_fun_ptr;  /*intepreter routine ptr*/
+#endif
 
-   /* Symtrace */
-   //int sym_trace;
-   //rbtree_tree *sym_tree;
-
-   int is_in_bdslot;
-
+  
 
 };
 
