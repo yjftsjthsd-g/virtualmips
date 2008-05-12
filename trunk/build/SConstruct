@@ -82,8 +82,8 @@ cc1 = ARGUMENTS.get('cc', "gcc")
 if (cc1):
 	baseEnv.Replace(CC = cc1)   
 
-baseEnv.Append(CCFLAGS= "-D_USE_DIRECT_THREAED_")
-#baseEnv.Append(CCFLAGS= "-D_USE_FDD_")
+#baseEnv.Append(CCFLAGS= "-D_USE_DIRECT_THREAED_")
+baseEnv.Append(CCFLAGS= "-D_USE_FDD_")
 
 
 Help(helpString)

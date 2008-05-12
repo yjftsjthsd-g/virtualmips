@@ -41,6 +41,11 @@ yajin
 #ifdef _USE_DIRECT_THREAED_
 
 
+/*threaded_code is a memory chunk contains the interrupt routine address.
+*/
+m_hiptr_t *threaded_code;
+
+
 #define EXIST_FETCH_EXCEPTION  1 /*fetch instruction EXCEPTION*/
 #define EXIST_CPU_PAUSE             2 /*Timer out. CPU Pause*/
 #define EXIST_CPU_RESET             3 /*CPU RESET request*/
@@ -51,7 +56,6 @@ static struct mips64_op_desc mips_bcond_opcodes[];
 static struct mips64_op_desc mips_cop0_opcodes[];
 static struct mips64_op_desc mips_mad_opcodes[];
 static struct mips64_op_desc mips_tlb_opcodes[];
-
 
 extern cpu_mips_t *current_cpu;
 
@@ -117,14 +121,46 @@ jmp_buf exit_point;
    goto *mips_labelcodes[major_op].label; \
    }while(0) \
 
-#define cpu_next_instruction(cpu,res,insn) \
+
+#define mips64_fetch_and_dispatch(cpu,insn) \
+do { \
+   exec_page = (cpu->pc) & ~(m_va_t) MIPS_MIN_PAGE_IMASK; \
+   if (unlikely(exec_page != cpu->njm_exec_page)) \
+   { \
+      if ((cpu->translate(cpu,cpu->pc,&exec_guest_page))==-1)  \
+      		longjmp(exit_point,EXIST_FETCH_EXCEPTION);   \ 
+      cpu->njm_exec_page = exec_page;  \
+      cpu->njm_exec_guest_page = exec_guest_page; \
+      cpu->njm_exec_ptr = cpu->mem_op_lookup(cpu, exec_page); \
+      if (cpu->njm_exec_ptr ==NULL)  \
+      ASSERT (0,"FFF\n"); \
+   } \
+    code_ptr= threaded_code + (cpu->njm_exec_guest_page <<(MIPS_MIN_PAGE_SHIFT-2));  \
+    code_ptr+= ((cpu->pc & MIPS_MIN_PAGE_IMASK) >> 2) ;  \
+    insn = vmtoh32(cpu->njm_exec_ptr[(cpu->pc & MIPS_MIN_PAGE_IMASK) >> 2]);  \
+	if (*code_ptr==0)     \
+	{ \
+		major_op = MAJOR_OP(insn) ; \
+		*code_ptr=(m_hiptr_t)mips_labelcodes[major_op].label;   \
+	} \
+	get_mhz(); \
+   goto **code_ptr;   \
+} while(0)
+
+
+/*#define cpu_next_instruction(cpu,res,insn) \
 	do { cpu_update_pc(cpu,res); \
 	check_cpu_pause(cpu); \
 	check_cpu_interrupt(cpu); \
 	cpu_fetch_instruciton(cpu,insn); \
 	cpu_dispatch_instruction(cpu,insn); }while(0)
-
-
+*/
+#define cpu_next_instruction(cpu,res,insn) \
+	do { cpu_update_pc(cpu,res); \
+	check_cpu_pause(cpu); \
+	check_cpu_interrupt(cpu); \
+	mips64_fetch_and_dispatch(cpu,insn); \
+}while(0)
 void forced_inline mips64_main_loop_wait(cpu_mips_t * cpu, int timeout)
 {
    vp_run_timers(&active_timers[VP_TIMER_REALTIME], vp_get_clock(rt_clock));
@@ -165,10 +201,59 @@ static forced_inline int mips64_fetch_instruction(cpu_mips_t * cpu, m_va_t pc, m
 
    offset = (pc & MIPS_MIN_PAGE_IMASK) >> 2;
    *insn = vmtoh32(cpu->njm_exec_ptr[offset]);
+   /*
+   Hi yajin, why you set  cpu->njm_exec_page to 0x1 here??
+   803f2bffc	     	beqz 	v1,803f2d004 
+	803f2c000:	 	addiu	v0,a0,258
+
+	when emulate instruciton beqz, it will call mips64_exec_bdslot->mips64_fetch_instruction.
+	If we do not set  cpu->njm_exec_page = 0x1,  cpu->njm_exec_page =exec_page, which is
+	803f2c000.
+	And then execute cpu_next_instruction->mips64_fetch_and_dispatch.
+	
+   */
+   
+   cpu->njm_exec_page = 0x1;
    return (0);
 
 }
 
+
+#if 0
+/* Fetch and dispatch an instruction using directed threaded optimizaition*/
+static forced_inline int mips64_fetch_and_dispatch(cpu_mips_t * cpu, m_va_t pc, mips_insn_t * insn)
+{
+
+	m_pa_t exec_guest_page;
+   m_va_t exec_page;
+   //m_uint32_t offset;
+   m_uint8_t  * code_ptr;
+
+   exec_page = pc & ~(m_va_t) MIPS_MIN_PAGE_IMASK;
+   if (unlikely(exec_page != cpu->njm_exec_page))
+   {
+   		/*we are in another page. 
+   		we use pc to determine whether last instruction and current instruction is in the same page.*/
+      cpu->njm_exec_page = exec_page;
+      if (cpu->translate(cpu,pc,&exec_guest_page)==-1)
+      {
+      		/*current instruction caused a TLB exception*/
+      		return (1);
+      }
+      cpu->njm_exec_guest_page = exec_guest_page;
+   }
+
+   code_ptr= threaded_code + (((exec_guest_page<<MIPS_MIN_PAGE_SHIFT)+(pc &MIPS_MIN_PAGE_IMASK))>>2);
+   if (code_ptr==NULL)
+   	{
+   		major_op = MAJOR_OP(insn)
+   		*code_ptr = mips_labelcodes[major_op].label; 
+   	}
+
+   goto *code_ptr;
+   
+}
+#endif
 
 /* Execute a single instruction */
 static forced_inline int mips64_exec_single_instruction(cpu_mips_t * cpu, mips_insn_t instruction)
@@ -178,6 +263,7 @@ static forced_inline int mips64_exec_single_instruction(cpu_mips_t * cpu, mips_i
 
    return mips_opcodes[op].func(cpu, instruction);
 }
+
 /* Execute the instruction in delay slot */
 static forced_inline int mips64_exec_bdslot(cpu_mips_t * cpu)
 {
@@ -200,14 +286,38 @@ static forced_inline int mips64_exec_bdslot(cpu_mips_t * cpu)
    return res;
 }
 
-   
 
 
+
+
+
+int mips64_cpu_direct_threaded_init(cpu_mips_t * cpu)
+{
+	/*TODO: Currently we just alloc a memory chunk having a size of ramsize.
+	Can be optimized.	   */
+	m_uint32_t len;
+	len = cpu->vm->ram_size*1024*1024*sizeof(m_hiptr_t )/sizeof(mips_insn_t);
+	threaded_code= malloc(len);
+	if (threaded_code==NULL)
+	{
+		fprintf(stderr,
+              "mips64_cpu_direct_threaded_init: unable to create threaded code area.\n");
+      return(-1);
+	}
+	memset(threaded_code,0,len);
+	return (0);
+      
+}
 	
 	
 void *mips64_cpu_direct_threaded(cpu_mips_t * cpu)
 {
 	register uint major_op;
+	m_pa_t exec_guest_page;
+   m_va_t exec_page;
+   //m_uint32_t offset;
+   m_hiptr_t * code_ptr;
+
 	
 	struct mips64_label_desc mips_labelcodes[] = {
    {"spec", &&spec_label, 0x00},
@@ -612,9 +722,9 @@ while (cpu->state != CPU_STATE_RUNNING);
 
 /*OK CPU is running.*/
 check_cpu_pause(cpu);
-check_cpu_interrupt(cpu);
-cpu_fetch_instruciton(cpu,insn);
-cpu_dispatch_instruction(cpu,insn);
+mips64_fetch_and_dispatch(cpu,insn); 
+//cpu_fetch_instruciton(cpu,insn);
+//cpu_dispatch_instruction(cpu,insn);
 
 unknown_lable:
 	printf("unknown instruction. pc %x insn %x\n", cpu->pc, insn);
@@ -707,7 +817,7 @@ beq_label:
 
    /* exec the instruction in the delay slot */
    int ins_res_beq = mips64_exec_bdslot(cpu);
-    /**/ if (likely(!ins_res_beq))
+  if (likely(!ins_res_beq))
    {
       if (res_beq)
          cpu->pc = new_pc_beq;
@@ -1413,6 +1523,7 @@ jr_label:
    int ins_res_jr = mips64_exec_bdslot(cpu);
    if (likely(!ins_res_jr))
       cpu->pc = new_pc_jr;
+    //cpu_log1(cpu,"","rs_jr %x new_pc_jr %x \n",rs_jr,new_pc_jr);
     cpu_next_instruction(cpu,1,insn);
 
 }
@@ -2085,8 +2196,10 @@ sw_label:
    int offset_sw = bits(insn, 0, 15);
 
    int sw_res;
+   m_pa_t exec_guest_page_sw;
 
    sw_res= (mips64_exec_memop2(cpu, MIPS_MEMOP_SW, base_sw, offset_sw, rt_sw, FALSE));
+   	
    cpu_next_instruction(cpu,sw_res,insn);
 
 }
@@ -2344,5 +2457,6 @@ return NULL;
 
 
 #endif
+
 
 

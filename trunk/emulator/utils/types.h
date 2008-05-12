@@ -61,6 +61,12 @@ typedef unsigned long m_iptr_t;
 typedef m_uint64_t m_tmcnt_t;
 
 
+#if defined (__x86_64__) || defined(__ia64)
+/*function label address*/
+typedef m_uint64_t  m_hiptr_t;
+#else
+typedef m_uint32_t  m_hiptr_t;
+#endif
 
 
 
