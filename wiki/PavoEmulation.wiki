@@ -46,7 +46,7 @@ cp test_suit-0.05/pavo/uImage-2.4  virtualmips-0.05/build
 cp test_suit-0.05/pavo/uImage-2.6  virtualmips-0.05/build
 }}}
 
-VirtualMIPS provides a tool "mknandflash" to create the nand flash file(Source code is tool/mknandflash.c). Make sure you have setten the right u-boot/kernel image file name and root filesytem file name/startaddress in the configure file of mknandflash(nandflash.conf in directory virtualmips-0.04/build).See nandflash.conf for more information.
+VirtualMIPS provides a tool "mknandflash" to create the nand flash file(Source code is tool/mknandflash.c). Make sure you have setten the right u-boot/kernel image file name and root filesytem file name/startaddress in the configure file of mknandflash(nandflash.conf in directory virtualmips-0.05/build).See nandflash.conf for more information.
 
 {{{
 cd virtualmips-0.05/build
