@@ -37,7 +37,7 @@ modprobe tun
 
 = Configure pavo emulation =
 
-Change the pavo.conf in virtualmips-0.03/run to enable network card emulation.
+Change the pavo.conf in virtualmips-${version}/build to enable network card emulation.
 
 {{{
 cs8900_enable = 1
