@@ -50,8 +50,8 @@ sudo apt-get install scons
 
 
 {{{
-tar -jxvf virtualmips-0.05.tar.bz2
-cd virtualmips-0.05/build
+tar -jxvf virtualmips-${version}.tar.bz2
+cd virtualmips-${version}/build
 }}}
 
 Use scons-h to see the build options of VirtualMIPS. 
@@ -90,7 +90,7 @@ example:
 
 
 
-If everything goes well, file 'adm5120'/'pavo'/'mknandflash' will be created in virtualmips-0.05/build.
+If everything goes well, file 'adm5120'/'pavo'/'mknandflash' will be created in virtualmips-${version}/build.
 
 
 = Links =
