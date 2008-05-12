@@ -5,7 +5,7 @@
 Type the following command to run ADM5120 emulation.(Make sure you have copy the kernel image from test suit to VirtualMIPS directory.)
 
 {{{
-cd virtualmips-0.03/run
+cd virtualmips-${version}/build
 ./adm5120
 }}}
 
