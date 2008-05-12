@@ -108,5 +108,3 @@ void host_alarm_handler(int host_signum)
 
 
 }
-
-

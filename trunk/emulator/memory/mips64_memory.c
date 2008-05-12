@@ -1392,7 +1392,7 @@ u_int mips_mts32_ld(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 u_int mips_mts32_sb(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 {
    m_reg_t data;
-   void *haddr;
+   void *haddr=NULL;
    u_int exc;
    m_uint8_t has_set_value = FALSE;
 
@@ -2539,16 +2539,7 @@ yajin
       }
    }
    
-#ifdef _USE_DIRECT_THREAED_
-extern m_hiptr_t *threaded_code;
-    /*for self-modify code*/
-   if (MTS_WRITE==op_type)
-   	{
-   		m_hiptr_t *code_ptr_w;
-   		code_ptr_w= threaded_code + ((entry->gppa >> MIPS_MIN_PAGE_SHIFT) <<(MIPS_MIN_PAGE_SHIFT-2));  
-   		code_ptr_w[(vaddr & MIPS_MIN_PAGE_IMASK) >> 2] =0;
-   	}
-#endif
+
    /* Raw memory access */
    haddr = entry->hpa + (vaddr & MIPS_MIN_PAGE_IMASK);
    return ((void *) haddr);
@@ -2579,15 +2570,10 @@ static int mips_mts32_translate(cpu_mips_t * cpu, m_va_t vaddr, m_pa_t * phys_pa
       if (!entry)
          return (-1);
       
-      //ASSERT(!(entry->flags&MTS_FLAG_DEV),"error when translating virtual address to phyaddrss \n");
+      ASSERT(!(entry->flags&MTS_FLAG_DEV),"error when translating virtual address to phyaddrss \n");
       }
-   
-	//cpu_log1(cpu,"","vaddr %x\n",vaddr);
-
    *phys_page = entry->gppa >> MIPS_MIN_PAGE_SHIFT;
-		if (cpu->pc==0x83f2c008)
-		cpu_log1(cpu,"","vaddr %x pc %x entry->gppa %x page %x \n",vaddr,cpu->pc,entry->gppa,*phys_page);
-return (0);
+	return (0);
 
 
 }

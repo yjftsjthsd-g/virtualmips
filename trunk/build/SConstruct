@@ -50,9 +50,7 @@ baseEnv.Append(INCDIR = [os.path.join(os.path.abspath('.'),'../emulator','gdb')]
 baseEnv.Append(CPPPATH = baseEnv['INCDIR'])
 baseEnv.Append(LIBS = ['confuse','pthread','rt','elf'] )  
 baseEnv.Append(LIBPATH =  ['/usr/lib', '/usr/local/lib'] )  
-
-
-#baseEnv.Replace(CC =  'gcc-3.4' )  
+ 
 baseEnv.Append(CCFLAGS=  "-Wall  -fomit-frame-pointer" ) 
 
 mhz = ARGUMENTS.get('mhz', 0)
@@ -60,12 +58,6 @@ if int(mhz):
 	#test emulator's MHZ
 	baseEnv.Append(CCFLAGS = "-DDEBUG_MHZ")
 
-#Set to 1 to compile VirtualMIPS using instruction lookup table.
-#Only for internal use. Please do not touch it.
-useilt = ARGUMENTS.get('ilt', 0)
-if int(useilt):
-	#use ilt to decode instruction. Slow but easy to debug.
-	baseEnv.Append(CCFLAGS= "-D_USE_ILT_")
 
 o = ARGUMENTS.get('o', 3)
 if int(o)==3:
@@ -82,7 +74,7 @@ cc1 = ARGUMENTS.get('cc', "gcc")
 if (cc1):
 	baseEnv.Replace(CC = cc1)   
 
-#baseEnv.Append(CCFLAGS= "-D_USE_DIRECT_THREAED_")
+
 baseEnv.Append(CCFLAGS= "-D_USE_FDD_")
 
 
