@@ -35,7 +35,7 @@ mkyaffs2image 1 root24 root.yaffs2
 Make nand falsh image with uboot/kernel/rootfs.
 
 {{{
-cp rootfs-20080409/root.yaffs2  virtualmips-0.04/build
+cp rootfs-20080409/root.yaffs2  virtualmips-0.05/build
 cd virtualmips-0.05/build
 ./mknandflash
 }}}
