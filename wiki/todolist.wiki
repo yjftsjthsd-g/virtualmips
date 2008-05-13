@@ -16,6 +16,8 @@
 
  * OKL4 porting 
   * porting [http://www.ok-labs.com/products/okl4 OKL4] to jz4740. OKL4 is a good virtualization platform and it is very cool to see two operating system running on VirutalMIPS at the same time.
+ 
+ * Windows host os support.
 
 == low priority ==
 
