@@ -30,7 +30,7 @@ sudo pacman -S confuse
 sudo pacman -S libsdl
 }}}
 
-For ubuntu hardy, you need the a [http://virtualmips.googlecode.com/issues/attachment?aid=-3457568321407774672&name=ubuntu.patch patch] first. See [http://code.google.com/p/virtualmips/issues/detail?id=3 issue 3] for detailed description.
+For ubuntu hardy, you need the a [http://virtualmips.googlecode.com/issues/attachment?aid=-3457568321407774672&name=ubuntu.patch patch] first. See [http://code.google.com/p/virtualmips/issues/detail?id=3 issue 3] for detailed description. Ubuntu gusty does not need this patch.
 
 {{{
 cp ubuntu.patch virtualmips-${version}
