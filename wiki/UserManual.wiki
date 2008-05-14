@@ -46,7 +46,7 @@ Build VirtualMIPS is very easy. Since version 0.04 VirtualMIPS uses [http://www.
 {{{
 sudo apt-get install scons
 }}}
-  * Archlinux
+ * Archlinux
 {{{
 sudo pacman -S scons
 }}}
