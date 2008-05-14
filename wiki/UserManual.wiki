@@ -15,13 +15,14 @@ Library dependence:
 	* libconfuse
 	* libSDL
 
- * Debian etch
+ * Debian etch / ubuntu hardy
 {{{
 sudo apt-get install libelf-dev
 sudo apt-get install libconfuse-dev
 sudo apt-get install  libsdl1.2debian
+sudo apt-get install  libsdl1.2-dev
 }}}
-
+ 
   * Archlinux
 {{{
 sudo pacman -S libelf
@@ -29,15 +30,7 @@ sudo pacman -S confuse
 sudo pacman -S libsdl
 }}}
 
-You can build libconfuse by yourself. Download the source code of libconfuse from http://bzero.se/confuse/confuse-2.6.tar.gz.
-
-{{{
-tar zxvf confuse-2.6.tar.gz 
-cd confuse-2.6
-./configure
-make 
-sudo make install
-}}}
+For ubuntu hardy, you need the a patch first. See issue 3 for detailed description.
 
 = Build VirtualMIPS =
 
