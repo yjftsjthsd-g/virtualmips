@@ -17,6 +17,7 @@ Library dependence:
 
  * Debian etch / ubuntu hardy
 {{{
+sudo apt-get install build-essential
 sudo apt-get install libelf-dev
 sudo apt-get install libconfuse-dev
 sudo apt-get install  libsdl1.2-dev
