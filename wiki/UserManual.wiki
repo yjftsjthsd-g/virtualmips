@@ -42,9 +42,13 @@ patch -p1 <ubuntu.patch
 
 Build VirtualMIPS is very easy. Since version 0.04 VirtualMIPS uses [http://www.scons.org scons] to build the system instead of make. Install scons in your system first.
 
- * Debian etch
+ * Debian etch / ubuntu hardy
 {{{
 sudo apt-get install scons
+}}}
+  * Archlinux
+{{{
+sudo pacman -S scons
 }}}
 
 
