@@ -30,7 +30,13 @@ sudo pacman -S confuse
 sudo pacman -S libsdl
 }}}
 
-For ubuntu hardy, you need the a patch first. See issue 3 for detailed description.
+For ubuntu hardy, you need the a [http://virtualmips.googlecode.com/issues/attachment?aid=-3457568321407774672&name=ubuntu.patch patch] first. See [http://code.google.com/p/virtualmips/issues/detail?id=3 issue 3] for detailed description.
+
+{{{
+cp ubuntu.patch virtualmips-${version}
+cd  virtualmips-${version}
+patch -p1 <ubuntu.patch
+}}}
 
 = Build VirtualMIPS =
 
