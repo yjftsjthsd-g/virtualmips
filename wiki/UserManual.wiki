@@ -19,7 +19,6 @@ Library dependence:
 {{{
 sudo apt-get install libelf-dev
 sudo apt-get install libconfuse-dev
-sudo apt-get install  libsdl1.2debian
 sudo apt-get install  libsdl1.2-dev
 }}}
  
