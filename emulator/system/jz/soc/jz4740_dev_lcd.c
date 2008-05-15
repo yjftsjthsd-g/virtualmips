@@ -20,7 +20,7 @@
 #include "mips64_memory.h"
 #include "cpu.h"
 #include "jz4740.h"
-#include "sdl.h"
+#include "vp_sdl.h"
 #include "vp_timer.h"
 #include "utils.h"
 

@@ -8,7 +8,7 @@
 
 
 #ifdef SIM_LCD
-#include "sdl.h"
+#include "vp_sdl.h"
 #include <signal.h>
 
 
