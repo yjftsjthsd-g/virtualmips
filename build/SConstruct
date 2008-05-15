@@ -88,7 +88,9 @@ def listFiles(dirs,srcexts):
 		path= os.path.join(os.path.abspath(dir),srcexts)
 		newFiles = glob.glob(path)
 		for newFile in newFiles:
-			newFile = str(Dir('.').srcnode().rel_path(File(newFile)))
+			#newFile = str(Dir('.').srcnode().rel_path(File(newFile)))
+			newFile = str(Dir('.').rel_path(File(newFile)))
+			print str(Dir('.').real_path(File(newFile)))
 			allFiles.append(newFile)
 	return allFiles
 
