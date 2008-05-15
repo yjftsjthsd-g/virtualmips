@@ -13,7 +13,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <error.h>
-#include<errno.h>
 #include<time.h>
 #include<signal.h>
 
