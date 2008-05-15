@@ -13,11 +13,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <error.h>
-#include<time.h>
-#include<signal.h>
+#include <time.h>
+#include <signal.h>
 
-#include  "utils.h"
-#include  "mips64.h"
+#include "utils.h"
+#include "mips64.h"
 #include "device.h"
 #include "vm.h"
 #include "mips64_exec.h"
