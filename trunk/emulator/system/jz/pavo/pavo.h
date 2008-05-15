@@ -13,7 +13,7 @@
 #include "dev_nand_flash_1g.h"
 
 #ifdef SIM_LCD
-#include "sdl.h"
+#include "vp_sdl.h"
 #endif
 
 #define PAVO_DEFAULT_CONFIG_FILE     "pavo.conf"
