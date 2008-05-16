@@ -228,7 +228,8 @@ so irq 107 is in gpio group 1
 
 /*-------------------EMC----------------------*/
 #define JZ4740_EMC_BASE 0x13010000
-#define JZ4740_EMC_SIZE 0xa024
+#define JZ4740_EMC_SIZE 0xa400   /*FROM A000-A3FF is mode register*/
+
 #define EMC_BCR         ( 0x0)  /* BCR */
 #define EMC_SMCR0       ( 0x10) /* Static Memory Control Register 0 */
 #define EMC_SMCR1       ( 0x14) /* Static Memory Control Register 1 */
@@ -264,7 +265,7 @@ so irq 107 is in gpio group 1
 #define EMC_SDMR0       ( 0xa000)       /* Mode Register of SDRAM bank 0 */
 /*has other register*/
 
-#define JZ4740_EMC_INDEX_MAX 0x4b       /*0x128/4 */
+#define JZ4740_EMC_INDEX_MAX 0x4b       /*0x12c/4 */
 
 
 

@@ -26,7 +26,8 @@
 
 
  m_uint32_t jz4740_emc_table[JZ4740_EMC_INDEX_MAX];
-m_uint32_t emc_sdram0;/*configure register for sdram0*/
+m_uint32_t emc_sdram0[256];
+/*configure register for sdram0*/
 /*In order to save space, set emc sdram0  seperately.*/
 
 struct jz4740_emc_data {
@@ -41,10 +42,13 @@ void *dev_jz4740_emc_access(cpu_mips_t *cpu,struct vdevice *dev,
 {
 
 	struct jz4740_emc_data *d = dev->priv_data;
-
+	/*TODO: SDRAM MODE. Now just set dummy value.*/
     /*EMC SDRAM0 is in seperate space*/
-    if (offset==EMC_SDMR0)
-      return (void *)(&emc_sdram0);
+    if ((offset>=EMC_SDMR0)&&(offset<=(EMC_SDMR0+0x3ff)))
+    	{
+    		return (void *)(((m_uint8_t *)&emc_sdram0[0])+offset-EMC_SDMR0);
+    	}
+      
 	 
 	if ((offset >= d->jz4740_emc_size)) {
       *data = 0;
