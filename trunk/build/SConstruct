@@ -25,7 +25,7 @@ Compile Options:
         lcd:                    Set to 0 to compile VirtualMIPS *without* LCD support(pavo only). Default 1.
         mhz:                    Set to 1 to test emulator's speed. Default 0.
         debug:                  Set to 1 to compile with -g. Default 0.
-        o:                      Set optimizatin level.Default 3.
+        o:                      Set optimization level.Default 3.
         cc:                     Set compiler.Default "gcc". You can set cc=gcc-3.4 to use gcc 3.4.
 
 """
