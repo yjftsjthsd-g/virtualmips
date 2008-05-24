@@ -36,7 +36,7 @@ Emulation speed is slow but easy to debug.
 #include "mips64_hostalarm.h"
 
 
-#ifdef  _USE_FDD_
+//#ifdef  _USE_FDD_
 
 static struct mips64_op_desc mips_opcodes[];
 static struct mips64_op_desc mips_spec_opcodes[];
@@ -103,7 +103,7 @@ static forced_inline int mips64_fetch_instruction(cpu_mips_t * cpu, m_va_t pc, m
 
 }
 
-
+int ttttt;
 
 /* Execute a single instruction */
 static forced_inline int mips64_exec_single_instruction(cpu_mips_t * cpu, mips_insn_t instruction)
@@ -128,11 +128,35 @@ static forced_inline int mips64_exec_single_instruction(cpu_mips_t * cpu, mips_i
 
    register uint op;
    op = MAJOR_OP(instruction);
-
+		if (cpu->pc==0x802e8040)
+  		ttttt=1;
+  	if (ttttt)
+  		{
+  			//cpu_log2(cpu,"","%x insn %x name %s \n",cpu->pc,instruction,mips_opcodes[op].opname);
+  			cpu_log2(cpu,"","%x\n",cpu->pc);
+  			if (cpu->pc==0x80114444)
+  				cpu_log2(cpu,"","a0 %x a1 %x \n",cpu->gpr[4],cpu->gpr[5]);
+  			if ((cpu->pc>=0x801141cc)&&(cpu->pc<=0x801141e0))
+  				cpu_log2(cpu,"","vo %x\n",cpu->gpr[2]);
+  		}
+  		
    return mips_opcodes[op].func(cpu, instruction);
 
 
 }
+
+
+/* Single-step execution */
+fastcall void mips64_exec_single_step(cpu_mips_t *cpu,mips_insn_t instruction)
+{
+   int res;
+
+   res = mips64_exec_single_instruction(cpu,instruction);
+
+   /* Normal flow ? */
+   if (likely(!res)) cpu->pc += 4;
+}
+
 
 
   /*MIPS64 fetch->decode->dispatch main loop */
@@ -250,4 +274,4 @@ static forced_inline int mips64_exec_bdslot(cpu_mips_t * cpu)
 #include "mips64_codetable.h"
 
 
-#endif
+//#endif

@@ -26,7 +26,7 @@ static int add_op(cpu_mips_t * cpu, mips_insn_t insn)
    m_reg_t res;
 
    /* TODO: Exception handling */
-   res = (m_reg_t) (m_uint32_t) cpu->gpr[rs] + (m_uint32_t) cpu->gpr[rt];
+   res = (m_uint32_t) cpu->gpr[rs] + (m_uint32_t) cpu->gpr[rt];
    cpu->gpr[rd] = sign_extend(res, 32);
    return (0);
 }

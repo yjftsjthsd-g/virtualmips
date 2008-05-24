@@ -327,7 +327,7 @@ int mips64_load_elf_image(cpu_mips_t * cpu, char *filename, m_va_t * entry_point
 
 
 /* Update the IRQ flag (inline) */
-static forced_inline int mips64_update_irq_flag_fast(cpu_mips_t * cpu)
+static forced_inline fastcall int mips64_update_irq_flag_fast(cpu_mips_t * cpu)
 {
    mips_cp0_t *cp0 = &cpu->cp0;
    m_uint32_t imask, sreg_mask;
@@ -357,7 +357,7 @@ static forced_inline int mips64_update_irq_flag_fast(cpu_mips_t * cpu)
 }
 
 /* Update the IRQ flag */
-int mips64_update_irq_flag(cpu_mips_t * cpu)
+int fastcall mips64_update_irq_flag(cpu_mips_t * cpu)
 {
    return mips64_update_irq_flag_fast(cpu);
 }
@@ -456,7 +456,7 @@ void mips64_trigger_exception(cpu_mips_t * cpu, u_int exc_code, int bd_slot)
 
 
 /* Execute fpu instruction */
-void mips64_exec_soft_fpu(cpu_mips_t * cpu)
+void fastcall mips64_exec_soft_fpu(cpu_mips_t * cpu)
 {
    mips_cp0_t *cp0 = &cpu->cp0;
    cp0->reg[MIPS_CP0_CAUSE] |= 0x10000000;      //CE=1
@@ -467,7 +467,7 @@ void mips64_exec_soft_fpu(cpu_mips_t * cpu)
 }
 
 /* Execute ERET instruction */
-void mips64_exec_eret(cpu_mips_t * cpu)
+void fastcall mips64_exec_eret(cpu_mips_t * cpu)
 {
    mips_cp0_t *cp0 = &cpu->cp0;
 
@@ -489,7 +489,7 @@ void mips64_exec_eret(cpu_mips_t * cpu)
 }
 
 /* Execute BREAK instruction */
-void mips64_exec_break(cpu_mips_t * cpu, u_int code)
+void fastcall mips64_exec_break(cpu_mips_t * cpu, u_int code)
 {
    //mips64_dump_regs(cpu);
    printf("exec break cpu->pc %x\n", cpu->pc);
@@ -500,7 +500,7 @@ void mips64_exec_break(cpu_mips_t * cpu, u_int code)
 }
 
 /* Trigger a Trap Exception */
-void mips64_trigger_trap_exception(cpu_mips_t * cpu)
+void fastcall mips64_trigger_trap_exception(cpu_mips_t * cpu)
 {
    /* XXX TODO: Branch Delay slot */
    printf("MIPS64: TRAP exception, CPU=%p\n", cpu);
@@ -508,7 +508,7 @@ void mips64_trigger_trap_exception(cpu_mips_t * cpu)
 }
 
 /* Execute SYSCALL instruction */
-void mips64_exec_syscall(cpu_mips_t * cpu)
+void fastcall mips64_exec_syscall(cpu_mips_t * cpu)
 {
 #if DEBUG_SYSCALL
    printf("MIPS: SYSCALL at PC=0x%" LL "x (RA=0x%" LL "x)\n"
@@ -524,7 +524,7 @@ void mips64_exec_syscall(cpu_mips_t * cpu)
 }
 
 /* Trigger IRQs */
-void forced_inline mips64_trigger_irq(cpu_mips_t * cpu)
+void forced_inline fastcall mips64_trigger_irq(cpu_mips_t * cpu)
 {
    if (mips64_update_irq_flag(cpu))
       mips64_trigger_exception(cpu, MIPS_CP0_CAUSE_INTERRUPT, 0);
@@ -553,3 +553,5 @@ void mips64_clear_irq(cpu_mips_t * cpu, m_uint8_t irq)
    if (!cpu->irq_cause)
       cpu->irq_pending = 0;
 }
+
+

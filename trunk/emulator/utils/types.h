@@ -68,7 +68,7 @@ typedef m_uint64_t  m_hiptr_t;
 typedef m_uint32_t  m_hiptr_t;
 #endif
 
-
+typedef void (*pvoid)(void);
 
 /* MIPS instruction */
 typedef m_uint32_t mips_insn_t;
@@ -91,5 +91,7 @@ enum result_t
 typedef struct cpu_mips cpu_mips_t;
 typedef struct vm_instance vm_instance_t;
 typedef struct vdevice vdevice_t;
+typedef struct mips64_jit_tcb mips64_jit_tcb_t;
+typedef struct insn_exec_page insn_exec_page_t;
 
 #endif

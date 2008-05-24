@@ -44,7 +44,8 @@ baseEnv.Append(INCDIR = [os.path.join(os.path.abspath('.'),'../emulator','utils'
 baseEnv.Append(INCDIR = [os.path.join(os.path.abspath('.'),'../emulator','utils','net')])
 baseEnv.Append(INCDIR = [os.path.join(os.path.abspath('.'),'../emulator','memory')])
 baseEnv.Append(INCDIR = [os.path.join(os.path.abspath('.'),'../emulator','gdb')])
-
+baseEnv.Append(INCDIR = [os.path.join(os.path.abspath('.'),'../emulator','jit')])
+baseEnv.Append(INCDIR = [os.path.join(os.path.abspath('.'),'../emulator','jit','x86')])
 	
 	
 baseEnv.Append(CPPPATH = baseEnv['INCDIR'])
