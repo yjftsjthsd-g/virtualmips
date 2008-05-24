@@ -32,7 +32,7 @@ Down [ftp://ftp.ingenic.cn/3sw/01linux/02kernel/linux-2.6.24/linux-2.6.24.3.tar.
 {{{
 tar jxvf linux-2.6.24.3.tar.bz2
 cd linux-2.6.24.3
-tar zxvf -cd ../linux-2.6.24.3-jz-20080304.patch.gz | patch -p1
+gzip -cd ../linux-2.6.24.3-jz-20080304.patch.gz | patch -p1
 }}}
 
 = Configure linux 2.6 kernel =
@@ -118,7 +118,7 @@ Down [ftp://ftp.ingenic.cn/3sw/01linux/02kernel/celinux/celinux-040503.tar.bz2 c
 {{{
 tar jxvf celinux-040503.tar.bz2
 cd celinux-040503
-tar zxvf -cd ../celinux-040503-jz-20080409.patch.gz | patch -p1
+gzip -cd ../celinux-040503-jz-20080409.patch.gz | patch -p1
 }}}
 
 = Configure linux 2.4 kernel =
