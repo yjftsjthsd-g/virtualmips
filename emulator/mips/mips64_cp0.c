@@ -99,6 +99,14 @@ m_cp0_reg_t mips64_cp0_get_reg(cpu_mips_t * cpu, u_int cp0_reg)
 }
 
 
+void fastcall mips64_cp0_exec_mfc0_fastcall(cpu_mips_t * cpu, mips_insn_t insn)
+{
+	int rt = bits(insn, 16, 20);
+   int rd = bits(insn, 11, 15);
+   int sel = bits(insn, 0, 2);
+	cpu->gpr[rt] = sign_extend(mips64_cp0_get_reg_fast(cpu, rd, sel), 32);
+
+}
 /* MFC0 */
 void mips64_cp0_exec_mfc0(cpu_mips_t * cpu, u_int gp_reg, u_int cp0_reg, u_int sel)
 {
@@ -106,6 +114,15 @@ void mips64_cp0_exec_mfc0(cpu_mips_t * cpu, u_int gp_reg, u_int cp0_reg, u_int s
 
 }
 
+void fastcall mips64_cp0_exec_mtc0_fastcall(cpu_mips_t * cpu, mips_insn_t insn)
+{
+	 int rt = bits(insn, 16, 20);
+   int rd = bits(insn, 11, 15);
+   int sel = bits(insn, 0, 2);
+
+	mips64_cp0_set_reg(cpu, rd, sel, cpu->gpr[rt] & 0xffffffff);
+   
+}
 void mips64_cp0_exec_mtc0(cpu_mips_t * cpu, u_int gp_reg, u_int cp0_reg, u_int sel)
 {
    mips64_cp0_set_reg(cpu, cp0_reg, sel, cpu->gpr[gp_reg] & 0xffffffff);
@@ -197,7 +214,7 @@ m_cp0_reg_t mips64_cp0_get_vpn2_mask(cpu_mips_t * cpu)
 
 
 /* TLBP: Probe a TLB entry */
-void mips64_cp0_exec_tlbp(cpu_mips_t * cpu)
+void fastcall mips64_cp0_exec_tlbp(cpu_mips_t * cpu)
 {
    mips_cp0_t *cp0 = &cpu->cp0;
 
@@ -262,7 +279,7 @@ void mips64_cp0_unmap_tlb_to_mts(cpu_mips_t * cpu, int index)
 
 
 /* TLBW: Write a TLB entry */
-static inline void mips64_cp0_exec_tlbw(cpu_mips_t * cpu, u_int index)
+static forced_inline void mips64_cp0_exec_tlbw(cpu_mips_t * cpu, u_int index)
 {
    mips_cp0_t *cp0 = &cpu->cp0;
    tlb_entry_t *entry;
@@ -292,7 +309,7 @@ static inline void mips64_cp0_exec_tlbw(cpu_mips_t * cpu, u_int index)
 
 
 /* TLBWI: Write Indexed TLB entry */
-void mips64_cp0_exec_tlbwi(cpu_mips_t * cpu)
+void fastcall mips64_cp0_exec_tlbwi(cpu_mips_t * cpu)
 {
    m_uint32_t index;
 
@@ -329,13 +346,13 @@ void mips64_cp0_exec_tlbwi(cpu_mips_t * cpu)
 }
 
 /* TLBWR: Write Random TLB entry */
-void mips64_cp0_exec_tlbwr(cpu_mips_t * cpu)
+void fastcall mips64_cp0_exec_tlbwr(cpu_mips_t * cpu)
 {
    mips64_cp0_exec_tlbw(cpu, mips64_cp0_get_random_reg(cpu));
 }
 
 /* TLBR: Read Indexed TLB entry */
-void mips64_cp0_exec_tlbr(cpu_mips_t * cpu)
+void fastcall mips64_cp0_exec_tlbr(cpu_mips_t * cpu)
 {
    mips_cp0_t *cp0 = &cpu->cp0;
    tlb_entry_t *entry;

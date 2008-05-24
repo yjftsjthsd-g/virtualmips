@@ -241,7 +241,7 @@ void m_flog(FILE * fd, char *module, char *fmt, va_list ap)
    strftime(buf, sizeof(buf), "%b %d %H:%M:%S", localtime(&ct));
    if (fd)
    {
-      fprintf(fd, "%s.%03ld %s: ", buf, (long) now.tv_usec / 1000, module);
+      //fprintf(fd, "%s.%03ld %s: ", buf, (long) now.tv_usec / 1000, module);
       vfprintf(fd, fmt, ap);
       fflush(fd);
    }
