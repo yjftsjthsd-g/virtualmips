@@ -180,7 +180,6 @@ vm_instance_t *vm_create(char *name, int machine_type)
    vm->type = machine_type;
    vm->status = VM_STATUS_HALTED;
    vm->jit_use = 0;
-   //vm->exec_blk_direct_jump = TRUE;
    vm->vtty_con1_type = VTTY_TYPE_TERM;
    vm->vtty_con2_type = VTTY_TYPE_NONE;
    //vm->timer_irq_check_itv  = VM_TIMER_IRQ_CHECK_ITV;

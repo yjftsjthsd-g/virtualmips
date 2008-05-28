@@ -1,8 +1,7 @@
 #Build script of virtualmips.
 #Scons is really an excellent tool to build software!
 
-import os,platform,SCons,glob,re
-
+import os,platform,SCons,glob,re,sys
 
 #########################
 #   Global Environment  #
@@ -22,6 +21,7 @@ Targets:
         mknandflash:            Build mknandflash tool
 
 Compile Options:
+				jit:                    Set to 0 to compile VirtualMIPS *without* JIT support(pavo only). Default 1.
         lcd:                    Set to 0 to compile VirtualMIPS *without* LCD support(pavo only). Default 1.
         mhz:                    Set to 1 to test emulator's speed. Default 0.
         debug:                  Set to 1 to compile with -g. Default 0.
@@ -75,13 +75,10 @@ cc1 = ARGUMENTS.get('cc', "gcc")
 if (cc1):
 	baseEnv.Replace(CC = cc1)   
 
-
 baseEnv.Append(CCFLAGS= "-D_USE_FDD_")
-
+    
 
 Help(helpString)
-
-
  
 def listFiles(dirs,srcexts):
 	allFiles = []
@@ -93,7 +90,22 @@ def listFiles(dirs,srcexts):
 	return allFiles
 
 
+# check whether host is X86_32
+host_x86_32_test = """
+     int main(int argc, char **argv) {
+#if !defined(__i386__)
+ #error __i386__ not defined
+#endif
+  return 0;
+  }"""
 
+def CheckHost_x86_32(context):
+  context.Message('Checking for an x86_32 host...')
+  result = context.TryCompile(host_x86_32_test, '.c')
+  context.Result(result)
+  return result
+
+  
 
 if 'pavo' in COMMAND_LINE_TARGETS:
 	pavo = baseEnv.Clone() 		
@@ -103,8 +115,30 @@ if 'pavo' in COMMAND_LINE_TARGETS:
 	pavo.Append(CCFLAGS = "-DSIM_PAVO")
 	lcd = ARGUMENTS.get('lcd', 1)
 	if int(lcd):
+		#check libsdl
+		conf = Configure(pavo)
+		if not conf.CheckLib('SDL'):
+			print 'Did not find libSDL, exiting!'
+			Exit(1)
+		if not conf.CheckCHeader('SDL/SDL.h'):
+			print 'SDL/SDL.h must be installed!'
+			Exit(1)
+		pavo = conf.Finish()
 		pavo.Append(CCFLAGS = "-DSIM_LCD")
 		pavo.Append(LINKFLAGS  = "-lSDL")
+	
+	jit = ARGUMENTS.get('jit', 1)
+	if int(jit):
+		#check whether host is X86_32.
+		conf = Configure(pavo, custom_tests = {'CheckHost_x86_32' : CheckHost_x86_32})
+		if not conf.CheckHost_x86_32():
+			print 'Host is not x86_32. JIT can not be used. Compile WITHOUT JIT Support.'
+			jit=0
+		pavo = conf.Finish()
+		
+	if int(jit):
+		pavo.Append(CCFLAGS = "-D_USE_JIT_")
+		
 	pavo.Program('pavo',listFiles(pavo['CPPPATH'],'*.c'))
 	
 

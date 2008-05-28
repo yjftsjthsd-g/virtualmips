@@ -29,7 +29,7 @@
 #include "utils.h"
 #include "mips64_cp0.h"
 #include "gdb_interface.h"
-
+#include "mips64_jit.h"
 void bad_memory_access(cpu_mips_t * cpu, m_va_t vaddr)
 {
    printf("cpu->pc  %x vaddr %x\n", cpu->pc, vaddr);
@@ -39,20 +39,14 @@ void bad_memory_access(cpu_mips_t * cpu, m_va_t vaddr)
       assert(0);
 }
 
-
 /* MTS access with special access mask */
 void mips_access_special(cpu_mips_t * cpu, m_va_t vaddr, m_uint32_t mask,
                          u_int op_code, u_int op_type, u_int op_size, m_reg_t * data, u_int * exc)
 {
    m_reg_t vpn;
    m_uint8_t exc_code;
-
-
-			cpu_log2(cpu,
-					"MTS","vaddr 0x%"LL"x at "
-					"pc=0x%"LL"x (size=%u) mask %x \n",vaddr,cpu->pc,op_size,mask);
-		
-		
+               
+       
    switch (mask)
    {
    case MTS_ACC_U:
@@ -110,6 +104,7 @@ void mips_access_special(cpu_mips_t * cpu, m_va_t vaddr, m_uint32_t mask,
 
    }
 }
+
 
 #if   0
 64 bit operation. for future use. yajin
@@ -1204,8 +1199,6 @@ static fastcall void *mips_mts32_lookup(cpu_mips_t * cpu, m_va_t vaddr)
    m_reg_t data;
    u_int exc;
    m_uint8_t has_set_value = FALSE;
-   //printf("cpu %x\n",cpu);
-   //cpu_log1(cpu,"","mips_mts32_lookup \n");
    return (mips_mts32_access(cpu, vaddr, MIPS_MEMOP_LOOKUP, 4, MTS_READ, &data, &exc, &has_set_value, 0));
 }
 
@@ -1407,7 +1400,15 @@ u_int fastcall mips_mts32_sb(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
       bad_memory_access(cpu, vaddr);
    }
    if (likely(has_set_value == FALSE))
-      *(m_uint8_t *) haddr = data;
+   	{
+ #ifdef _USE_JIT_
+  if (cpu->vm->jit_use)
+   		jit_handle_self_write(cpu,vaddr);
+ #endif
+ *(m_uint8_t *) haddr = data;
+   	}
+   
+     
    return (exc);
 }
 
@@ -1429,7 +1430,14 @@ u_int fastcall mips_mts32_sh(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
       bad_memory_access(cpu, vaddr);
    }
    if (likely(has_set_value == FALSE))
-      *(m_uint16_t *) haddr = htovm16(data);
+   	{
+ #ifdef _USE_JIT_
+  if (cpu->vm->jit_use)
+   		jit_handle_self_write(cpu,vaddr);
+ #endif   	
+ *(m_uint16_t *) haddr = htovm16(data);
+   	}
+      
    return (exc);
 }
 
@@ -1453,7 +1461,14 @@ u_int fastcall  mips_mts32_sw(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
       bad_memory_access(cpu, vaddr);
    }
    if (likely(has_set_value == FALSE))
-      *(m_uint32_t *) haddr = htovm32(data);
+   	{
+ #ifdef _USE_JIT_
+ if (cpu->vm->jit_use)
+   		jit_handle_self_write(cpu,vaddr);
+ #endif
+   		*(m_uint32_t *) haddr = htovm32(data);
+   	}
+      
 
    return (exc);
 }
@@ -2377,9 +2392,9 @@ static mts32_entry_t *mips_mts32_slow_lookup(cpu_mips_t * cpu, m_uint64_t vaddr,
    switch (zone)
    {
    case 0x00:
-   	case 0x01:
-   	case 0x02:
-   	case 0x03:           /* kuseg */
+        case 0x01:
+        case 0x02:
+        case 0x03:           /* kuseg */
       /* trigger TLB exception if no matching entry found */
       if (!mips64_cp0_tlb_lookup(cpu, vaddr, &map))
          goto err_tlb;
@@ -2416,8 +2431,8 @@ static mts32_entry_t *mips_mts32_slow_lookup(cpu_mips_t * cpu, m_uint64_t vaddr,
 
    case 0x06:                  /* ksseg */
    case 0x07:                  /* kseg3 */
-   		//ASSERT(0,"not implemented upper 1G memory space \n");
-   		      /* trigger TLB exception if no matching entry found */
+                //ASSERT(0,"not implemented upper 1G memory space \n");
+                      /* trigger TLB exception if no matching entry found */
       if (!mips64_cp0_tlb_lookup(cpu, vaddr, &map))
          goto err_tlb;
       if ((map.valid & 0x1) != 0x1)
@@ -2504,23 +2519,10 @@ I did not check it before version 0.04 and hwclock/qtopia always segment fault.
 Very hard to debug this problem!!!!
 yajin
 */
-//if ((tttt)||(ttttt))
-{
-	//if ((cpu->pc==0x8011442c) ||(cpu->pc==0x80114434)|| (cpu->pc==0x8011443c))
-	//	{
-	//		cpu_log2(cpu,"","vaddr %x \n",vaddr);
-	//	}
-	//if ((vaddr==0x803277b0)&&(op_type==MTS_WRITE))
-	//	cpu_log2(cpu,"","Wvaddr %x pc %x data %x \n",vaddr,cpu->pc,*data);
-if ((vaddr==0x803233a0)&&(op_type==MTS_WRITE))
-		cpu_log2(cpu,"","W1vaddr %x pc %x data %x \n",vaddr,cpu->jit_pc,*data);
 
 	
-}
-//cpu_log1(cpu,
-//					"MTS","vaddr 0x%"LL"x at "
-//					"pc=0x%"LL"x (size=%u)  %x  s0%x a2 %x \n",vaddr,cpu->pc,op_size,cpu->gpr[16],cpu->gpr[6]);
-		
+	
+
    if (MTS_HALF_WORD == op_size)
    {
       if (unlikely((vaddr & 0x00000001UL) != 0x0))
@@ -2558,7 +2560,7 @@ if ((vaddr==0x803233a0)&&(op_type==MTS_WRITE))
          return (dev_access_fast(cpu, dev_id, haddr, op_size, op_type, data, has_set_value));
       }
    }
-   
+
 
    /* Raw memory access */
    haddr = entry->hpa + (vaddr & MIPS_MIN_PAGE_IMASK);

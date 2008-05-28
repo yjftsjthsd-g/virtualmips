@@ -84,8 +84,11 @@ int jz4740_reset(vm_instance_t * vm)
    /*reset all devices */
    dev_reset_all(vm);
 
-
-
+#ifdef _USE_JIT_
+   /*if jit is used. flush all jit buffer*/
+   if (vm->jit_use)   
+   		mips64_jit_flush(cpu,0);
+#endif
    /*If we boot from elf kernel image, load the image and set pc to elf entry */
    if (vm->boot_method == BOOT_ELF)
    {

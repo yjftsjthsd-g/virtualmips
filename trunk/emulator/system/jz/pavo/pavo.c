@@ -29,7 +29,7 @@
 #include "pavo.h"
 #include "device.h"
 #include "dev_cs8900.h"
-
+#include "mips64_jit.h"
 
 extern m_uint32_t jz4740_int_table[JZ4740_INT_INDEX_MAX];
 int dev_jz4740_gpio_init(vm_instance_t * vm, char *name, m_pa_t paddr, m_uint32_t len);
@@ -300,7 +300,6 @@ static void printf_configure(pavo_t * pavo)
    }
    else
       printf("CS8900 net card disenabled\n");
-
 }
 static void pavo_parse_configure(pavo_t * pavo)
 {
@@ -310,6 +309,8 @@ static void pavo_parse_configure(pavo_t * pavo)
           /*add other configure information here */
           CFG_SIMPLE_INT("cs8900_enable", &(pavo->cs8900_enable)),
       CFG_SIMPLE_STR("cs8900_iotype", &(pavo->cs8900_iotype)),
+      CFG_SIMPLE_INT("jit_use", &(vm->jit_use)),
+      
       CFG_END()
    };
    cfg_t *cfg;
@@ -329,7 +330,10 @@ static void pavo_parse_configure(pavo_t * pavo)
    {
       ASSERT(pavo->cs8900_iotype != NULL, "You must set cs8900_enable \n");
    }
-
+   if (vm->jit_use==1)
+   	{
+   		ASSERT(JIT_SUPPORT==1, "You must compile with JIT Support to use jit. \n"); 
+   	}
 
    /*Print the configure information */
    printf_configure(pavo);

@@ -24,13 +24,13 @@
   int (*func) (cpu_mips_t *, mips_insn_t);
   m_uint16_t num;
 };
-#define MAJOR_OP(_inst) (((uint)_inst >> 26) & 0x3f )
+
 
  struct mips64_jit_desc {
   char  *opname;
   int (*emit_func) (cpu_mips_t *, mips64_jit_tcb_t *,mips_insn_t);
   m_uint16_t num;
-   int delay_slot; /*can this instruction in delay slot. 1:can. 0: can not*/
+  int delay_slot; /*can this instruction in delay slot. 1:can. 0: can not*/
 };
 
 
