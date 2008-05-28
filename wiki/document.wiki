@@ -4,6 +4,7 @@
 
  # [UserManual How to build VirtualMIPS]
  # [gdbinterface How to use gdb interface to debug kernel]
+ # [JIT How to use JIT in VirtualMIPS]
 
 === Pavo ===
  # [PavoEmulation How to run pavo emulation]
