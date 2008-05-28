@@ -34,7 +34,7 @@ sudo pacman -S libsdl
 
 = Build VirtualMIPS =
 
-Build VirtualMIPS is very easy. Since version 0.04 VirtualMIPS uses [http://www.scons.org scons] to build the system instead of make. Install scons in your system first.
+Build VirtualMIPS is very easy. VirtualMIPS uses [http://www.scons.org scons] to build the system instead of make. Please install scons in your system first.
 
  * Debian etch / ubuntu hardy
 {{{
