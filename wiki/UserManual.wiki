@@ -2,7 +2,7 @@
 
 ----
 
-You need to download VirtualMIPS first. The [http://virtualmips.googlecode.com/files/virtualmips-0.05.tar.bz2 latest version] is v0.05. In the following, ${version} means the latest version number.
+You need to download VirtualMIPS first. The [http://virtualmips.googlecode.com/files/virtualmips-0.05.tar.bz2 latest version] is v0.06. In the following, ${version} means the latest version number.
 
 Supported systems:
  * JZ [http://www.ingenic.cn/pfwebplus/productServ/kfyd/Hardware/pffaqQuestionContent.aspx?Category=2&Question=3 Pavo demo borad](with LCD controller).
@@ -30,13 +30,7 @@ sudo pacman -S confuse
 sudo pacman -S libsdl
 }}}
 
-For ubuntu hardy, you need the a [http://virtualmips.googlecode.com/issues/attachment?aid=-3457568321407774672&name=ubuntu.patch patch] first. See [http://code.google.com/p/virtualmips/issues/detail?id=3 issue 3] for detailed description. Ubuntu gusty does not need this patch.
 
-{{{
-cp ubuntu.patch virtualmips-${version}
-cd  virtualmips-${version}
-patch -p1 <ubuntu.patch
-}}}
 
 = Build VirtualMIPS =
 
@@ -62,6 +56,9 @@ Use scons-h to see the build options of VirtualMIPS.
 {{{
 # scons -h
 
+scons: Reading SConscript files ...
+scons: done reading SConscript files.
+
 Usage:
         scons [target] [compile options]
 Targets:
@@ -70,15 +67,19 @@ Targets:
         mknandflash:            Build mknandflash tool
 
 Compile Options:
+        jit:                    Set to 0 to compile VirtualMIPS *without* JIT support(pavo only). Default 1.
         lcd:                    Set to 0 to compile VirtualMIPS *without* LCD support(pavo only). Default 1.
         mhz:                    Set to 1 to test emulator's speed. Default 0.
         debug:                  Set to 1 to compile with -g. Default 0.
         o:                      Set optimization level.Default 3.
         cc:                     Set compiler.Default "gcc". You can set cc=gcc-3.4 to use gcc 3.4.
+
 }}}
 
 example:
 {{{
+# scons pavo jit=1              <--build VirtualMIPS for pavo emulation *with* JIT support
+# scons pavo jit=0              <--build VirtualMIPS for pavo emulation *without* JIT support
 # scons pavo lcd=1   		<--build VirtualMIPS for pavo emulation *with* LCD support
 # scons pavo lcd=0   		<--build VirtualMIPS for pavo emulation *without* LCD support
 # scons adm5120      		<--build VirtualMIPS for adm5120 emulation.
