@@ -21,7 +21,7 @@ Targets:
         mknandflash:            Build mknandflash tool
 
 Compile Options:
-				jit:                    Set to 0 to compile VirtualMIPS *without* JIT support(pavo only). Default 1.
+        jit:                    Set to 0 to compile VirtualMIPS *without* JIT support(pavo only). Default 1.
         lcd:                    Set to 0 to compile VirtualMIPS *without* LCD support(pavo only). Default 1.
         mhz:                    Set to 1 to test emulator's speed. Default 0.
         debug:                  Set to 1 to compile with -g. Default 0.
