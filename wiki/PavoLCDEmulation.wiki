@@ -1,10 +1,10 @@
 #summary How to run pavo LCD emulation
 
+In the following,${version}=0.06,${t-version}=0.05. 
+
 = Introduction =
 
 Since version 0.04, VirtualMIPS emulates LCD controller and touch screen for JZ4740. You can test and run your GUI application(QT/GTK for example) in VirtualMIPS. 
-
-The emulation speed of LCD emulation is slow, please be patient. It will be improved in next release using JIT.
 
 = Build VirtualMIPS =
 
@@ -20,8 +20,8 @@ Build VirtualMIPS with lcd support. LibSDL is needed in LCD emulation. Please in
 Copy uImage-2.4 and uboot image into VirtualMIPS.
 
 {{{
-cp test_suit-${version}/pavo/u-boot-nand.bin  virtualmips-${version}/build
-cp test_suit-${version}/pavo/uImage-2.4  virtualmips-${version}/build
+cp test_suit-${t-version}/pavo/u-boot-nand.bin  virtualmips-${version}/build
+cp test_suit-${t-version}/pavo/uImage-2.4  virtualmips-${version}/build
 }}}
 
 Make yaffs2 root filesystem. You need to download [ftp://ftp.ingenic.cn/3sw/01linux/03root/rootfs-20080409.tgz rootfs for pavo]from JZ's website first.
