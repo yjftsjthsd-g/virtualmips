@@ -27,6 +27,7 @@
 #include "utils.h"
 #include "system.h"
 #include "mips64_cp0.h"
+#include "mips64_jit.h"
 
 #define GDB_SR            32
 #define GDB_LO            33
@@ -101,9 +102,6 @@ int mips64_reg_get(cpu_mips_t * cpu, u_int reg, m_reg_t * val)
          *val = cpu->cp0.reg[MIPS_CP0_CAUSE];
          break;
       case GDB_PC:
-         //if (cpu->vm->jit_use)
-         //  *val=cpu->jit_pc;
-         //else
          *val = cpu->pc;
          break;
       default:
@@ -116,55 +114,6 @@ int mips64_reg_get(cpu_mips_t * cpu, u_int reg, m_reg_t * val)
 
 }
 
-#if 0
-/* Dump registers of a MIPS64 processor */
-void mips64_dump_regs(cpu_mips_t * cpu)
-{
-
-   cpu_mips_t *mcpu = (cpu);
-   mips_insn_t *ptr, insn;
-   char buffer[80];
-   int i;
-
-   printf("MIPS64 Registers:\n");
-
-   for (i = 0; i < MIPS64_GPR_NR / 2; i++)
-   {
-      printf("  %s ($%2d) = 0x%16.16" LL "x   %s ($%2d) = 0x%16.16" LL "x\n",
-             mips64_gpr_reg_names[i * 2], i * 2, mcpu->gpr[i * 2],
-             mips64_gpr_reg_names[(i * 2) + 1], (i * 2) + 1, mcpu->gpr[(i * 2) + 1]);
-   }
-
-   printf("  lo = 0x%16.16" LL "x, hi = 0x%16.16" LL "x\n", mcpu->lo, mcpu->hi);
-   printf("  pc = 0x%16.16" LL "x, " LL "_bit = %u\n", mcpu->pc, mcpu->ll_bit);
-
-
-
-
-   /* Fetch the current instruction */
-   ptr = mcpu->mem_op_lookup(mcpu, mcpu->pc);
-   if (ptr)
-   {
-      insn = vmtoh32(*ptr);
-
-      if (mips64_dump_insn(buffer, sizeof(buffer), 1, mcpu->pc, insn) != -1)
-         printf("  Instruction: %s\n", buffer);
-   }
-
-   printf("\nCP0 Registers:\n");
-
-   for (i = 0; i < MIPS64_CP0_REG_NR / 2; i++)
-   {
-      printf("  %-10s ($%2d) = 0x%16.16" LL "x   %-10s ($%2d) = 0x%16.16" LL "x\n",
-             mips64_cp0_reg_names[i * 2], i * 2,
-             mips64_cp0_get_reg(mcpu, i * 2),
-             mips64_cp0_reg_names[(i * 2) + 1], (i * 2) + 1, mips64_cp0_get_reg(mcpu, (i * 2) + 1));
-   }
-   printf("\n");
-
-}
-
-#endif
 
 
 /* Delete a MIPS64 processor */
@@ -361,7 +310,6 @@ int fastcall mips64_update_irq_flag(cpu_mips_t * cpu)
 {
    return mips64_update_irq_flag_fast(cpu);
 }
-
 /* Generate an exception */
 void mips64_trigger_exception(cpu_mips_t * cpu, u_int exc_code, int bd_slot)
 {
@@ -385,8 +333,6 @@ void mips64_trigger_exception(cpu_mips_t * cpu, u_int exc_code, int bd_slot)
          cause &= ~MIPS_CP0_CAUSE_BD_SLOT;
 
    }
-
-
 
    cause &= ~MIPS_CP0_CAUSE_EXC_MASK;   //clear exec-code
    cause |= (exc_code << 2);
@@ -460,18 +406,18 @@ void fastcall mips64_exec_soft_fpu(cpu_mips_t * cpu)
 {
    mips_cp0_t *cp0 = &cpu->cp0;
    cp0->reg[MIPS_CP0_CAUSE] |= 0x10000000;      //CE=1
-   if (cpu->is_in_bdslot == 0)
-      mips64_trigger_exception(cpu, MIPS_CP0_CAUSE_CP_UNUSABLE, 0);
-   else
-      mips64_trigger_exception(cpu, MIPS_CP0_CAUSE_CP_UNUSABLE, 1);
+   mips64_trigger_exception(cpu, MIPS_CP0_CAUSE_CP_UNUSABLE, cpu->is_in_bdslot);
+
 }
+
+extern int tttt;
 
 /* Execute ERET instruction */
 void fastcall mips64_exec_eret(cpu_mips_t * cpu)
 {
    mips_cp0_t *cp0 = &cpu->cp0;
 
-   if (cp0->reg[MIPS_CP0_STATUS] & MIPS_CP0_STATUS_ERL)
+  if (cp0->reg[MIPS_CP0_STATUS] & MIPS_CP0_STATUS_ERL)
    {
       cp0->reg[MIPS_CP0_STATUS] &= ~MIPS_CP0_STATUS_ERL;
       cpu->pc = cp0->reg[MIPS_CP0_ERR_EPC];
@@ -482,7 +428,6 @@ void fastcall mips64_exec_eret(cpu_mips_t * cpu)
       cp0->reg[MIPS_CP0_STATUS] &= ~MIPS_CP0_STATUS_EXL;
       cpu->pc = cp0->reg[MIPS_CP0_EPC];
    }
-
    /* We have to clear the LLbit */
    cpu->ll_bit = 0;
 
@@ -535,7 +480,7 @@ void mips64_set_irq(cpu_mips_t * cpu, m_uint8_t irq)
 {
    m_uint32_t m;
    m = (1 << (irq + MIPS_CP0_CAUSE_ISHIFT)) & MIPS_CP0_CAUSE_IMASK;
-
+   //atomic_or(&cpu->irq_cause,m);
    cpu->irq_cause |= m;
 
 
@@ -548,7 +493,7 @@ void mips64_clear_irq(cpu_mips_t * cpu, m_uint8_t irq)
 
    m = (1 << (irq + MIPS_CP0_CAUSE_ISHIFT)) & MIPS_CP0_CAUSE_IMASK;
    cpu->irq_cause &= ~m;
-
+   //atomic_and(&cpu->irq_cause,~m);
 
    if (!cpu->irq_cause)
       cpu->irq_pending = 0;

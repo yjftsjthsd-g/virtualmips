@@ -455,7 +455,7 @@ struct cpu_mips
 
 
 
-//#ifdef  USE_JIT
+#ifdef _USE_JIT_
    /* JIT flush method */
    u_int jit_flush_method;
 
@@ -474,7 +474,7 @@ struct cpu_mips
      /* Direct block jump.Optimization */
    u_int exec_blk_direct_jump;
      
-//#endif
+#endif
    
 };
 
@@ -483,6 +483,7 @@ struct cpu_mips
 /* Register names */
 extern char *mips64_gpr_reg_names[];
 
+#define MAJOR_OP(_inst) (((uint)_inst >> 26) & 0x3f )
 
 int mips_load_elf_image(cpu_mips_t * cpu, char *filename, m_va_t * entry_point);
 

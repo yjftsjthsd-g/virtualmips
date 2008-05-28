@@ -43,26 +43,6 @@ void cpu_log(cpu_mips_t * cpu, char *module, char *format, ...)
 #endif
 }
 
-void cpu_log1(cpu_mips_t * cpu, char *module, char *format, ...)
-{
-  /*char buffer[256];
-   va_list ap;
-
-   va_start(ap, format);
-   snprintf(buffer, sizeof(buffer), "CPU%u: %s", cpu->id, module);
-   vm_flog(cpu->vm, buffer, format, ap);
-   va_end(ap);*/
-}
-void cpu_log2(cpu_mips_t * cpu, char *module, char *format, ...)
-{
-  char buffer[256];
-   va_list ap;
-
-   va_start(ap, format);
-   //snprintf(buffer, sizeof(buffer), "CPU%u: %s", cpu->id, module);
-   vm_flog(cpu->vm, buffer, format, ap);
-   va_end(ap);
-}
 /* Start a CPU */
 void cpu_start(cpu_mips_t * cpu)
 {
@@ -266,7 +246,6 @@ static int cpu_group_check_activity(cpu_group_t * group)
 /* Synchronize on CPUs (all CPUs must be inactive) */
 int cpu_group_sync_state(cpu_group_t * group)
 {
-   cpu_mips_t *cpu;
    m_tmcnt_t t1, t2;
 
    /* Check that CPU activity is really suspended */

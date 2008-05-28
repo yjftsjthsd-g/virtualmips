@@ -90,6 +90,20 @@ struct mts32_chunk
 };
 
 
+/*check whether vaddr need map*/
+static int forced_inline vaddr_mapped(m_va_t vaddr)
+{
+	 int zone = (vaddr >> 29) & 0x7;
+   if ((zone==0x4) ||(zone==0x5) )
+   	{
+   		return 0;
+   	}
+   else
+   	{
+   		return 1;
+   	}
+}
+
 /* Shutdown the MTS subsystem */
 void mips_mem_shutdown(cpu_mips_t * cpu);
 
@@ -98,4 +112,7 @@ int mips_set_addr_mode(cpu_mips_t * cpu, u_int addr_mode);
 
 void physmem_dma_transfer(vm_instance_t * vm, m_pa_t src, m_pa_t dst, size_t len);
 void *physmem_get_hptr(vm_instance_t * vm, m_pa_t paddr, u_int op_size, u_int op_type, m_uint32_t * data);
+
+
+
 #endif

@@ -1,3 +1,11 @@
+/*
+ * Copyright (C) yajin 2008 <yajinzhou@gmail.com >
+ *     
+ * This file is part of the virtualmips distribution. 
+ * See LICENSE file for terms of the license. 
+ *
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -19,13 +27,14 @@
 #include "vp_timer.h"
 #include "x86_trans.h"
 
+#ifdef _USE_JIT_
  struct mips64_jit_desc mips_jit[];
 static struct mips64_jit_desc mips_spec_jit[];
 static struct mips64_jit_desc mips_bcond_jit[];
 static struct mips64_jit_desc mips_cop0_jit[];
 static struct mips64_jit_desc mips_mad_jit[];
 static struct mips64_jit_desc mips_tlb_jit[];
-fastcall void mips64_exec_single_step(cpu_mips_t *cpu,mips_insn_t instruction);
+void fastcall mips64_exec_single_step(cpu_mips_t *cpu,mips_insn_t instruction);
 
 #define REG_OFFSET(reg)       (OFFSET(cpu_mips_t,gpr[(reg)]))
 #define CP0_REG_OFFSET(c0reg) (OFFSET(cpu_mips_t,cp0.reg[(c0reg)]))
@@ -55,13 +64,13 @@ void mips64_set_ra(mips64_jit_tcb_t *b,m_va_t ret_pc)
 static void mips64_try_direct_far_jump(cpu_mips_t *cpu,mips64_jit_tcb_t *b,
                                        m_va_t new_pc)
 {
-   m_uint64_t new_page;
+   m_va_t new_page;
    m_uint32_t pc_hash,pc_offset;
-   u_char *test1,*test2,*test3,*test4;
+   u_char *test1,*test2,*test3,*test4,*test5,*test6;
 
    new_page = new_pc & MIPS_MIN_PAGE_MASK;
    pc_offset = (new_pc & MIPS_MIN_PAGE_IMASK) >> 2;
-   pc_hash = mips64_jit_get_pc_hash(new_pc);
+   pc_hash = mips64_jit_get_pc_hash(cpu,new_pc);
 
    /* Get JIT block info in %edx */
    x86_mov_reg_membase(b->jit_ptr,X86_EBX,
@@ -80,6 +89,35 @@ static void mips64_try_direct_far_jump(cpu_mips_t *cpu,mips64_jit_tcb_t *b,
    test2 = b->jit_ptr;
    x86_branch8(b->jit_ptr, X86_CC_NE, 0, 1);
 
+   /*whether newpc is mapped*/
+   x86_shift_reg_imm(b->jit_ptr,X86_SHR,X86_EAX,29);
+   x86_alu_reg_imm(b->jit_ptr,X86_AND,X86_EAX,0x7);
+   
+ 	x86_alu_reg_imm(b->jit_ptr,X86_CMP,X86_EAX,0x4);
+ 	test4 = b->jit_ptr;
+	x86_branch8(b->jit_ptr, X86_CC_E, 0, 1);
+
+	x86_alu_reg_imm(b->jit_ptr,X86_CMP,X86_EAX,0x5);
+ 	test5 = b->jit_ptr;
+	x86_branch8(b->jit_ptr, X86_CC_E, 0, 1);
+
+	/*check ASID*/
+	x86_lea_membase(b->jit_ptr,X86_ESI,
+                       X86_EDI,OFFSET(cpu_mips_t,cp0))	;
+	//x86_mov_reg_membase(b->jit_ptr,X86_ESI,
+    //                   X86_EDI,OFFSET(cpu_mips_t,cp0),4);
+	x86_mov_reg_membase(b->jit_ptr,X86_EBX,
+                       X86_ESI,OFFSET(mips_cp0_t,reg[MIPS_CP0_TLB_HI]),4);
+	x86_alu_reg_imm(b->jit_ptr,X86_AND,X86_EBX,MIPS_TLB_ASID_MASK);
+	x86_alu_reg_membase(b->jit_ptr,X86_CMP,X86_EBX,X86_EDX,
+                       OFFSET(mips64_jit_tcb_t,asid));
+	test6 = b->jit_ptr;
+   x86_branch8(b->jit_ptr, X86_CC_NE, 0, 1);
+   
+	
+	
+	x86_patch(test4,b->jit_ptr);
+   x86_patch(test5,b->jit_ptr);
    /* Jump to the code */
    x86_mov_reg_membase(b->jit_ptr,X86_ESI,
                        X86_EDX,OFFSET(mips64_jit_tcb_t,jit_insn_ptr),4);
@@ -95,6 +133,7 @@ static void mips64_try_direct_far_jump(cpu_mips_t *cpu,mips64_jit_tcb_t *b,
    x86_patch(test1,b->jit_ptr);
    x86_patch(test2,b->jit_ptr);
    x86_patch(test3,b->jit_ptr);
+   x86_patch(test6,b->jit_ptr);
 
    mips64_set_pc(b,new_pc);
    mips64_jit_tcb_push_epilog(b);
@@ -114,25 +153,46 @@ static void mips64_set_jump(cpu_mips_t *cpu,mips64_jit_tcb_t *b,
       if (jump_ptr) {
          x86_jump_code(b->jit_ptr,jump_ptr);
       } else {
-         /* Never jump directly to code in a delay slot */
-         //if (mips64_jit_is_delay_slot(b,new_pc)) {
-         //   mips64_set_pc(b,new_pc);
-         //   mips64_jit_tcb_push_epilog(b);
-         //   return;
-        // }
+         /* Never jump directly to code in a delay slot. */
+         /*Hi yajin, why a delay slot can have entry point or why have to jmp
+         to delay slot?
+		The following is the code from celinux 2.4.
+		
+		802a19d4:	1500004a 	bnez	t0,802a1b00 <src_unaligned_dst_aligned>
+
+		802a19d8 <both_aligned>:
+		802a19d8:	00064142 	srl	t0,a2,0x5
+
+		if call function both_aligned(0x802a19d8), it is in delay slot of 0x802a19d4 but it is 
+		the entry of function both_aligned.
+		Just set pc to 0x802a19d8 and return main loop.
+*/
+         if (mips64_jit_is_delay_slot(b,new_pc)) {
+            mips64_set_pc(b,new_pc);
+            mips64_jit_tcb_push_epilog(b);
+            return;
+         }
 
          mips64_jit_tcb_record_patch(b,b->jit_ptr,new_pc);
          x86_jump32(b->jit_ptr,0);
       }
    } else {
-      if (cpu->exec_blk_direct_jump) {
+     mips64_try_direct_far_jump(cpu,b,new_pc);
+
+	#if 0
+     if (cpu->exec_blk_direct_jump)
+     {
          /* Block lookup optimization */
          mips64_try_direct_far_jump(cpu,b,new_pc);
-      } else {
+      } 
+      else
+      	{
          mips64_set_pc(b,new_pc);
          mips64_jit_tcb_push_epilog(b);
       }
+     #endif
    }
+
 }
 
 /* Basic C call */
@@ -156,10 +216,7 @@ void mips64_emit_single_step(mips64_jit_tcb_t *b,mips_insn_t insn)
    x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
    mips64_emit_basic_c_call(b,mips64_exec_single_step);
 }
-/* Fast memory operation prototype */
-typedef void (*memop_fast_access)(mips64_jit_tcb_t *b,int target);
 
-extern current_cpu;
 /* Memory operation */
 /*we use EAX EDX ECX to transfer parameter. yajin.
 Makesure memory operation DONOT have more than 3 parameters*/
@@ -171,7 +228,6 @@ static void mips64_emit_memop(mips64_jit_tcb_t *b,int op,int base,int offset,
 
    /* Save PC for exception handling */
    mips64_set_pc(b,b->start_pc+((b->mips_trans_pos-1)<<2));
-   //cpu_log1(current_cpu,"","new_pc %x \n",b->start_pc+((b->mips_trans_pos-1)<<2));
 
    if (!keep_ll_bit) {
       x86_clear_reg(b->jit_ptr,X86_EAX);
@@ -227,7 +283,7 @@ static int mips64_emit_unknown(cpu_mips_t *cpu,mips64_jit_tcb_t *b,
 /* Invalid delay slot handler */
 static fastcall void mips64_invalid_delay_slot(cpu_mips_t *cpu)
 {
-   printf("MIPS64: invalid instruction in delay slot at 0x%llx (ra=0x%llx)\n",
+   printf("MIPS64: invalid instruction in delay slot at 0x%"LL"x (ra=0x%"LL"x)\n",
           cpu->pc,cpu->gpr[MIPS_GPR_RA]);
 
    //mips64_dump_regs(cpu);
@@ -238,7 +294,6 @@ static fastcall void mips64_invalid_delay_slot(cpu_mips_t *cpu)
 /* Emit unhandled instruction code */
 int mips64_emit_invalid_delay_slot(mips64_jit_tcb_t *b)
 {   
-  // x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
    x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
    mips64_emit_c_call(b,mips64_invalid_delay_slot);
    x86_alu_reg_imm(b->jit_ptr,X86_ADD,X86_ESP,12);
@@ -257,7 +312,7 @@ void mips64_check_cpu_pausing(mips64_jit_tcb_t *b)
   x86_alu_reg_imm(b->jit_ptr,X86_AND,X86_EAX,CPU_INTERRUPT_EXIT);
   x86_alu_reg_imm(b->jit_ptr,X86_CMP,X86_EAX,CPU_INTERRUPT_EXIT);
   test1 =b->jit_ptr;
-  x86_branch8(b->jit_ptr, X86_CC_NE, 0, 1);	
+  x86_branch32(b->jit_ptr, X86_CC_NE, 0, 1);	
   /*if (cpu->pause_request)&CPU_INTERRUPT_EXIT==CPU_INTERRUPT_EXIT,
   		set cpu->state and return to main loop*/
   mips64_set_pc(b,b->start_pc+((b->mips_trans_pos-1)<<2));
@@ -282,7 +337,7 @@ void mips64_check_pending_irq(mips64_jit_tcb_t *b)
                        X86_EDI,OFFSET(cpu_mips_t,irq_pending),4);
    x86_test_reg_reg(b->jit_ptr,X86_EAX,X86_EAX);
    test1 = b->jit_ptr;
-   x86_branch8(b->jit_ptr, X86_CC_Z, 0, 1);
+   x86_branch32(b->jit_ptr, X86_CC_Z, 0, 1);
 
    /* Save PC */
    mips64_set_pc(b,b->start_pc+((b->mips_trans_pos-1)<<2));
@@ -295,136 +350,6 @@ void mips64_check_pending_irq(mips64_jit_tcb_t *b)
    x86_patch(test1,b->jit_ptr);
 }
 
-static fastcall int add_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rt = bits(insn, 16, 20);
-   int rd = bits(insn, 11, 15);
-   m_reg_t res;
-
-   /* TODO: Exception handling */
-   res = (m_uint32_t) cpu->gpr[rs] + (m_uint32_t) cpu->gpr[rt];
-   cpu->gpr[rd] = sign_extend(res, 32);
-   return (0);
-}
-
-static fastcall int addi_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rt = bits(insn, 16, 20);
-   int imm = bits(insn, 0, 15);
-   m_uint32_t res, val = sign_extend(imm, 16);
-
-   /* TODO: Exception handling */
-   res = (m_uint32_t) cpu->gpr[rs] + val;
-   cpu->gpr[rt] = sign_extend(res, 32);
-   return (0);
-}
-
-static fastcall int addiu_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rt = bits(insn, 16, 20);
-   int imm = bits(insn, 0, 15);
-   m_uint32_t res, val = sign_extend(imm, 16);
-
-   res = (m_uint32_t) cpu->gpr[rs] + val;
-   cpu->gpr[rt] = sign_extend(res, 32);
-
-
-   return (0);
-}
-
-static fastcall int addu_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rt = bits(insn, 16, 20);
-   int rd = bits(insn, 11, 15);
-   m_uint32_t res;
-
-   res = (m_uint32_t) cpu->gpr[rs] + (m_uint32_t) cpu->gpr[rt];
-   cpu->gpr[rd] = sign_extend(res, 32);
-   return (0);
-}
-
-
-
-static fastcall int and_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rt = bits(insn, 16, 20);
-   int rd = bits(insn, 11, 15);
-
-   cpu->gpr[rd] = cpu->gpr[rs] & cpu->gpr[rt];
-   return (0);
-
-}
-
-static fastcall int andi_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rt = bits(insn, 16, 20);
-   int imm = bits(insn, 0, 15);
-
-   cpu->gpr[rt] = cpu->gpr[rs] & imm;
-   return (0);
-}
-
-static int  mips_emit_add(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{  
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,add_emu);
-   return(0);
-}
-static int  mips_emit_addi(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{  
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,addi_emu);
-   return(0);
-}
-
-
-static int  mips_emit_addiu(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{  
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,addiu_emu);
-   return(0);
-}
-
-static int  mips_emit_addu(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{  
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,addu_emu);
-   return(0);
-}
-
-static int  mips_emit_and(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{  
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,and_emu);
-   return(0);
-}
-static int  mips_emit_andi(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{  
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,andi_emu);
-   return(0);
-}
-
-
-#if 0
 /* ADD */
  static int  mips_emit_add(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)
 {	
@@ -515,7 +440,7 @@ static int  mips_emit_andi(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn
    x86_mov_membase_reg(b->jit_ptr,X86_EDI,REG_OFFSET(rt),X86_EAX,4);
    return(0);
 }
-#endif
+
  static int  mips_emit_bcond(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)
 {
  	uint16_t special_func = bits(insn, 16, 20);
@@ -523,6 +448,28 @@ static int  mips_emit_andi(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn
 }
 
 
+/*
+Hi yajin, why we need call mips64_jit_fetch_and_emit twice?
+Why do we translate beq like this:
+
+mips64_jit_fetch_and_emit(cpu,b,1);
+x86_mov_reg_membase(b->jit_ptr,X86_EAX,X86_EDI,REG_OFFSET(rs),4);
+x86_alu_reg_membase(b->jit_ptr,X86_CMP,X86_EAX,X86_EDI,REG_OFFSET(rt));
+test1 = b->jit_ptr;
+x86_branch32(b->jit_ptr, X86_CC_NE, 0, 1);
+mips64_set_jump(cpu,b,new_pc,1);
+x86_patch(test1,b->jit_ptr);
+
+That is fetching the delay slot code first and then jumping to new pc according to 
+the comparing result of register rs and register rt.
+
+This seems right but it is wrong and not easy to catch this bug!!!
+
+The instruction in delay slot may change the content of register rs and rt and the 
+comparing result can not be trusted anymore.
+We MUST compare register rs and rt and then run the code in delay slot. 
+   
+*/
 /* BEQ (Branch On Equal) */
  static int  mips_emit_beq(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)
 {
@@ -736,7 +683,7 @@ static int  mips_emit_andi(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn
    x86_branch32(b->jit_ptr, X86_CC_Z, 0, 1);
 
    /* here, we take the branch */
-   x86_patch(test2,b->jit_ptr);
+   //x86_patch(test2,b->jit_ptr);
 
    /* insert the instruction in the delay slot */
    mips64_jit_fetch_and_emit(cpu,b,2);
@@ -776,7 +723,7 @@ static int  mips_emit_andi(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn
 
 
    /* here, we take the branch */
-   x86_patch(test2,b->jit_ptr);
+  // x86_patch(test2,b->jit_ptr);
 
    /* insert the instruction in the delay slot */
    mips64_jit_fetch_and_emit(cpu,b,1);
@@ -1135,8 +1082,11 @@ static int  mips_emit_cop0(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn
 static int  mips_emit_cop1(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
 {
 #if SOFT_FPU
+   /* Save PC for exception handling */
+   mips64_set_pc(b,b->start_pc+((b->mips_trans_pos-1)<<2));
    x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
 	mips64_emit_basic_c_call(b,mips64_exec_soft_fpu);
+	mips64_jit_tcb_push_epilog(b);
    return (0);
 #else
    mips64_emit_unknown(cpu,b,insn);
@@ -1145,9 +1095,12 @@ static int  mips_emit_cop1(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn
 }
 static int  mips_emit_cop1x(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
 {
-	#if SOFT_FPU
+#if SOFT_FPU
+	   /* Save PC for exception handling */
+   mips64_set_pc(b,b->start_pc+((b->mips_trans_pos-1)<<2));
    x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
 	mips64_emit_basic_c_call(b,mips64_exec_soft_fpu);
+	mips64_jit_tcb_push_epilog(b);
    return (0);
 #else
    mips64_emit_unknown(cpu,b,insn);
@@ -1199,56 +1152,6 @@ static int  mips_emit_ddivu(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int ins
    return(0);
 }
 
-static int fastcall div_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rt = bits(insn, 16, 20);
-
-   cpu->lo = (m_int32_t) cpu->gpr[rs] / (m_int32_t) cpu->gpr[rt];
-   cpu->hi = (m_int32_t) cpu->gpr[rs] % (m_int32_t) cpu->gpr[rt];
-
-   cpu->lo = sign_extend(cpu->lo, 32);
-   cpu->hi = sign_extend(cpu->hi, 32);
-   return (0);
-
-}
-
-static int fastcall divu_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rt = bits(insn, 16, 20);
-
-   if (cpu->gpr[rt] == 0)
-      return (0);
-
-   cpu->lo = (m_uint32_t) cpu->gpr[rs] / (m_uint32_t) cpu->gpr[rt];
-   cpu->hi = (m_uint32_t) cpu->gpr[rs] % (m_uint32_t) cpu->gpr[rt];
-
-   cpu->lo = sign_extend(cpu->lo, 32);
-   cpu->hi = sign_extend(cpu->hi, 32);
-   return (0);
-
-}
-
-
-static int   mips_emit_div(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{  
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,div_emu);
-   return(0);
-}
-
-static int  mips_emit_divu(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{  
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,divu_emu);
-   return(0);
-}
-#if 0
 static int  mips_emit_div(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
 {
 	int rs = bits(insn,21,25);
@@ -1256,6 +1159,7 @@ static int  mips_emit_div(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)
 
    /* eax = gpr[rs] */
    x86_mov_reg_membase(b->jit_ptr,X86_EAX,X86_EDI,REG_OFFSET(rs),4);
+   x86_cdq(b->jit_ptr);
    /* ebx = gpr[rt] */
    x86_mov_reg_membase(b->jit_ptr,X86_EBX,X86_EDI,REG_OFFSET(rt),4);
 
@@ -1292,7 +1196,6 @@ static int  mips_emit_divu(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn
    x86_mov_membase_reg(b->jit_ptr,X86_EDI,OFFSET(cpu_mips_t,hi),X86_EDX,4);
    return(0);
 }
-#endif
 static int  mips_emit_dmfc0(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
 {
 	mips64_emit_unknown(cpu,b,insn);
@@ -1572,23 +1475,7 @@ static int  mips_emit_lld(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)
    return(0);
 }
 
-static fastcall int lui_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rt = bits(insn, 16, 20);
-   int imm = bits(insn, 0, 15);
 
-   cpu->gpr[rt] = sign_extend(imm, 16) << 16;
-   return (0);
-}
-static int  mips_emit_lui(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,lui_emu);
-   return(0);
-}
-/*
 static int  mips_emit_lui(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
 {
  int rt  = bits(insn,16,20);
@@ -1599,7 +1486,7 @@ static int  mips_emit_lui(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)
 
    return(0);
 }
-*/
+
 static int  mips_emit_lw(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
 {
    int base   = bits(insn,21,25);
@@ -1613,8 +1500,11 @@ static int  mips_emit_lw(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)
 static int  mips_emit_lwc1(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
 {
 	#if SOFT_FPU
+	   /* Save PC for exception handling */
+   mips64_set_pc(b,b->start_pc+((b->mips_trans_pos-1)<<2));
    x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
 	mips64_emit_basic_c_call(b,mips64_exec_soft_fpu);
+	mips64_jit_tcb_push_epilog(b);
    return (0);
 #else
    mips64_emit_unknown(cpu,b,insn);
@@ -1735,43 +1625,7 @@ static int  mips_emit_mfc0(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn
    return(0);
 	
 }
-static fastcall int mfhi_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rd = bits(insn, 11, 15);
 
-   if (rd)
-      cpu->gpr[rd] = cpu->hi;
-   return (0);
-
-}
-
-static fastcall int mflo_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rd = bits(insn, 11, 15);
-
-   if (rd)
-      cpu->gpr[rd] = cpu->lo;
-   return (0);
-
-}
-
-static int  mips_emit_mfhi(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,mfhi_emu);
-   return(0);
-}
-static int  mips_emit_mflo(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,mflo_emu);
-   return(0);
-}
-#if 0
 static int  mips_emit_mfhi(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
 {
 	 int rd = bits(insn,11,15);
@@ -1788,58 +1642,14 @@ static int  mips_emit_mflo(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn
    x86_mov_membase_reg(b->jit_ptr,X86_EDI,REG_OFFSET(rd),X86_EAX,4);
    return(0);
 }
-#endif
+
 static int  mips_emit_movc(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn) 
 {
 	mips64_emit_unknown(cpu,b,insn);
    return(0);
 }
 
-static int fastcall movz_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rd = bits(insn, 11, 15);
-   int rt = bits(insn, 16, 20);
 
-
-   if ((cpu->gpr[rt]) == 0)
-      cpu->gpr[rd] = sign_extend(cpu->gpr[rs], 32);
-   return (0);
-
-}
-
-static int fastcall movn_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rd = bits(insn, 11, 15);
-   int rt = bits(insn, 16, 20);
-
-   // printf("pc %x rs %x rd %x rt %x\n",cpu->pc,rs,rd,rt);
-   if ((cpu->gpr[rt]) != 0)
-      cpu->gpr[rd] = sign_extend(cpu->gpr[rs], 32);
-   return (0);
-
-}
-
-static int  mips_emit_movz(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,movz_emu);
-   return(0);
-}
-static int  mips_emit_movn(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,movn_emu);
-   return(0);
-}
-
-
-#if 0
 static int  mips_emit_movz(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn) 
 {
    int rs = bits(insn, 21, 25);
@@ -1880,7 +1690,7 @@ static int  mips_emit_movn(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn
    
 }
 
-#endif
+
 
 
 static int fastcall msub_emu(cpu_mips_t * cpu, mips_insn_t insn)
@@ -1985,93 +1795,7 @@ static int  mips_emit_mtlo(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn
    mips64_emit_basic_c_call(b,mtlo_emu);
    return(0);
 }
-#if 0
-static int  mips_emit_mthi(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{
-   int rs = bits(insn,21,25);
 
-   x86_mov_reg_membase(b->jit_ptr,X86_EAX,X86_EDI,REG_OFFSET(rs),4);
-   x86_mov_membase_reg(b->jit_ptr,X86_EDI,OFFSET(cpu_mips_t,hi),X86_EAX,4);
-   return(0);
-}
-
-static int  mips_emit_mtlo(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{
-   int rs = bits(insn,21,25);
-
-   x86_mov_reg_membase(b->jit_ptr,X86_EAX,X86_EDI,REG_OFFSET(rs),4);
-   x86_mov_membase_reg(b->jit_ptr,X86_EDI,OFFSET(cpu_mips_t,lo),X86_EAX,4);
-   return(0);
-}
-#endif
-static int fastcall mul_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rt = bits(insn, 16, 20);
-   int rd = bits(insn, 11, 15);
-   m_int32_t val;
-
-   /* note: after this instruction, HI/LO regs are undefined */
-   val = (m_int32_t) cpu->gpr[rs] * (m_int32_t) cpu->gpr[rt];
-   cpu->gpr[rd] = sign_extend(val, 32);
-   return (0);
-
-}
-
-static int fastcall mult_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rt = bits(insn, 16, 20);
-   m_int64_t val;
-
-   val = (m_int64_t) (m_int32_t) cpu->gpr[rs];
-   val *= (m_int64_t) (m_int32_t) cpu->gpr[rt];
-
-   cpu->lo = sign_extend(val, 32);
-   cpu->hi = sign_extend(val >> 32, 32);
-   return (0);
-
-}
-
-static int fastcall multu_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rt = bits(insn, 16, 20);
-   m_int64_t val;               //must be 64 bit. not m_reg_t !!!
-
-   val = (m_reg_t) (m_uint32_t) cpu->gpr[rs];
-   val *= (m_reg_t) (m_uint32_t) cpu->gpr[rt];
-   cpu->lo = sign_extend(val, 32);
-   cpu->hi = sign_extend(val >> 32, 32);
-   return (0);
-
-}
-
-static int  mips_emit_mul(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,mul_emu);
-   return(0);
-}
-static int  mips_emit_mult(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,mult_emu);
-   return(0);
-}
-static int  mips_emit_multu(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,multu_emu);
-   return(0);
-}
-#if 0
 /* MUL */
 static int  mips_emit_mul(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
 {
@@ -2121,65 +1845,8 @@ static int  mips_emit_multu(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int ins
    x86_mov_membase_reg(b->jit_ptr,X86_EDI,OFFSET(cpu_mips_t,hi),X86_EDX,4);
    return(0);
 }
-#endif
 
-static fastcall int nor_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rt = bits(insn, 16, 20);
-   int rd = bits(insn, 11, 15);
 
-   cpu->gpr[rd] = ~(cpu->gpr[rs] | cpu->gpr[rt]);
-   return (0);
-
-}
-
-static fastcall int or_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rt = bits(insn, 16, 20);
-   int rd = bits(insn, 11, 15);
-
-   cpu->gpr[rd] = cpu->gpr[rs] | cpu->gpr[rt];
-   return (0);
-
-}
-
-static fastcall int ori_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rt = bits(insn, 16, 20);
-   int imm = bits(insn, 0, 15);
-
-   cpu->gpr[rt] = cpu->gpr[rs] | imm;
-   return (0);
-
-}
-static int  mips_emit_nor(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,nor_emu);
-   return(0);
-}
-static int  mips_emit_or(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,or_emu);
-   return(0);
-}
-static int  mips_emit_ori(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,ori_emu);
-   return(0);
-}
-#if 0
 static int  mips_emit_nor(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
 {
 	int rs = bits(insn,21,25);
@@ -2219,7 +1886,7 @@ static int  mips_emit_ori(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)
    return(0);
 
 }
-#endif
+
 static int  mips_emit_pref(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
 {
 	return(0);
@@ -2260,8 +1927,11 @@ static int  mips_emit_sd(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)
 static int  mips_emit_sdc1(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
 {
 #if SOFT_FPU
+   /* Save PC for exception handling */
+   mips64_set_pc(b,b->start_pc+((b->mips_trans_pos-1)<<2));
    x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
 	mips64_emit_basic_c_call(b,mips64_exec_soft_fpu);
+	mips64_jit_tcb_push_epilog(b);
    return (0);
 #else
    mips64_emit_unknown(cpu,b,insn);
@@ -2298,146 +1968,7 @@ static int  mips_emit_sh(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)
    mips64_emit_memop(b,MIPS_MEMOP_SH,base,offset,rt,TRUE);
    return(0);
 }
-static int fastcall sll_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rt = bits(insn, 16, 20);
-   int rd = bits(insn, 11, 15);
-   int sa = bits(insn, 6, 10);
-   m_uint32_t res;
 
-   res = (m_uint32_t) cpu->gpr[rt] << sa;
-   cpu->gpr[rd] = sign_extend(res, 32);
-   return (0);
-
-}
-
-static int fastcall sllv_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rt = bits(insn, 16, 20);
-   int rd = bits(insn, 11, 15);
-   m_uint32_t res;
-
-   res = (m_uint32_t) cpu->gpr[rt] << (cpu->gpr[rs] & 0x1f);
-   cpu->gpr[rd] = sign_extend(res, 32);
-   return (0);
-
-}
-
-static int fastcall slt_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rt = bits(insn, 16, 20);
-   int rd = bits(insn, 11, 15);
-
-   if ((m_ireg_t) cpu->gpr[rs] < (m_ireg_t) cpu->gpr[rt])
-      cpu->gpr[rd] = 1;
-   else
-      cpu->gpr[rd] = 0;
-
-   return (0);
-}
-
-static int fastcall slti_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rt = bits(insn, 16, 20);
-   int imm = bits(insn, 0, 15);
-   m_ireg_t val = sign_extend(imm, 16);
-
-   if ((m_ireg_t) cpu->gpr[rs] < val)
-      cpu->gpr[rt] = 1;
-   else
-      cpu->gpr[rt] = 0;
-
-   return (0);
-}
-
-
-static int fastcall sltiu_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rt = bits(insn, 16, 20);
-   int imm = bits(insn, 0, 15);
-   m_reg_t val = sign_extend(imm, 16);
-
-   if (cpu->gpr[rs] < val)
-      cpu->gpr[rt] = 1;
-   else
-      cpu->gpr[rt] = 0;
-
-   return (0);
-}
-
-static int fastcall sltu_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rt = bits(insn, 16, 20);
-   int rd = bits(insn, 11, 15);
-
-
-   if (cpu->gpr[rs] < cpu->gpr[rt])
-      cpu->gpr[rd] = 1;
-   else
-      cpu->gpr[rd] = 0;
-
-   return (0);
-
-}
-
-static int  mips_emit_sll(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,sll_emu);
-   return(0);
-}
-
-static int  mips_emit_sllv(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,sllv_emu);
-   return(0);
-}
-
-static int  mips_emit_slt(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,slt_emu);
-   return(0);
-}
-
-static int  mips_emit_slti(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,slti_emu);
-   return(0);
-}
-static int  mips_emit_sltiu(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,sltiu_emu);
-   return(0);
-}
-static int  mips_emit_sltu(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,sltu_emu);
-   return(0);
-}
-
-#if 0
 static int  mips_emit_sll(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
 {
    int rt = bits(insn,16,20);
@@ -2486,7 +2017,7 @@ static int  mips_emit_slt(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)
 
 	
    x86_alu_reg_reg(b->jit_ptr,X86_CMP,X86_ECX,X86_EAX);
-    /* rs(high) >= rt(high) => end */
+    /* rs >= rt => end */
 	test1 = b->jit_ptr;
    x86_branch8(b->jit_ptr, X86_CC_GE, 0, 1);
 	x86_inc_membase(b->jit_ptr,X86_EDI,REG_OFFSET(rd));
@@ -2515,7 +2046,7 @@ static int  mips_emit_slti(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn
 
 	
    x86_alu_reg_reg(b->jit_ptr,X86_CMP,X86_ECX,X86_EAX);
-    /* rs(high) >= val => end */
+    /* rs >= val => end */
 	test1 = b->jit_ptr;
    x86_branch8(b->jit_ptr, X86_CC_GE, 0, 1);
 	x86_inc_membase(b->jit_ptr,X86_EDI,REG_OFFSET(rt));
@@ -2545,7 +2076,7 @@ static int  mips_emit_sltiu(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int ins
 
 	
    x86_alu_reg_reg(b->jit_ptr,X86_CMP,X86_ECX,X86_EAX);
-    /* rs(high) >= val => end */
+    /* rs() >= val => end */
 	test1 = b->jit_ptr;
    x86_branch8(b->jit_ptr, X86_CC_GE, 0, 0);
 	x86_inc_membase(b->jit_ptr,X86_EDI,REG_OFFSET(rt));
@@ -2573,7 +2104,7 @@ static int  mips_emit_sltu(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn
 
 	
    x86_alu_reg_reg(b->jit_ptr,X86_CMP,X86_ECX,X86_EAX);
-    /* rs(high) >= rt(high) => end */
+    /* rs() >= rt(high) => end */
 	test1 = b->jit_ptr;
    x86_branch8(b->jit_ptr, X86_CC_GE, 0, 0);
 	x86_inc_membase(b->jit_ptr,X86_EDI,REG_OFFSET(rd));
@@ -2582,141 +2113,13 @@ static int  mips_emit_sltu(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn
    return(0);
 
 }
-#endif
+
 static int  mips_emit_spec(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
 {
 	uint16_t special_func = bits(insn, 0, 5);
    return mips_spec_jit[special_func].emit_func(cpu,b, insn);
 }
 
-static fastcall int sra_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rt = bits(insn, 16, 20);
-   int rd = bits(insn, 11, 15);
-   int sa = bits(insn, 6, 10);
-   m_int32_t res;
-
-   res = (m_int32_t) cpu->gpr[rt] >> sa;
-   cpu->gpr[rd] = sign_extend(res, 32);
-   return (0);
-
-}
-
-static fastcall int srav_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rt = bits(insn, 16, 20);
-   int rd = bits(insn, 11, 15);
-   m_int32_t res;
-
-   res = (m_int32_t) cpu->gpr[rt] >> (cpu->gpr[rs] & 0x1f);
-   cpu->gpr[rd] = sign_extend(res, 32);
-   return (0);
-
-}
-
-static fastcall int srl_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rt = bits(insn, 16, 20);
-   int rd = bits(insn, 11, 15);
-   int sa = bits(insn, 6, 10);
-   m_uint32_t res;
-
-   res = (m_uint32_t) cpu->gpr[rt] >> sa;
-   cpu->gpr[rd] = sign_extend(res, 32);
-   return (0);
-
-}
-
-static fastcall int srlv_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rt = bits(insn, 16, 20);
-   int rd = bits(insn, 11, 15);
-   m_uint32_t res;
-
-   res = (m_uint32_t) cpu->gpr[rt] >> (cpu->gpr[rs] & 0x1f);
-   cpu->gpr[rd] = sign_extend(res, 32);
-   return (0);
-
-}
-
-static fastcall int sub_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rt = bits(insn, 16, 20);
-   int rd = bits(insn, 11, 15);
-   m_uint32_t res;
-
-   /* TODO: Exception handling */
-   res = (m_uint32_t) cpu->gpr[rs] - (m_uint32_t) cpu->gpr[rt];
-   cpu->gpr[rd] = sign_extend(res, 32);
-   return (0);
-
-}
-
-static fastcall int subu_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rt = bits(insn, 16, 20);
-   int rd = bits(insn, 11, 15);
-   m_uint32_t res;
-   res = (m_uint32_t) cpu->gpr[rs] - (m_uint32_t) cpu->gpr[rt];
-   cpu->gpr[rd] = sign_extend(res, 32);
-
-   return (0);
-
-}
-
-static int  mips_emit_sra(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,sra_emu);
-   return(0);
-}
-static int  mips_emit_srav(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,srav_emu);
-   return(0);
-}
-static int  mips_emit_srl(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,srl_emu);
-   return(0);
-}
-static int  mips_emit_srlv(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,srlv_emu);
-   return(0);
-}
-static int  mips_emit_sub(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,sub_emu);
-   return(0);
-}
-static int  mips_emit_subu(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
-{
-	//x86_alu_reg_imm(b->jit_ptr,X86_SUB,X86_ESP,12);
-   x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,subu_emu);
-   return(0);
-}
-#if 0
 static int  mips_emit_sra(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
 {
    int rt = bits(insn,16,20);
@@ -2806,13 +2209,12 @@ static int  mips_emit_subu(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn
    return(0);
 
 }
-#endif
+
 static int  mips_emit_sw(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
 {
    int base = bits(insn, 21, 25);
    int rt = bits(insn, 16, 20);
    int offset = bits(insn, 0, 15);
-	cpu_log1(cpu,""," insn %x  base %x offset %x pc %x \n",insn,base,offset,b->start_pc+((b->mips_trans_pos-1)<<2));
 	
    mips64_emit_memop(b,MIPS_MEMOP_SW,base,offset,rt,TRUE);
    return(0);
@@ -2821,8 +2223,11 @@ static int  mips_emit_sw(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)
 static int  mips_emit_swc1(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
 {
 #if SOFT_FPU
+   /* Save PC for exception handling */
+   mips64_set_pc(b,b->start_pc+((b->mips_trans_pos-1)<<2));
    x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
 	mips64_emit_basic_c_call(b,mips64_exec_soft_fpu);
+	mips64_jit_tcb_push_epilog(b);
    return (0);
 #else
    mips64_emit_unknown(cpu,b,insn);
@@ -3052,42 +2457,6 @@ static int  mips_emit_wait(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn
 {
 	return (0);
 }
-
-static fastcall int xor_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rt = bits(insn, 16, 20);
-   int rd = bits(insn, 11, 15);
-
-   cpu->gpr[rd] = cpu->gpr[rs] ^ cpu->gpr[rt];
-   return (0);
-}
-
-static fastcall int xori_emu(cpu_mips_t * cpu, mips_insn_t insn)
-{
-   int rs = bits(insn, 21, 25);
-   int rt = bits(insn, 16, 20);
-   int imm = bits(insn, 0, 15);
-
-   cpu->gpr[rt] = cpu->gpr[rs] ^ imm;
-   return (0);
-
-}
-static int  mips_emit_xor(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn) 
-{
-	x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,xor_emu);
-   return(0);
-}
-static int  mips_emit_xori(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn) 
-{
-	x86_mov_reg_imm(b->jit_ptr,X86_EDX,insn);
-   x86_mov_reg_reg(b->jit_ptr,X86_EAX,X86_EDI,4);
-   mips64_emit_basic_c_call(b,xori_emu);
-   return(0);
-}
-#if 0
 static int  mips_emit_xor(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
 {
    int rs = bits(insn,21,25);
@@ -3120,7 +2489,7 @@ static int  mips_emit_xori(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn
 
 }
 
-#endif
+
 static int  mips_emit_undef(cpu_mips_t *cpu,mips64_jit_tcb_t *b,unsigned int insn)  
 {
 	mips64_emit_unknown(cpu,b,insn);
@@ -3515,5 +2884,5 @@ static struct mips64_jit_desc mips_tlb_jit[] = {
    {"unknowntlb_op", mips_emit_unknowntlb, 0x3f,0x1},
 
 };
-
+#endif
 

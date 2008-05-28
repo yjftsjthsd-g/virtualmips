@@ -115,7 +115,7 @@ static int beq_op(cpu_mips_t * cpu, mips_insn_t insn)
 
    /* exec the instruction in the delay slot */
    int ins_res = mips64_exec_bdslot(cpu);
-    /**/ if (likely(!ins_res))
+	if (likely(!ins_res))
    {
       if (res)
          cpu->pc = new_pc;
@@ -518,7 +518,7 @@ static int bne_op(cpu_mips_t * cpu, mips_insn_t insn)
 
    /* exec the instruction in the delay slot */
    int ins_res = mips64_exec_bdslot(cpu);
-
+   
    if (likely(!ins_res))
    {
       /* take the branch if the test result is true */
