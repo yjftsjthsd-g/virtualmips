@@ -1,6 +1,6 @@
 #summary How to run pavo emulation
 
-In the following, ${version} means the latest version number. ${t-version} means the latest test suit version number.(${version}=0.06,${t-version}=0.05)
+In the following,${version}=0.06,${t-version}=0.05.
 
 = Download the test suit =
 
