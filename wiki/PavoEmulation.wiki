@@ -22,22 +22,22 @@ There are several files in direcotry test_suit-${t-version}.
 
 = Download the rootfs for pavo =
 
-Download the [ftp://ftp.ingenic.cn/3sw/01linux/03root/rootfs-20080409.tgz rootfs for pavo] form JZ's website
+Download the [ftp://ftp.ingenic.cn/3sw/01linux/03root/rootfs.tgz rootfs for pavo] form JZ's website
 
 It includes rootfs for linux 2.6 and rootfs for linux 2.4 with qtopia 1.6.1.
 
 = Make nand flash image for pavo =
 
 {{{
-tar zxvf rootfs-20080409.tgz
-cd rootfs-20080409
-mkyaffs2image 1 root26 root.yaffs2
+tar zxvf rootfs.tgz
+cd rootfs
+mkyaffs2image 1 root24 root.yaffs2
 }}}
 
 It will create the yaffs2 root file system root.yaffs2. Copy it to VirtualMIPS directory.
 
 {{{
-cp rootfs-20080409/root.yaffs2  virtualmips-${version}/build
+cp rootfs/root.yaffs2  virtualmips-${version}/build
 }}}
 
 Copy u-boot image and linux kernel image to VirtualMIPS.
