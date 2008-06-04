@@ -20,12 +20,6 @@ There are several files in direcotry test_suit-${t-version}.
  * adm5120/vmlinux-adm5120: linux 2.6.22 kernel and root file system for adm5120
  * adm5120/run.bin: linux 2.6.22 kernel image and boot loader for adm5120
 
-= Download the rootfs for pavo =
-
-Download the [ftp://ftp.ingenic.cn/3sw/01linux/03root/rootfs.tgz rootfs for pavo] form JZ's website
-
-It includes rootfs for linux 2.6 and rootfs for linux 2.4 with qtopia 1.6.1.
-
 = Compile yaffs2 utils =
 
 We need mkyaffs2image tool to convert the rootfs into yaffs2 format. You CAN NOT use the tool from www.yaffs.net directly. Please use the utils from jz's linux patch. I strip the source code from jz's linux patch and put it [http://virtualmips.googlecode.com/files/yaffs2.tar.bz2 here]. Please download it first.
@@ -38,6 +32,11 @@ make
 }}}
 
 'mkyaffs2image' will be created. Please copy it to /bin or /usr/bin or just put the yaffs2/utils into your system's $PATH.
+= Download the rootfs for pavo =
+
+Download the [ftp://ftp.ingenic.cn/3sw/01linux/03root/rootfs.tgz rootfs for pavo] form JZ's website
+
+It includes rootfs for linux 2.6 and rootfs for linux 2.4 with qtopia 1.6.1.
 
 = Make nand flash image for pavo =
 
