@@ -2,7 +2,7 @@
 
 ----
 
-You need to download VirtualMIPS first. The [http://virtualmips.googlecode.com/files/virtualmips-0.05.tar.bz2 latest version] is v0.06. In the following, ${version} means the latest version number.
+You need to download VirtualMIPS first. The [http://virtualmips.googlecode.com/files/virtualmips-0.06.tar.bz2 latest version] is v0.06. In the following, ${version} means the latest version number.
 
 Supported systems:
  * JZ [http://www.ingenic.cn/pfwebplus/productServ/kfyd/Hardware/pffaqQuestionContent.aspx?Category=2&Question=3 Pavo demo borad](with LCD controller).
