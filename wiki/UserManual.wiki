@@ -76,7 +76,14 @@ Compile Options:
 
 }}}
 
-example:
+{{{
+#scons pavo
+#scons mknandflash
+#scons adm5120 
+}}}
+If everything goes well, file 'adm5120'/'pavo'/'mknandflash' will be created in virtualmips-${version}/build.
+
+Other build options example:
 {{{
 # scons pavo jit=1              <--build VirtualMIPS for pavo emulation *with* JIT support
 # scons pavo jit=0              <--build VirtualMIPS for pavo emulation *without* JIT support
@@ -94,7 +101,7 @@ example:
 
 
 
-If everything goes well, file 'adm5120'/'pavo'/'mknandflash' will be created in virtualmips-${version}/build.
+
 
 
 = Links =
