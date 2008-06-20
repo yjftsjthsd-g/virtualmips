@@ -27,7 +27,7 @@ DO NOT forget to add toolchain path to your system's PATH.
 
 = Download and patch linux 2.6 kernel =
 
-Down [ftp://ftp.ingenic.cn/3sw/01linux/02kernel/linux-2.6.24/linux-2.6.24.3.tar.bz2 linux 2.6.24 kernel] and [http://downloads.sourceforge.net/virtualmips/linux-2.6.24.3-jz-20080304.patch.gz patch].
+Down [ftp://ftp.ingenic.cn/3sw/01linux/02kernel/linux-2.6.24/linux-2.6.24.3.tar.bz2 linux 2.6.24 kernel] and [http://prdownloads.sourceforge.net/virtualmips/linux-2.6.24.3-jz-20080304.patch.gz?download patch].
 
 {{{
 tar jxvf linux-2.6.24.3.tar.bz2
@@ -37,7 +37,7 @@ gzip -cd ../linux-2.6.24.3-jz-20080304.patch.gz | patch -p1
 
 = Configure linux 2.6 kernel =
 
-You can config the kernel by yourself or download the [http://downloads.sourceforge.net/virtualmips/config.linux2.6.24.pavo config file].
+You can config the kernel by yourself or download the [http://prdownloads.sourceforge.net/virtualmips/config.linux2.6.24.pavo?download config file].
 {{{
 cp config.linux2.6.24.pavo linux-2.6.24.3/.config
 make
@@ -113,7 +113,7 @@ uImage will be created in arch/mips/boot/ directory.
 
 = Download and patch linux 2.4 kernel =
 
-Down [ftp://ftp.ingenic.cn/3sw/01linux/02kernel/celinux/celinux-040503.tar.bz2 celinux-040503.tar.bz2] and [http://downloads.sourceforge.net/virtualmips/celinux-040503-jz-20080409.patch.gz patch].
+Down [ftp://ftp.ingenic.cn/3sw/01linux/02kernel/celinux/celinux-040503.tar.bz2 celinux-040503.tar.bz2] and [http://prdownloads.sourceforge.net/virtualmips/celinux-040503-jz-20080409.patch.gz?download patch].
 
 {{{
 tar jxvf celinux-040503.tar.bz2
@@ -123,7 +123,7 @@ gzip -cd ../celinux-040503-jz-20080409.patch.gz | patch -p1
 
 = Configure linux 2.4 kernel =
 
-You can config the kernel by yourself or download the [http://downloads.sourceforge.net/virtualmips/config.linux2.4.20.pavo config file].
+You can config the kernel by yourself or download the [http://prdownloads.sourceforge.net/virtualmips/config.linux2.4.20.pavo?download config file].
 {{{
 cp config.linux2.4.20.pavo celinux-040503/.config
 make
