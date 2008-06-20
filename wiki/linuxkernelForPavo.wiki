@@ -21,7 +21,7 @@ sudo dpkg-reconfigure dash
 }}}
 See [https://wiki.ubuntu.com/DashAsBinSh DashAsBinSh] for more information.
 
-For gcc-3.3.1 toolchain, download from jz website. [For ftp://ftp.ingenic.cn/3sw/01linux/00toolchain/mipseltools-gcc-3.3.1.tar.gz linux].
+For gcc-3.3.1 toolchain, download from jz website. [ftp://ftp.ingenic.cn/3sw/01linux/00toolchain/mipseltools-gcc-3.3.1.tar.gz for linux].
 
 DO NOT forget to add toolchain path to your system's PATH.
 
