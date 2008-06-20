@@ -7,7 +7,7 @@
 
 = How to run adm5120 emulation =
 
-Type the following command to run ADM5120 emulation.(Make sure you have download the kernel image and copy it to VirtualMIPS directory.)
+Type the following command to run ADM5120 emulation.(Make sure you have download and decompress the kernel image and copy it to VirtualMIPS directory.)
 
 {{{
 cd virtualmips-${version}/build
