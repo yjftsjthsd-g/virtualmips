@@ -1,63 +1,52 @@
 #summary How to run pavo emulation
 
-In the following,${version}=0.06,${t-version}=0.05.
+In the following,${version}=0.06.
 
-= Download the test suit =
+= Download the test suit files=
 
-Download the [http://virtualmips.googlecode.com/files/test_suit-0.05.tar.bz2 test suit] first.
+The following files are needed. Download it [http://code.google.com/p/virtualmips/wiki/Downloads?tm=2 here].
 
-{{{
-tar -jxvf test_suit-${t-version}.tar.bz2
-cd test_suit-${t-version}
-}}}
-
-There are several files in direcotry test_suit-${t-version}.
- * pavo/config.linux2.4.20.pavo: inux 2.4.20 config for pavo
- * pavo/config.linux2.6.23.pavo: inux 2.6.23 config for pavo
- * pavo/uImage-2.6: linux 2.6.24 kernel image for pavo *with* LCD and cs8900 netword card support
- * pavo/uImage-2.4: linux 2.4.20 kernel image for pavo *with* LCD and cs8900 netword card support
- * pavo/u-boot-nand.bin : u-boot nand flash image for pavo *with* LCD support
- * adm5120/vmlinux-adm5120: linux 2.6.22 kernel and root file system for adm5120
- * adm5120/run.bin: linux 2.6.22 kernel image and boot loader for adm5120
+ * [http://downloads.sourceforge.net/virtualmips/u-boot-nand.bin.bz2 u-boot-nand.bin.bz2]: uboot image for JZ4740 pavo board with LCD support.
+ * [http://downloads.sourceforge.net/virtualmips/uImage-2.4.bz2 uImage-2.4.bz2]: Linux 2.4 kernel image with LCD support.
+ * [http://downloads.sourceforge.net/virtualmips/uImage-2.6.bz2 uImage-2.6.bz2]: Linux 2.6.23 kernel image with LCD support.
+ * [http://downloads.sourceforge.net/virtualmips/yaffs2.tar.bz2 yaffs2.tar.bz2]: yaffs2 utils for making yaffs2 image.
+ * [http://downloads.sourceforge.net/virtualmips/rootfs-20080409.tgz rootfs-20080409.tgz]: rootfs for JZ4740 pavo board from [http://www.ingenic.cn/eng/default.aspx JZ].
 
 = Compile yaffs2 utils =
 
-We need mkyaffs2image tool to convert the rootfs into yaffs2 format. You CAN NOT use the tool from www.yaffs.net directly. Please use the utils from jz's linux patch. I strip the source code from jz's linux patch and put it [http://virtualmips.googlecode.com/files/yaffs2.tar.bz2 here]. Please download it first.
+We need mkyaffs2image tool to convert the rootfs into yaffs2 format. You CAN NOT use the tool from www.yaffs.net directly. Please use the utils from jz's linux patch. I strip the source code from jz's linux patch. Please download it first.
 
 {{{
-wget http://virtualmips.googlecode.com/files/yaffs2.tar.bz2
 tar jxvf yaffs2.tar.bz2
 cd yaffs2/utils
 make
 }}}
 
 'mkyaffs2image' will be created. Please copy it to /bin or /usr/bin or just put the yaffs2/utils into your system's $PATH.
-= Download the rootfs for pavo =
-
-Download the [ftp://ftp.ingenic.cn/3sw/01linux/03root/rootfs.tgz rootfs for pavo] form JZ's website
-
-It includes rootfs for linux 2.6 and rootfs for linux 2.4 with qtopia 1.6.1.
 
 = Make nand flash image for pavo =
 
 {{{
-tar zxvf rootfs.tgz
-cd rootfs
+tar zxvf rootfs-20080409.tgz
+cd rootfs-20080409
 mkyaffs2image 1 root24 root.yaffs2
 }}}
 
 It will create the yaffs2 root file system root.yaffs2. Copy it to VirtualMIPS directory.
 
 {{{
-cp rootfs/root.yaffs2  virtualmips-${version}/build
+cp rootfs-20080409/root.yaffs2  virtualmips-${version}/build
 }}}
 
 Copy u-boot image and linux kernel image to VirtualMIPS.
 
 {{{
-cp test_suit-${t-version}/pavo/u-boot-nand.bin  virtualmips-${version}/build
-cp test_suit-${t-version}/pavo/uImage-2.4  virtualmips-${version}/build
-cp test_suit-${t-version}/pavo/uImage-2.6  virtualmips-${version}/build
+bzip2 -d uImage-2.4.bz2
+bzip2 -d uImage-2.6.bz2
+bzip2 -d u-boot-nand.bin.bz2
+cp u-boot-nand.bin  virtualmips-${version}/build
+cp uImage-2.4  virtualmips-${version}/build
+cp uImage-2.6  virtualmips-${version}/build
 }}}
 
 VirtualMIPS provides a tool "mknandflash" to create the nand flash file(Source code is tool/mknandflash.c). Make sure you have setten the right u-boot/kernel image file name and root filesytem file name/startaddress in the configure file of mknandflash(nandflash.conf in directory virtualmips-${version}/build).See nandflash.conf for more information.
