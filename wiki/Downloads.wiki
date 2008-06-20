@@ -1,6 +1,6 @@
 #summary Downloads
 
-Caution: Click the link to download file. DO NOT use "save as" options.
+Caution: Click the link to download files. DO NOT use "save as" option.
 
 == VirtualMIPS ==
 
