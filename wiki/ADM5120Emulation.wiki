@@ -10,6 +10,10 @@
 Type the following command to run ADM5120 emulation.(Make sure you have download and decompress the kernel image and copy it to VirtualMIPS directory.)
 
 {{{
+bzip2 -d run.bin.bz2
+bzip2 -d vmlinux-adm5120.bz2
+cp run.bin virtualmips-${version}/build
+cp vmlinux-adm5120 virtualmips-${version}/build
 cd virtualmips-${version}/build
 ./adm5120
 }}}
