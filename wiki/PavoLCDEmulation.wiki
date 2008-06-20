@@ -1,6 +1,6 @@
 #summary How to run pavo LCD emulation
 
-In the following,${version}=0.06,${t-version}=0.05. 
+In the following,${version}=0.06. 
 
 = Introduction =
 
@@ -17,14 +17,16 @@ Build VirtualMIPS with lcd support. LibSDL is needed in LCD emulation. Please in
 
 = Run qtopia in 2.4 kernel =
 
-Copy uImage-2.4 and uboot image into VirtualMIPS.
+Compress and copy uImage-2.4 and uboot image into VirtualMIPS.
 
 {{{
-cp test_suit-${t-version}/pavo/u-boot-nand.bin  virtualmips-${version}/build
-cp test_suit-${t-version}/pavo/uImage-2.4  virtualmips-${version}/build
+bzip2 -d uImage-2.4.bz2
+bzip2 -d u-boot-nand.bin.bz2
+cp u-boot-nand.bin  virtualmips-${version}/build
+cp uImage-2.4  virtualmips-${version}/build
 }}}
 
-Make yaffs2 root filesystem. You need to download [ftp://ftp.ingenic.cn/3sw/01linux/03root/rootfs-20080409.tgz rootfs for pavo]from JZ's website first.
+Make yaffs2 root filesystem. You need to download [http://downloads.sourceforge.net/virtualmips/rootfs-20080409.tgz rootfs] first.
 
 {{{
 tar zxvf rootfs-20080409.tgz
@@ -57,7 +59,7 @@ When you enter linux 2.4 shell. Type 'runqpe'.
 
 = Run qtopia in 2.6 kernel =
 
-Run qtopia in 2.6 is similiar with in 2.4 kernel. The difference is that JZ does not provide qtopia for linux 2.6 kernel. But donot worry. Just copy the qtopia for linux 2.4 rootfs to linux 2.6 rootfs.
+Run qtopia in 2.6 is similiar with in 2.4 kernel. The difference is that JZ does not provide qtopia for linux 2.6 kernel. But do not worry. Just copy the qtopia for linux 2.4 rootfs to linux 2.6 rootfs.
 {{{
 cd rootfs-20080409
 cp -rf root24/opt/* root26/opt/
