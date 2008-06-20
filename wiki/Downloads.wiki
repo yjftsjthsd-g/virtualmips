@@ -8,7 +8,7 @@ Caution: Click the link to download files. DO NOT use "save as" option.
 
 == pavo ==
 
- * [http://downloads.sourceforge.net/virtualmips/u-boot-nand.bin.bz2 u-boot-nand.bin.bz2]: uboot image for JZ4740 pavo board with LCD support.
+ * [http://prdownloads.sourceforge.net/virtualmips/u-boot-nand.bin.bz2?download u-boot-nand.bin.bz2]: uboot image for JZ4740 pavo board with LCD support.
  * [http://downloads.sourceforge.net/virtualmips/uImage-2.4.bz2 uImage-2.4.bz2]: Linux 2.4 kernel image with LCD support.
  * [http://downloads.sourceforge.net/virtualmips/uImage-2.6.bz2 uImage-2.6.bz2]: Linux 2.6.23 kernel image with LCD support.
  * [http://downloads.sourceforge.net/virtualmips/yaffs2.tar.bz2 yaffs2.tar.bz2]: yaffs2 utils for making yaffs2 image.
