@@ -10,8 +10,6 @@ The following files are needed. Download it [http://code.google.com/p/virtualmip
  * [http://prdownloads.sourceforge.net/virtualmips/uImage-2.4.bz2?download uImage-2.4.bz2]: Linux 2.4 kernel image with LCD support.
  * [http://prdownloads.sourceforge.net/virtualmips/uImage-2.6.bz2?download uImage-2.6.bz2]: Linux 2.6.23 kernel image with LCD support.
  * [http://prdownloads.sourceforge.net/virtualmips/yaffs2.tar.bz2?download yaffs2.tar.bz2]: yaffs2 utils for making yaffs2 image.
- * [http://prdownloads.sourceforge.net/virtualmips/config.linux2.4.20.pavo?download config.linux2.4.20.pavo]: config file of linux 2.4.20 for pavo board.
- * [http://prdownloads.sourceforge.net/virtualmips/config.linux2.6.24.pavo?download config.linux2.6.24.pavo]: config file of linux 2.6.24 for pavo board.
  * [http://prdownloads.sourceforge.net/virtualmips/rootfs-20080409.tgz?download rootfs-20080409.tgz]: rootfs for JZ4740 pavo board from [http://www.ingenic.cn/eng/default.aspx JZ].
 
 = Compile yaffs2 utils =
