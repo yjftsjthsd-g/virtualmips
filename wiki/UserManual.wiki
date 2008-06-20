@@ -2,7 +2,7 @@
 
 ----
 
-You need to [Downloads download VirtualMIPS] first. The latest version is v0.06. In the following, ${version} means the latest version number.
+You need to [http://code.google.com/p/virtualmips/wiki/Downloads?tm=2 download VirtualMIPS] first. The latest version is v0.06. In the following, ${version} means the latest version number.
 
 Supported systems:
  * JZ [http://www.ingenic.cn/pfwebplus/productServ/kfyd/Hardware/pffaqQuestionContent.aspx?Category=2&Question=3 Pavo demo borad](with LCD controller).
