@@ -1,8 +1,13 @@
 #summary How to run adm5120 emulation.
 
+= Download the files first =
+
+ * [http://downloads.sourceforge.net/virtualmips/run.bin.bz2 run.bin.bz2]: Linux 2.6 kernel image and rootfs for adm5120.
+ * [http://downloads.sourceforge.net/virtualmips/vmlinux-adm5120.bz2 vmlinux-adm5120.bz2]: Linux 2.6 kernel image for adm5120.
+
 = How to run adm5120 emulation =
 
-Type the following command to run ADM5120 emulation.(Make sure you have copy the kernel image from test suit to VirtualMIPS directory.)
+Type the following command to run ADM5120 emulation.(Make sure you have download the kernel image and copy it to VirtualMIPS directory.)
 
 {{{
 cd virtualmips-${version}/build
