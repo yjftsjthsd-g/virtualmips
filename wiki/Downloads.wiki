@@ -1,5 +1,7 @@
 #summary Downloads
 
+Caution: Click the link to download file. DO NOT use "save as" options.
+
 == VirtualMIPS ==
 
  * [http://downloads.sourceforge.net/virtualmips/virtualmips-0.06.tar.bz2 virtualmips-0.06.tar.bz2]: Source code of VirtualMIPS version 0.06.
@@ -21,5 +23,3 @@
 
  * [http://downloads.sourceforge.net/virtualmips/run.bin.bz2 run.bin.bz2]: Linux 2.6 kernel image and rootfs for adm5120.
  * [http://downloads.sourceforge.net/virtualmips/vmlinux-adm5120.bz2 vmlinux-adm5120.bz2]: Linux 2.6 kernel image for adm5120.
-
-
