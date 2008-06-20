@@ -17,7 +17,7 @@ See [https://wiki.ubuntu.com/DashAsBinSh DashAsBinSh] for more information.
 
 = Build u-boot =
 
-1. Download [ftp://ftp.ingenic.cn/3sw/01linux/01loader/u-boot/u-boot-1.1.6.tar.bz2 u-boot source] code and [ftp://ftp.ingenic.cn/3sw/01linux/01loader/u-boot/u-boot-1.1.6-jz-20080226.patch.gz patch] first.
+1. Download [ftp://ftp.ingenic.cn/3sw/01linux/01loader/u-boot/u-boot-1.1.6.tar.bz2 u-boot source] code and [http://downloads.sourceforge.net/virtualmips/u-boot-1.1.6-jz-20080226.patch.gz patch] first.
 
 {{{
 tar jxvf u-boot-1.1.6.tar.bz
