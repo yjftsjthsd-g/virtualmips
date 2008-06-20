@@ -1,0 +1,25 @@
+#summary Downloads
+
+== VirtualMIPS ==
+
+ * [http://downloads.sourceforge.net/virtualmips/virtualmips-0.06.tar.bz2 virtualmips-0.06.tar.bz2]: Source code of VirtualMIPS version 0.06.
+
+== pavo ==
+
+ * [http://downloads.sourceforge.net/virtualmips/u-boot-nand.bin.bz2 u-boot-nand.bin.bz2]: uboot image for JZ4740 pavo board with LCD support.
+ * [http://downloads.sourceforge.net/virtualmips/uImage-2.4.bz2 uImage-2.4.bz2]: Linux 2.4 kernel image with LCD support.
+ * [http://downloads.sourceforge.net/virtualmips/uImage-2.6.bz2 uImage-2.6.bz2]: Linux 2.6.23 kernel image with LCD support.
+ * [http://downloads.sourceforge.net/virtualmips/yaffs2.tar.bz2 yaffs2.tar.bz2]: yaffs2 utils for making yaffs2 image.
+ * [http://downloads.sourceforge.net/virtualmips/config.linux2.4.20.pavo config.linux2.4.20.pavo]: config file of linux 2.4.20 for pavo board.
+ * [http://downloads.sourceforge.net/virtualmips/config.linux2.6.24.pavo config.linux2.6.24.pavo]: config file of linux 2.6.24 for pavo board.
+ * [http://downloads.sourceforge.net/virtualmips/rootfs-20080409.tgz rootfs-20080409.tgz]: rootfs for JZ4740 pavo board from [http://www.ingenic.cn/eng/default.aspx JZ].
+ * [http://downloads.sourceforge.net/virtualmips/celinux-040503-jz-20080409.patch.gz celinux-040503-jz-20080409.patch.gz]: patch of celinux for JZ4740 pavo board from [http://www.ingenic.cn/eng/default.aspx JZ].
+ * [http://downloads.sourceforge.net/virtualmips/linux-2.6.24.3-jz-20080304.patch.gz linux-2.6.24.3-jz-20080304.patch.gz]: patch of linux 2.6.24.3 for JZ4740 pavo board from [http://www.ingenic.cn/eng/default.aspx JZ].
+ * [http://downloads.sourceforge.net/virtualmips/u-boot-1.1.6-jz-20080226.patch.gz u-boot-1.1.6-jz-20080226.patch.gz]: patch of uboot 1.1.6 for JZ4740 pavo board from [http://www.ingenic.cn/eng/default.aspx JZ].
+
+== adm5120 ==
+
+ * [http://downloads.sourceforge.net/virtualmips/run.bin.bz2 run.bin.bz2]: Linux 2.6 kernel image and rootfs for adm5120.
+ * [http://downloads.sourceforge.net/virtualmips/vmlinux-adm5120.bz2 vmlinux-adm5120.bz2]: Linux 2.6 kernel image for adm5120.
+
+
