@@ -38,7 +38,7 @@ It will create the yaffs2 root file system root.yaffs2. Copy it to VirtualMIPS d
 cp rootfs-20080409/root.yaffs2  virtualmips-${version}/build
 }}}
 
-Copy u-boot image and linux kernel image to VirtualMIPS.
+Decompress and copy u-boot image and linux kernel image to VirtualMIPS.
 
 {{{
 bzip2 -d uImage-2.4.bz2
