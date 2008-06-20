@@ -1,5 +1,9 @@
 #summary ChangeLog of VirtualMIPS
 
+= 2008-05-28 =
+VirtualMIPS v0.06
+  * JIT support of X86 host 
+
 = 2008-04-25 =
 VirtualMIPS v0.04
   * add LCD emulation of JZ4740 Soc
