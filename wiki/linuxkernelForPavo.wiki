@@ -27,7 +27,7 @@ DO NOT forget to add toolchain path to your system's PATH.
 
 = Download and patch linux 2.6 kernel =
 
-Down [ftp://ftp.ingenic.cn/3sw/01linux/02kernel/linux-2.6.24/linux-2.6.24.3.tar.bz2 linux 2.6.24 kernel] and [http://downloads.sourceforge.net/virtualmips/linux-2.6.24.3-jz-20080304.patch.gz patch] from JZ's website.
+Down [ftp://ftp.ingenic.cn/3sw/01linux/02kernel/linux-2.6.24/linux-2.6.24.3.tar.bz2 linux 2.6.24 kernel] and [http://downloads.sourceforge.net/virtualmips/linux-2.6.24.3-jz-20080304.patch.gz patch].
 
 {{{
 tar jxvf linux-2.6.24.3.tar.bz2
