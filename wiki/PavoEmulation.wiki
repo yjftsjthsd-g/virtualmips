@@ -6,10 +6,10 @@ In the following,${version}=0.06.
 
 The following files are needed. Download it [http://code.google.com/p/virtualmips/wiki/Downloads?tm=2 here].
 
- * [http://prdownloads.sourceforge.net/virtualmips/u-boot-nand.bin.bz2?download u-boot-nand.bin.bz2]: uboot image for JZ4740 pavo board with LCD support.
- * [http://prdownloads.sourceforge.net/virtualmips/uImage-2.4.bz2?download uImage-2.4.bz2]: Linux 2.4 kernel image with LCD support.
- * [http://prdownloads.sourceforge.net/virtualmips/uImage-2.6.bz2?download uImage-2.6.bz2]: Linux 2.6.23 kernel image with LCD support.
- * [http://prdownloads.sourceforge.net/virtualmips/yaffs2.tar.bz2?download yaffs2.tar.bz2]: yaffs2 utils for making yaffs2 image.
+ * [http://virtualmips.googlecode.com/files/u-boot-nand.bin.bz2 u-boot-nand.bin.bz2]: uboot image for JZ4740 pavo board with LCD support.
+ * [http://virtualmips.googlecode.com/files/uImage-2.4.bz2 uImage-2.4.bz2]: Linux 2.4 kernel image with LCD support.
+ * [http://virtualmips.googlecode.com/files/uImage-2.6.bz2 uImage-2.6.bz2]: Linux 2.6.23 kernel image with LCD support.
+ * [http://virtualmips.googlecode.com/files/yaffs2.tar.bz2 yaffs2.tar.bz2]: yaffs2 utils for making yaffs2 image.
  * [http://prdownloads.sourceforge.net/virtualmips/rootfs-20080409.tgz?download rootfs-20080409.tgz]: rootfs for JZ4740 pavo board from [http://www.ingenic.cn/eng/default.aspx JZ].
 
 = Compile yaffs2 utils =
