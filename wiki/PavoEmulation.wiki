@@ -4,7 +4,7 @@ In the following,${version}=0.06.
 
 = Download the test suit files=
 
-The following files are needed. Download it [http://code.google.com/p/virtualmips/wiki/Downloads?tm=2 here].
+The following files are needed.
 
  * [http://virtualmips.googlecode.com/files/u-boot-nand.bin.bz2 u-boot-nand.bin.bz2]: uboot image for JZ4740 pavo board with LCD support.
  * [http://virtualmips.googlecode.com/files/uImage-2.4.bz2 uImage-2.4.bz2]: Linux 2.4 kernel image with LCD support.
