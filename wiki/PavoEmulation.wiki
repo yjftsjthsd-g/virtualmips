@@ -2,7 +2,7 @@
 
 In the following,${version}=0.06.
 
-= Download the test suit files=
+= Download the following files=
 
 The following files are needed.
 
