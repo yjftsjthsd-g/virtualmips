@@ -1,7 +1,5 @@
 #summary Downloads
 
-Caution: Click the link to download files. DO NOT use "save as" option.
-
 == VirtualMIPS ==
 
  * [http://virtualmips.googlecode.com/files/virtualmips-0.06.tar.bz2 virtualmips-0.06.tar.bz2]: Source code of VirtualMIPS version 0.06.
