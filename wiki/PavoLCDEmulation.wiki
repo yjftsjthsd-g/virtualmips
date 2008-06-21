@@ -6,6 +6,16 @@ In the following,${version}=0.06.
 
 Since version 0.04, VirtualMIPS emulates LCD controller and touch screen for JZ4740. You can test and run your GUI application(QT/GTK for example) in VirtualMIPS. 
 
+= Download the following files=
+
+The following files are needed.
+
+ * [http://virtualmips.googlecode.com/files/u-boot-nand.bin.bz2 u-boot-nand.bin.bz2]: uboot image for JZ4740 pavo board with LCD support.
+ * [http://virtualmips.googlecode.com/files/uImage-2.4.bz2 uImage-2.4.bz2]: Linux 2.4 kernel image with LCD support.
+ * [http://virtualmips.googlecode.com/files/uImage-2.6.bz2 uImage-2.6.bz2]: Linux 2.6.23 kernel image with LCD support.
+ * [http://virtualmips.googlecode.com/files/yaffs2.tar.bz2 yaffs2.tar.bz2]: yaffs2 utils for making yaffs2 image.
+ * [http://prdownloads.sourceforge.net/virtualmips/rootfs-20080409.tgz?download rootfs-20080409.tgz]: rootfs for JZ4740 pavo board from [http://www.ingenic.cn/eng/default.aspx JZ].
+
 = Build VirtualMIPS =
 
 Build VirtualMIPS with lcd support. LibSDL is needed in LCD emulation. Please install it before building VirtualMIPS.
