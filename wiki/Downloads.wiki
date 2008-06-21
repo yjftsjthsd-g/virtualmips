@@ -3,7 +3,7 @@
 == VirtualMIPS ==
 
  * [http://virtualmips.googlecode.com/files/virtualmips-0.06.tar.bz2 virtualmips-0.06.tar.bz2]: Source code of VirtualMIPS version 0.06.
-
+  * [http://code.google.com/p/virtualmips/wiki/ReleaseNotesAAG ReleaseNotes]
 == pavo ==
 
  * [http://virtualmips.googlecode.com/files/u-boot-nand.bin.bz2 u-boot-nand.bin.bz2]: uboot image for JZ4740 pavo board with LCD support.
