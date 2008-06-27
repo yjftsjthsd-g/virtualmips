@@ -17,7 +17,6 @@
 #define __MIPS_H__
 #include "system.h"
 #include "utils.h"
-
 /* 
  * MIPS General Purpose Registers 
  */
@@ -111,6 +110,8 @@ MIPS INTERRUPT
 #define MIPS_CP0_STATUS_SX         0x00000040
 #define MIPS_CP0_STATUS_UX         0x00000020
 #define MIPS_CP0_STATUS_KSU        0x00000018
+/*we do not emulate supervisor mode. just use bit 4 of sr to determine cpu mode*/
+#define MIPS_CP0_STATUS_KSU_H        0x00000010
 #define MIPS_CP0_STATUS_ERL        0x00000004
 #define MIPS_CP0_STATUS_EXL        0x00000002
 #define MIPS_CP0_STATUS_IE         0x00000001
@@ -284,46 +285,52 @@ MIPS INTERRUPT
 
 enum
 {
-   MIPS_KUSEG = 0,
-   MIPS_KSEG0,
-   MIPS_KSEG1,
-   MIPS_KSEG2,
+    MIPS_KUSEG = 0,
+    MIPS_KSEG0,
+    MIPS_KSEG1,
+    MIPS_KSEG2,
 };
 /* Memory operations */
 enum
 {
-   MIPS_MEMOP_LOOKUP = 0,
+    MIPS_MEMOP_LOOKUP = 0,
 
-   MIPS_MEMOP_LB,
-   MIPS_MEMOP_LBU,
-   MIPS_MEMOP_LH,
-   MIPS_MEMOP_LHU,
-   MIPS_MEMOP_LW,
-   MIPS_MEMOP_LWU,
-   MIPS_MEMOP_LD,
-   MIPS_MEMOP_SB,
-   MIPS_MEMOP_SH,
-   MIPS_MEMOP_SW,
-   MIPS_MEMOP_SD,
+    MIPS_MEMOP_LB,
+    MIPS_MEMOP_LBU,
+    MIPS_MEMOP_LH,
+    MIPS_MEMOP_LHU,
+    MIPS_MEMOP_LW,
+    MIPS_MEMOP_LWU,
+    MIPS_MEMOP_LD,
+    MIPS_MEMOP_SB,
+    MIPS_MEMOP_SH,
+    MIPS_MEMOP_SW,
+    MIPS_MEMOP_SD,
 
-   MIPS_MEMOP_LWL,
-   MIPS_MEMOP_LWR,
-   MIPS_MEMOP_LDL,
-   MIPS_MEMOP_LDR,
-   MIPS_MEMOP_SWL,
-   MIPS_MEMOP_SWR,
-   MIPS_MEMOP_SDL,
-   MIPS_MEMOP_SDR,
+    MIPS_MEMOP_LWL,
+    MIPS_MEMOP_LWR,
+    MIPS_MEMOP_LDL,
+    MIPS_MEMOP_LDR,
+    MIPS_MEMOP_SWL,
+    MIPS_MEMOP_SWR,
+    MIPS_MEMOP_SDL,
+    MIPS_MEMOP_SDR,
 
-   MIPS_MEMOP_LL,
-   MIPS_MEMOP_SC,
+    MIPS_MEMOP_LL,
+    MIPS_MEMOP_SC,
 
-   MIPS_MEMOP_LDC1,
-   MIPS_MEMOP_SDC1,
+    MIPS_MEMOP_LDC1,
+    MIPS_MEMOP_SDC1,
 
-   MIPS_MEMOP_CACHE,
+    MIPS_MEMOP_CACHE,
 
-   MIPS_MEMOP_MAX,
+    MIPS_MEMOP_MAX,
+};
+
+enum
+{
+    MIPS_KERNEL_MODE = 1,
+    MIPS_USER_MODE = 2,
 };
 
 /* Maximum number of breakpoints */
@@ -343,30 +350,30 @@ enum
 //typedef struct cpu_mips cpu_mips_t;
 
 /* Memory operation function prototype */
-typedef  u_int fastcall (*mips_memop_fn) (cpu_mips_t * cpu, m_va_t vaddr, u_int reg);
+typedef u_int fastcall(*mips_memop_fn) (cpu_mips_t * cpu, m_va_t vaddr, u_int reg);
 
 /* TLB entry definition */
 typedef struct
 {
-   m_va_t mask;
-   m_va_t hi;
-   m_va_t lo0;
-   m_va_t lo1;
+    m_va_t mask;
+    m_va_t hi;
+    m_va_t lo0;
+    m_va_t lo1;
 } tlb_entry_t;
 
 /* System Coprocessor (CP0) definition */
 typedef struct
 {
-   m_cp0_reg_t reg[MIPS64_CP0_REG_NR];
-   /*because configure has sel 0-7, seperate it to reg */
-   m_cp0_reg_t config_reg[MIPS64_CP0_CONFIG_REG_NR];
-   m_uint8_t config_usable;     /*if configure register sel N is useable, set the bit in config_usable to 1 */
+    m_cp0_reg_t reg[MIPS64_CP0_REG_NR];
+    /*because configure has sel 0-7, seperate it to reg */
+    m_cp0_reg_t config_reg[MIPS64_CP0_CONFIG_REG_NR];
+    m_uint8_t config_usable;    /*if configure register sel N is useable, set the bit in config_usable to 1 */
 
 
-   tlb_entry_t tlb[MIPS64_TLB_MAX_ENTRIES];
+    tlb_entry_t tlb[MIPS64_TLB_MAX_ENTRIES];
 
-   /* Number of TLB entries */
-   u_int tlb_entries;
+    /* Number of TLB entries */
+    u_int tlb_entries;
 
 
 } mips_cp0_t;
@@ -378,106 +385,125 @@ typedef struct
 /* mips CPU definition */
 struct cpu_mips
 {
-   /* CPU identifier for MP systems */
-   u_int id;
-   u_int type;
+    /* CPU identifier for MP systems */
+    u_int id;
+    u_int type;
 
-   m_va_t pc, ret_pc;
-   m_va_t jit_pc;
-   m_reg_t gpr[MIPS64_GPR_NR];
-   m_reg_t lo, hi;
-   /* VM instance */
-   vm_instance_t *vm;
-	/* Next CPU in group */
-   cpu_mips_t *next;
-	/* System coprocessor (CP0) */
-   mips_cp0_t cp0;
-   
-
-   
-   
-   /* CPU states */
-   volatile m_uint32_t state, prev_state;
-
-
-   /* Thread running this CPU */
-   pthread_t cpu_thread;
-   int cpu_thread_running;
-
-	/*pause request. INTERRUPT will pause cpu*/
-   m_uint32_t pause_request;
-
-   /* Methods */
-   int (*reg_get) (cpu_mips_t * cpu, u_int reg, m_reg_t * val);
-   void (*reg_set) (cpu_mips_t * cpu, u_int reg_index, m_reg_t val);
-   void (*mts_rebuild) (cpu_mips_t * cpu);
-    u_int(*mips_mts_gdb_lb) (cpu_mips_t * cpu, m_va_t vaddr, void *cur);
-
-   /* MTS32/MTS64 caches */
-   union
-   {
-      mts32_entry_t *mts32_cache;
-      mts64_entry_t *mts64_cache;
-   } mts_u;
-
-   /* General Purpose Registers, Pointer Counter, LO/HI, IRQ */
-   m_uint32_t irq_pending, irq_cause, ll_bit;
-   
-
-   /* Virtual address to physical page translation */
-   int (*translate) (cpu_mips_t * cpu, m_va_t vaddr, m_uint32_t * phys_page);
-   /* Memory access functions */
-   mips_memop_fn mem_op_fn[MIPS_MEMOP_MAX];
-   /* Memory lookup function (to load ELF image,...) */
-   void * fastcall (*mem_op_lookup) (cpu_mips_t * cpu, m_va_t vaddr);
+    m_va_t pc, ret_pc;
+    m_va_t jit_pc;
+    m_reg_t gpr[MIPS64_GPR_NR];
+    m_reg_t lo, hi;
+    /* VM instance */
+    vm_instance_t *vm;
+    /* Next CPU in group */
+    cpu_mips_t *next;
+    /* System coprocessor (CP0) */
+    mips_cp0_t cp0;
 
 
 
 
-   /* Address bus mask for physical addresses */
-   m_va_t addr_bus_mask;
+    /* CPU states */
+    volatile m_uint32_t state, prev_state;
 
-   /* MTS map/unmap/rebuild operations */
-   void (*mts_map) (cpu_mips_t * cpu, m_va_t vaddr, m_pa_t paddr, m_uint32_t len, int cache_access, int tlb_index);
-   void (*mts_unmap) (cpu_mips_t * cpu, m_va_t vaddr, m_uint32_t len, m_uint32_t val, int tlb_index);
-   void (*mts_shutdown) (cpu_mips_t * cpu);
-   /* MTS cache statistics */
-   m_uint64_t mts_misses, mts_lookups;
 
-   /* Address mode (32 or 64 bits) */
-   u_int addr_mode;
+    /* Thread running this CPU */
+    pthread_t cpu_thread;
+    int cpu_thread_running;
+
+    /*pause request. INTERRUPT will pause cpu */
+    m_uint32_t pause_request;
+
+    /* Methods */
+    int (*reg_get) (cpu_mips_t * cpu, u_int reg, m_reg_t * val);
+    void (*reg_set) (cpu_mips_t * cpu, u_int reg_index, m_reg_t val);
+    void (*mts_rebuild) (cpu_mips_t * cpu);
+     u_int(*mips_mts_gdb_lb) (cpu_mips_t * cpu, m_va_t vaddr, void *cur);
+
+    /* MTS32/MTS64 caches */
+    union
+    {
+        mts32_entry_t *mts32_cache;
+        mts64_entry_t *mts64_cache;
+    } mts_u;
+
+    /* General Purpose Registers, Pointer Counter, LO/HI, IRQ */
+    m_uint32_t irq_pending, irq_cause, ll_bit;
+
+
+    /* Virtual address to physical page translation */
+    int (*translate) (cpu_mips_t * cpu, m_va_t vaddr, m_uint32_t * phys_page);
+    /* Memory access functions */
+    mips_memop_fn mem_op_fn[MIPS_MEMOP_MAX];
+    /* Memory lookup function (to load ELF image,...) */
+    void *fastcall(*mem_op_lookup) (cpu_mips_t * cpu, m_va_t vaddr);
+
+
+
+
+    /* Address bus mask for physical addresses */
+    m_va_t addr_bus_mask;
+
+    /* MTS map/unmap/rebuild operations */
+    void (*mts_map) (cpu_mips_t * cpu, m_va_t vaddr, m_pa_t paddr, m_uint32_t len, int cache_access, int tlb_index);
+    void (*mts_unmap) (cpu_mips_t * cpu, m_va_t vaddr, m_uint32_t len, m_uint32_t val, int tlb_index);
+    void (*mts_shutdown) (cpu_mips_t * cpu);
+    /* MTS cache statistics */
+    m_uint64_t mts_misses, mts_lookups;
+
+    /* Address mode (32 or 64 bits) */
+    u_int addr_mode;
 
     int is_in_bdslot;
-   
-   /* Current exec page (non-JIT) info */
-   m_va_t njm_exec_page;
-   mips_insn_t *njm_exec_ptr;
+
+    /* Current exec page (non-JIT) info */
+    m_va_t njm_exec_page;
+    mips_insn_t *njm_exec_ptr;
 
 
 
 #ifdef _USE_JIT_
-   /* JIT flush method */
-   u_int jit_flush_method;
+    /* JIT flush method */
+    u_int jit_flush_method;
 
-   /* Number of compiled pages */
-   u_int compiled_pages;
-   
- /* Code page translation cache */
-   mips64_jit_tcb_t **exec_blk_map;
-   void *exec_page_area;
-   size_t exec_page_area_size;  /*M bytes*/
-   size_t exec_page_count,exec_page_alloc;
-   insn_exec_page_t *exec_page_free_list;
-   insn_exec_page_t *exec_page_array;
+    /* Number of compiled pages */
+    u_int compiled_pages;
+
+    /* Code page translation cache */
+    mips64_jit_tcb_t **exec_blk_map;
+    void *exec_page_area;
+    size_t exec_page_area_size; /*M bytes */
+    size_t exec_page_count, exec_page_alloc;
+    insn_exec_page_t *exec_page_free_list;
+    insn_exec_page_t *exec_page_array;
     /* Current and free lists of translated code blocks */
-   mips64_jit_tcb_t *tcb_list,*tcb_last,*tcb_free_list;
-     /* Direct block jump.Optimization */
-   u_int exec_blk_direct_jump;
-     
+    mips64_jit_tcb_t *tcb_list, *tcb_last, *tcb_free_list;
+    /* Direct block jump.Optimization */
+    u_int exec_blk_direct_jump;
+
 #endif
-   
+
 };
 
+
+
+/* kernel/user. We do not have supervisor mode though it is good for virtualization.
+ * Superivisor mode is optional in MIPS32 spec.
+ */
+/*We inline here because we always call this function*/
+static forced_inline m_uint8_t mips64_get_cpumode(cpu_mips_t * cpu)
+{
+    //ASSERT((cpu->cpu_mode>=MIPS_KERNEL_MODE)&&(cpu->cpu_mode>=MIPS_USER_MODE),"please set cpu mode first!");
+    if (!(cpu->cp0.reg[MIPS_CP0_STATUS] & MIPS_CP0_STATUS_KSU_H))
+        return MIPS_KERNEL_MODE;
+    if (cpu->cp0.reg[MIPS_CP0_STATUS] & MIPS_CP0_STATUS_EXL)
+        return MIPS_KERNEL_MODE;
+    if (cpu->cp0.reg[MIPS_CP0_STATUS] & MIPS_CP0_STATUS_ERL)
+        return MIPS_KERNEL_MODE;
+
+    return MIPS_USER_MODE;
+
+}
 
 
 /* Register names */

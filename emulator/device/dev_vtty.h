@@ -29,33 +29,33 @@
 /* VTTY connection types */
 enum
 {
-   VTTY_TYPE_NONE = 0,
-   VTTY_TYPE_TERM,
-   VTTY_TYPE_TCP,
-   VTTY_TYPE_SERIAL,
+    VTTY_TYPE_NONE = 0,
+    VTTY_TYPE_TERM,
+    VTTY_TYPE_TCP,
+    VTTY_TYPE_SERIAL,
 };
 
 /* VTTY connection states (for TCP) */
 enum
 {
-   VTTY_STATE_TCP_INVALID,      /* connection is not working */
-   VTTY_STATE_TCP_WAITING,      /* waiting for incoming connection */
-   VTTY_STATE_TCP_RUNNING,      /* character reading/writing ok */
+    VTTY_STATE_TCP_INVALID,     /* connection is not working */
+    VTTY_STATE_TCP_WAITING,     /* waiting for incoming connection */
+    VTTY_STATE_TCP_RUNNING,     /* character reading/writing ok */
 };
 
 /* VTTY input states */
 enum
 {
-   VTTY_INPUT_TEXT,
-   VTTY_INPUT_VT1,
-   VTTY_INPUT_VT2,
-   VTTY_INPUT_REMOTE,
-   VTTY_INPUT_TELNET,
-   VTTY_INPUT_TELNET_IYOU,
-   VTTY_INPUT_TELNET_SB1,
-   VTTY_INPUT_TELNET_SB2,
-   VTTY_INPUT_TELNET_SB_TTYPE,
-   VTTY_INPUT_TELNET_NEXT
+    VTTY_INPUT_TEXT,
+    VTTY_INPUT_VT1,
+    VTTY_INPUT_VT2,
+    VTTY_INPUT_REMOTE,
+    VTTY_INPUT_TELNET,
+    VTTY_INPUT_TELNET_IYOU,
+    VTTY_INPUT_TELNET_SB1,
+    VTTY_INPUT_TELNET_SB2,
+    VTTY_INPUT_TELNET_SB_TTYPE,
+    VTTY_INPUT_TELNET_NEXT
 };
 
 
@@ -63,8 +63,8 @@ enum
 typedef struct vtty_serial_option vtty_serial_option_t;
 struct vtty_serial_option
 {
-   char *device;
-   int baudrate, databits, parity, stopbits, hwflow;
+    char *device;
+    int baudrate, databits, parity, stopbits, hwflow;
 };
 
 int vtty_parse_serial_option(vtty_serial_option_t * params, char *optarg);
@@ -73,25 +73,25 @@ int vtty_parse_serial_option(vtty_serial_option_t * params, char *optarg);
 typedef struct virtual_tty vtty_t;
 struct virtual_tty
 {
-   vm_instance_t *vm;
-   char *name;
-   int type, state;
-   int tcp_port;
-   int terminal_support;
-   int input_state;
-   int input_pending;
-   int telnet_cmd, telnet_opt, telnet_qual;
-   int fd, accept_fd, *select_fd;
-   int managed_flush;
-   FILE *fstream;
-   u_char buffer[VTTY_BUFFER_SIZE];
-   u_int read_ptr, write_ptr;
-   pthread_mutex_t lock;
-   vtty_t *next, **pprev;
-   void *priv_data;
+    vm_instance_t *vm;
+    char *name;
+    int type, state;
+    int tcp_port;
+    int terminal_support;
+    int input_state;
+    int input_pending;
+    int telnet_cmd, telnet_opt, telnet_qual;
+    int fd, accept_fd, *select_fd;
+    int managed_flush;
+    FILE *fstream;
+    u_char buffer[VTTY_BUFFER_SIZE];
+    u_int read_ptr, write_ptr;
+    pthread_mutex_t lock;
+    vtty_t *next, **pprev;
+    void *priv_data;
 
-   /* Read notification */
-   void (*read_notifier) (vtty_t *);
+    /* Read notification */
+    void (*read_notifier) (vtty_t *);
 };
 
 #define VTTY_LOCK(tty) pthread_mutex_lock(&(tty)->lock);
