@@ -84,8 +84,8 @@ typedef m_uint32_t m_cp0_reg_t;
 
 struct adm5120_system
 {
-   /* Associated VM instance */
-   vm_instance_t *vm;
+    /* Associated VM instance */
+    vm_instance_t *vm;
 };
 
 

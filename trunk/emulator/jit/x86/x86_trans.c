@@ -450,7 +450,7 @@ void mips64_check_pending_irq(mips64_jit_tcb_t *b)
 
 /*
 Hi yajin, why we need call mips64_jit_fetch_and_emit twice?
-Why do we translate beq like this:
+Why not translate beq like this:
 
 mips64_jit_fetch_and_emit(cpu,b,1);
 x86_mov_reg_membase(b->jit_ptr,X86_EAX,X86_EDI,REG_OFFSET(rs),4);
