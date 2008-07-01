@@ -1812,8 +1812,16 @@ static int unknowntlb_op(cpu_mips_t * cpu, mips_insn_t insn)
     return unknown_op(cpu, insn);
 }
 
+#if 0
 
-
+static int rdhwr_op(cpu_mips_t * cpu, mips_insn_t insn)
+{
+	//   mips_cp0_t *cp0 = &cpu->cp0;
+   //cp0->reg[MIPS_CP0_CAUSE] |= 0x10000000;      //CE=1
+   mips64_trigger_exception(cpu, MIPS_CP0_CAUSE_ILLOP, cpu->is_in_bdslot);
+	return (1);
+}
+#endif
 /*instruction table*/
 
 static struct mips64_op_desc mips_opcodes[] = {
@@ -1849,6 +1857,10 @@ static struct mips64_op_desc mips_opcodes[] = {
     {"undef", undef_op, 0x1D},
     {"undef", undef_op, 0x1E},
     {"undef", undef_op, 0x1F},
+    /*
+    glibc uses rdhwr to implement __thread. But I just leave it undef here for easy debuging.
+    */
+    //{"rdhwr", rdhwr_op, 0x1F}, 
     {"lb", lb_op, 0x20},
     {"lh", lh_op, 0x21},
     {"lwl", lwl_op, 0x22},
