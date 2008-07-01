@@ -310,6 +310,7 @@ int fastcall mips64_update_irq_flag(cpu_mips_t * cpu)
 {
    return mips64_update_irq_flag_fast(cpu);
 }
+//int ggggg;
 /* Generate an exception */
 void mips64_trigger_exception(cpu_mips_t * cpu, u_int exc_code, int bd_slot)
 {
@@ -317,6 +318,8 @@ void mips64_trigger_exception(cpu_mips_t * cpu, u_int exc_code, int bd_slot)
    m_uint64_t new_pc;
    m_reg_t cause;
 
+//	if (exc_code==10)
+	//	ggggg=2;
 
    /* keep IM, set exception code and bd slot */
    cause = cp0->reg[MIPS_CP0_CAUSE];

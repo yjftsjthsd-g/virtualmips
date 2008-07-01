@@ -28,7 +28,7 @@
 
 
 
-#define LOG_ENABLE 1
+#define LOG_ENABLE 0
 /* Log a message for a CPU */
 void cpu_log(cpu_mips_t * cpu, char *module, char *format, ...)
 {
@@ -41,6 +41,18 @@ void cpu_log(cpu_mips_t * cpu, char *module, char *format, ...)
     vm_flog(cpu->vm, buffer, format, ap);
     va_end(ap);
 #endif
+}
+
+/* Log a message for a CPU */
+void cpu_log6(cpu_mips_t * cpu, char *module, char *format, ...)
+{
+    char buffer[256];
+    va_list ap;
+
+    va_start(ap, format);
+    snprintf(buffer, sizeof(buffer), "CPU%u: %s", cpu->id, module);
+    vm_flog(cpu->vm, buffer, format, ap);
+    va_end(ap);
 }
 
 /* Start a CPU */

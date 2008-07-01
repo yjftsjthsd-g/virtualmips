@@ -113,6 +113,7 @@ if 'pavo' in COMMAND_LINE_TARGETS:
 	pavo.Append(CPPPATH = [os.path.join(os.path.abspath('.'),'../emulator','system','jz','pavo')])
 	pavo.Append(CPPPATH = [os.path.join(os.path.abspath('.'),'../emulator','utils','sdl')])
 	pavo.Append(CCFLAGS = "-DSIM_PAVO")
+	pavo.Append(CCFLAGS = "-D_MIPS_CHECK_CPUMODE_")
 	lcd = ARGUMENTS.get('lcd', 1)
 	if int(lcd):
 		#check libsdl
