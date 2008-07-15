@@ -9,7 +9,7 @@ The following files are needed.
  * [http://virtualmips.googlecode.com/files/uImage-2.4.bz2 uImage-2.4.bz2]: Linux 2.4 kernel image with LCD support.
  * [http://virtualmips.googlecode.com/files/uImage-2.6.bz2 uImage-2.6.bz2]: Linux 2.6.23 kernel image with LCD support.
  * [http://virtualmips.googlecode.com/files/yaffs2.tar.bz2 yaffs2.tar.bz2]: yaffs2 utils for making yaffs2 image.
- * [http://prdownloads.sourceforge.net/virtualmips/rootfs-20080409.tgz?download rootfs-20080409.tgz]: rootfs for JZ4740 pavo board from [http://www.ingenic.cn/eng/default.aspx JZ]. [Also can download from ftp://ftp.ingenic.cn/3sw/01linux/03root/rootfs.tgz here].
+ * [http://prdownloads.sourceforge.net/virtualmips/rootfs-20080409.tgz?download rootfs-20080409.tgz]: rootfs for JZ4740 pavo board from [http://www.ingenic.cn/eng/default.aspx JZ]. [ftp://ftp.ingenic.cn/3sw/01linux/03root/rootfs.tgz Also can download from here].
 
 = Compile yaffs2 utils =
 
