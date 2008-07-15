@@ -37,7 +37,7 @@ cp u-boot-nand.bin  virtualmips-${version}/build
 cp uImage-2.4  virtualmips-${version}/build
 }}}
 
-Make yaffs2 root filesystem. You need to download [http://downloads.sourceforge.net/virtualmips/rootfs-20080409.tgz rootfs] first.
+Make yaffs2 root filesystem. You need to download rootfs first.
 
 {{{
 tar zxvf rootfs-20080409.tgz
