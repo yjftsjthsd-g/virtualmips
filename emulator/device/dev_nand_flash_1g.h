@@ -62,22 +62,22 @@
 /* nand flash private data */
 struct nand_flash_1g_data
 {
-    struct vdevice *dev;
-    int state;
-    unsigned char *flash_map[NAND_FLASH_1G_TOTAL_BLOCKS];
+   struct vdevice *dev;
+   int state;
+   unsigned char *flash_map[NAND_FLASH_1G_TOTAL_BLOCKS];
 
-    unsigned char fake_block[NAND_FLASH_1G_BLOCK_SIZE];
+   unsigned char fake_block[NAND_FLASH_1G_BLOCK_SIZE];
 
-    m_uint32_t row_addr;
-    m_uint32_t col_addr;
+   m_uint32_t row_addr;
+   m_uint32_t col_addr;
 
-    unsigned char write_buffer[NAND_FLASH_1G_PAGE_SIZE];        //for copy back
-    m_uint32_t read_offset;
-    m_uint32_t write_offset;
-    m_uint32_t addr_offset;
-    m_uint8_t has_issue_30h;
-    /*for nand flash read */
-    unsigned char *data_port_ipr;
+   unsigned char write_buffer[NAND_FLASH_1G_PAGE_SIZE]; //for copy back
+   m_uint32_t read_offset;
+   m_uint32_t write_offset;
+   m_uint32_t addr_offset;
+   m_uint8_t has_issue_30h;
+   /*for nand flash read */
+   unsigned char *data_port_ipr;
 
 };
 typedef struct nand_flash_1g_data nand_flash_1g_data_t;

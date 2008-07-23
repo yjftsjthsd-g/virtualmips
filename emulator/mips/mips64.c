@@ -27,7 +27,7 @@
 #include "utils.h"
 #include "system.h"
 #include "mips64_cp0.h"
-#include "mips64_jit.h"
+
 
 #define GDB_SR            32
 #define GDB_LO            33
@@ -215,7 +215,6 @@ int mips64_load_elf_image(cpu_mips_t * cpu, char *filename, m_va_t * entry_point
       return (-1);
    }
 
-// if (!skip_load) {
    for (i = 0; i < ehdr->e_shnum; i++)
    {
       scn = elf_getscn(img_elf, i);
@@ -229,12 +228,6 @@ int mips64_load_elf_image(cpu_mips_t * cpu, char *filename, m_va_t * entry_point
 
       fseek(bfd, shdr->sh_offset, SEEK_SET);
       vaddr = sign_extend(shdr->sh_addr, 32);
-
-      if (cpu->vm->debug_level > 0)
-      {
-         printf("   * Adding section at virtual address 0x%8.8" LL "x "
-                "(len=0x%8.8lx)\n", vaddr & 0xFFFFFFFF, (u_long) len);
-      }
 
       while (len > 0)
       {
@@ -275,16 +268,14 @@ int mips64_load_elf_image(cpu_mips_t * cpu, char *filename, m_va_t * entry_point
 }
 
 
-/* Update the IRQ flag (inline) */
-static forced_inline fastcall int mips64_update_irq_flag_fast(cpu_mips_t * cpu)
+
+/* Update the IRQ flag */
+int fastcall mips64_update_irq_flag(cpu_mips_t * cpu)
 {
-   mips_cp0_t *cp0 = &cpu->cp0;
+     mips_cp0_t *cp0 = &cpu->cp0;
    m_uint32_t imask, sreg_mask;
    m_uint32_t cause;
    cpu->irq_pending = FALSE;
-
-
-
 
    cause = cp0->reg[MIPS_CP0_CAUSE] & ~MIPS_CP0_CAUSE_IMASK;
    cp0->reg[MIPS_CP0_CAUSE] = cause | cpu->irq_cause;
@@ -303,14 +294,8 @@ static forced_inline fastcall int mips64_update_irq_flag_fast(cpu_mips_t * cpu)
    }
 
    return (FALSE);
-}
 
-/* Update the IRQ flag */
-int fastcall mips64_update_irq_flag(cpu_mips_t * cpu)
-{
-   return mips64_update_irq_flag_fast(cpu);
 }
-//int ggggg;
 /* Generate an exception */
 void mips64_trigger_exception(cpu_mips_t * cpu, u_int exc_code, int bd_slot)
 {
@@ -318,8 +303,6 @@ void mips64_trigger_exception(cpu_mips_t * cpu, u_int exc_code, int bd_slot)
    m_uint64_t new_pc;
    m_reg_t cause;
 
-//	if (exc_code==10)
-	//	ggggg=2;
 
    /* keep IM, set exception code and bd slot */
    cause = cp0->reg[MIPS_CP0_CAUSE];
@@ -501,6 +484,5 @@ void mips64_clear_irq(cpu_mips_t * cpu, m_uint8_t irq)
    if (!cpu->irq_cause)
       cpu->irq_pending = 0;
 }
-
 
 

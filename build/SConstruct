@@ -16,7 +16,6 @@ helpString = """
 Usage:
         scons [target] [compile options]
 Targets:
-        adm5120:                Build VirtualMIPS for adm5120 emulation
         pavo:                   Build VirtualMIPS for pavo emulation
         mknandflash:            Build mknandflash tool
 
@@ -44,8 +43,6 @@ baseEnv.Append(INCDIR = [os.path.join(os.path.abspath('.'),'../emulator','utils'
 baseEnv.Append(INCDIR = [os.path.join(os.path.abspath('.'),'../emulator','utils','net')])
 baseEnv.Append(INCDIR = [os.path.join(os.path.abspath('.'),'../emulator','memory')])
 baseEnv.Append(INCDIR = [os.path.join(os.path.abspath('.'),'../emulator','gdb')])
-baseEnv.Append(INCDIR = [os.path.join(os.path.abspath('.'),'../emulator','jit')])
-baseEnv.Append(INCDIR = [os.path.join(os.path.abspath('.'),'../emulator','jit','x86')])
 	
 	
 baseEnv.Append(CPPPATH = baseEnv['INCDIR'])
@@ -75,8 +72,7 @@ cc1 = ARGUMENTS.get('cc', "gcc")
 if (cc1):
 	baseEnv.Replace(CC = cc1)   
 
-baseEnv.Append(CCFLAGS= "-D_USE_FDD_")
-    
+   
 
 Help(helpString)
  
@@ -90,22 +86,7 @@ def listFiles(dirs,srcexts):
 	return allFiles
 
 
-# check whether host is X86_32
-host_x86_32_test = """
-     int main(int argc, char **argv) {
-#if !defined(__i386__)
- #error __i386__ not defined
-#endif
-  return 0;
-  }"""
 
-def CheckHost_x86_32(context):
-  context.Message('Checking for an x86_32 host...')
-  result = context.TryCompile(host_x86_32_test, '.c')
-  context.Result(result)
-  return result
-
-  
 
 if 'pavo' in COMMAND_LINE_TARGETS:
 	pavo = baseEnv.Clone() 		
@@ -113,7 +94,6 @@ if 'pavo' in COMMAND_LINE_TARGETS:
 	pavo.Append(CPPPATH = [os.path.join(os.path.abspath('.'),'../emulator','system','jz','pavo')])
 	pavo.Append(CPPPATH = [os.path.join(os.path.abspath('.'),'../emulator','utils','sdl')])
 	pavo.Append(CCFLAGS = "-DSIM_PAVO")
-	pavo.Append(CCFLAGS = "-D_MIPS_CHECK_CPUMODE_")
 	lcd = ARGUMENTS.get('lcd', 1)
 	if int(lcd):
 		#check libsdl
@@ -128,26 +108,7 @@ if 'pavo' in COMMAND_LINE_TARGETS:
 		pavo.Append(CCFLAGS = "-DSIM_LCD")
 		pavo.Append(LINKFLAGS  = "-lSDL")
 	
-	jit = ARGUMENTS.get('jit', 1)
-	if int(jit):
-		#check whether host is X86_32.
-		conf = Configure(pavo, custom_tests = {'CheckHost_x86_32' : CheckHost_x86_32})
-		if not conf.CheckHost_x86_32():
-			print 'Host is not x86_32. JIT can not be used. Compile WITHOUT JIT Support.'
-			jit=0
-		pavo = conf.Finish()
-		
-	if int(jit):
-		pavo.Append(CCFLAGS = "-D_USE_JIT_")
-		
 	pavo.Program('pavo',listFiles(pavo['CPPPATH'],'*.c'))
-	
-
-if 'adm5120' in COMMAND_LINE_TARGETS:
-	adm5120 = baseEnv.Clone() 
-	adm5120.Append(CPPPATH = [os.path.join(os.path.abspath('.'),'../emulator','system','adm5120')])
-	adm5120.Append(CCFLAGS = "-DSIM_ADM5120")
-	adm5120.Program('adm5120',listFiles(adm5120['CPPPATH'],'*.c'))
 	
 			
 if 'mknandflash' in COMMAND_LINE_TARGETS:

@@ -36,7 +36,6 @@ Emulation speed is slow but easy to debug.
 #include "mips64_hostalarm.h"
 
 
-//#ifdef  _USE_FDD_
 
 static struct mips64_op_desc mips_opcodes[];
 static struct mips64_op_desc mips_spec_opcodes[];
@@ -44,11 +43,6 @@ static struct mips64_op_desc mips_bcond_opcodes[];
 static struct mips64_op_desc mips_cop0_opcodes[];
 static struct mips64_op_desc mips_mad_opcodes[];
 static struct mips64_op_desc mips_tlb_opcodes[];
-
-extern cpu_mips_t *current_cpu;
-
-
-
 
 
 
@@ -101,7 +95,7 @@ static forced_inline int mips64_fetch_instruction(cpu_mips_t * cpu, m_va_t pc, m
 
 }
 
-//extern int ggggg;
+
 /* Execute a single instruction */
 static forced_inline int mips64_exec_single_instruction(cpu_mips_t * cpu, mips_insn_t instruction)
 {
@@ -122,9 +116,6 @@ static forced_inline int mips64_exec_single_instruction(cpu_mips_t * cpu, mips_i
         exit(1);
     }
 #endif
-
-	//if ( ggggg==2)
-	//	cpu_log6(cpu,"","pc %x\n",cpu->pc);
 
     register uint op;
     op = MAJOR_OP(instruction);
@@ -260,4 +251,3 @@ static forced_inline int mips64_exec_bdslot(cpu_mips_t * cpu)
 #include "mips64_codetable.h"
 
 
-//#endif
