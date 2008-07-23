@@ -36,7 +36,6 @@
 enum
 {
    VM_TYPE_SWARM = 0,
-   VM_TYPE_ADM5120,
    VM_TYPE_PAVO,
 };
 
@@ -61,9 +60,6 @@ struct vm_instance
    char *log_file;              /* Log filename */
    int log_file_enabled;        /* Logging enabled */
    u_int ram_size;              /* RAM   size in Mb */
-   //u_int rom_size;                    /*   ROM size in Mb */
-   //char *rom_filename;             /* ROM filename */
-   //m_pa_t rom_address;           /*ROM phy address*/
 
    u_int flash_size;            /*   FLASH size in Mb */
    char *flash_filename;        /* FLASH filename */
@@ -77,13 +73,9 @@ struct vm_instance
    char *configure_filename;
 
 
-   FILE *lock_fd, *log_fd;      /* Lock/Log file descriptors */
-   int debug_level;             /* Debugging Level */
-   int jit_use;                 /* CPUs use JIT */
+   FILE *log_fd;      /* Lock/Log file descriptors */
 
-   /* Basic hardware: system CPU */
-   cpu_group_t *cpu_group;
-   cpu_mips_t *boot_cpu;
+   cpu_mips_t *cpu;
 
    /* Memory mapped devices */
    struct vdevice *dev_list;
@@ -92,9 +84,6 @@ struct vm_instance
    /* IRQ routing */
    void (*set_irq) (vm_instance_t * vm, u_int irq);
    void (*clear_irq) (vm_instance_t * vm, u_int irq);
-
-
-
 
 
    /* Console  VTTY type and parameters */
@@ -107,7 +96,7 @@ struct vm_instance
    /* Specific hardware data */
    void *hw_data;
 
-   /*gdb interface */
+   /*gdb interface for simos*/
    m_uint32_t gdb_debug, gdb_port;
    int gdb_interact_sock;       //connect socket
    int gdb_listen_sock;         //listen socket
@@ -115,7 +104,6 @@ struct vm_instance
    virtual_breakpoint_t *breakpoint_head, *breakpoint_tail;
    int mipsy_debug_mode;
    int mipsy_break_nexti;
-
 
 };
 

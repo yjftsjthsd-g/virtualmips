@@ -29,7 +29,7 @@
 #include "utils.h"
 #include "mips64_cp0.h"
 #include "gdb_interface.h"
-#include "mips64_jit.h"
+
 void bad_memory_access(cpu_mips_t * cpu, m_va_t vaddr)
 {
     printf("cpu->pc  %x vaddr %x\n", cpu->pc, vaddr);
@@ -1400,10 +1400,7 @@ u_int fastcall mips_mts32_sb(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
     }
     if (likely(has_set_value == FALSE))
     {
-#ifdef _USE_JIT_
-        if (cpu->vm->jit_use)
-            jit_handle_self_write(cpu, vaddr);
-#endif
+
         *(m_uint8_t *) haddr = data;
     }
 
@@ -1430,10 +1427,7 @@ u_int fastcall mips_mts32_sh(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
     }
     if (likely(has_set_value == FALSE))
     {
-#ifdef _USE_JIT_
-        if (cpu->vm->jit_use)
-            jit_handle_self_write(cpu, vaddr);
-#endif
+
         *(m_uint16_t *) haddr = htovm16(data);
     }
 
@@ -1461,10 +1455,7 @@ u_int fastcall mips_mts32_sw(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
     }
     if (likely(has_set_value == FALSE))
     {
-#ifdef _USE_JIT_
-        if (cpu->vm->jit_use)
-            jit_handle_self_write(cpu, vaddr);
-#endif
+
         *(m_uint32_t *) haddr = htovm32(data);
     }
 
@@ -2367,6 +2358,7 @@ static int mips_mts64_translate(cpu_mips_t * cpu, m_va_t vaddr, m_uint32_t * phy
 /* === Specific operations for MTS32 ====================================== */
 
 
+
 /* MTS32 slow lookup */
 static mts32_entry_t *mips_mts32_slow_lookup(cpu_mips_t * cpu, m_uint64_t vaddr,
                                              u_int op_code, u_int op_size,
@@ -2479,6 +2471,7 @@ static forced_inline int mips_mts32_check_tlbcache(cpu_mips_t * cpu, m_va_t vadd
     return 1;
 }
 
+extern int tttt;
 /* MTS32 access */
 static
     void *mips_mts32_access(cpu_mips_t * cpu, m_va_t vaddr,
@@ -2492,34 +2485,14 @@ static
 
 
 /*
-One homework needs to be done first: check whether access is aligned!!!
-MIPS FPU Emulator use a unaligned lw access to cause exception and then handle it.
-I forget to check it before version 0.04 and hwclock/qtopia always segment fault.  
-It is very hard to debug this problem!!!!
+A job needs to be done first: check whether access is aligned!!!
+MIPS FPU Emulator use an unaligned lw access to cause exception and then handle it.
+see arch/mips/math-emu/dsemul.c  mips_dsemul
+
+I did not check it before version 0.04 and hwclock/qtopia always segment fault.  
+Very hard to find this problem!!!!
 yajin
-
- 72         
- 73          * The strategy is to push the instruction onto the user stack
- 74          * and put a trap after it which we can catch and jump to
- 75          * the required address any alternative apart from full
- 76          * instruction emulation!!.
- 77          *
- 78          * Algorithmics used a system call instruction, and
- 79          * borrowed that vector.  MIPS/Linux version is a bit
- 80          * more heavyweight in the interests of portability and
- 81          * multiprocessor support.  For Linux we generate a
- 82          * an unaligned access and force an address error exception.
- 83          *
- 84          * For embedded systems (stand-alone) we prefer to use a
- 85          * non-existing CP1 instruction. This prevents us from emulating
- 86          * branches, but gives us a cleaner interface to the exception
- 87          * handler (single entry point).
- 88          
-
 */
-
-
-
 
     if (MTS_HALF_WORD == op_size)
     {
@@ -2538,15 +2511,7 @@ yajin
         }
 
     }
-#ifdef  _MIPS_CHECK_CPUMODE_
-    /*tunoff this will gain performance. But debuging virtulization needs this. */
-    /*check memory mode */
-    if (unlikely((mips64_get_cpumode(cpu) == MIPS_USER_MODE) && (vaddr >= MIPS_KSEG0_BASE)))
-    {
-        ASSERT(0, "vaddr %x\n", vaddr);
-        //goto err_addr;
-    }
-#endif
+
 
     *exc = 0;
     hash_bucket = MTS32_HASH(vaddr);
@@ -2669,7 +2634,7 @@ void *physmem_get_hptr(vm_instance_t * vm, m_pa_t paddr, u_int op_size, u_int op
 
     ASSERT(0, "physmem_get_hptr error\n");
     offset = paddr - dev->phys_addr;
-    return (dev->handler(vm->boot_cpu, dev, offset, op_size, op_type, data, &has_set_value));
+    return (dev->handler(vm->cpu, dev, offset, op_size, op_type, data, &has_set_value));
 }
 
 /* DMA transfer operation */

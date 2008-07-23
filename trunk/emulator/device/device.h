@@ -41,18 +41,18 @@ typedef void (*dev_reset_handler_t) (cpu_mips_t * cpu, vdevice_t * dev);
 /* Virtual Device */
 struct vdevice
 {
-    char *name;
-    u_int id;
-    m_pa_t phys_addr;
-    m_uint32_t phys_len;
-    m_iptr_t host_addr;
-    void *priv_data;
-    int flags;
-    int fd;
-    dev_handler_t handler;
-    dev_reset_handler_t reset_handler;
-    //m_iptr_t *sparse_map;
-    struct vdevice *next, **pprev;
+   char *name;
+   u_int id;
+   m_pa_t phys_addr;
+   m_uint32_t phys_len;
+   m_iptr_t host_addr;
+   void *priv_data;
+   int flags;
+   int fd;
+   dev_handler_t handler;
+   dev_reset_handler_t reset_handler;
+   //m_iptr_t *sparse_map;
+   struct vdevice *next, **pprev;
 };
 
 /* device access function */
@@ -60,14 +60,14 @@ static forced_inline
     void *dev_access_fast(cpu_mips_t * cpu, u_int dev_id, m_uint32_t offset,
                           u_int op_size, u_int op_type, m_reg_t * data, m_uint8_t * has_set_value)
 {
-    struct vdevice *dev = cpu->vm->dev_array[dev_id];
+   struct vdevice *dev = cpu->vm->dev_array[dev_id];
 
-    if (unlikely(!dev))
-    {
-        cpu_log(cpu, "dev_access_fast", "null  handler (dev_id=%u,offset=0x%x)\n", dev_id, offset);
-        return NULL;
-    }
-    return (dev->handler(cpu, dev, offset, op_size, op_type, data, has_set_value));
+   if (unlikely(!dev))
+   {
+      cpu_log(cpu, "dev_access_fast", "null  handler (dev_id=%u,offset=0x%x)\n", dev_id, offset);
+      return NULL;
+   }
+   return (dev->handler(cpu, dev, offset, op_size, op_type, data, has_set_value));
 }
 
 

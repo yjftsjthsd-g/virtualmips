@@ -10,10 +10,6 @@
 #define __SYSTEM_H__
 
 
-#ifdef SIM_ADM5120
-#include "adm5120.h"
-#endif
-
 #ifdef SIM_PAVO
 #include "pavo.h"
 #endif

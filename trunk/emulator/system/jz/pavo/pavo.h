@@ -33,13 +33,6 @@ struct pavo_system
    m_uint32_t cs8900_enable;
    char *cs8900_iotype;
 
-
-   /*For LCD */
-//#ifdef SIM_LCD 
-//struct DisplayState *ds;
-//#endif
-
-
 };
 
 
@@ -51,7 +44,6 @@ typedef struct pavo_system pavo_t;
 
 vm_instance_t *create_instance(char *conf);
 int init_instance(vm_instance_t * vm);
-//void  virtual_timer(cpu_mips_t *cpu);
 int pavo_reset(vm_instance_t * vm);
 
 #endif

@@ -29,7 +29,6 @@
 #include "pavo.h"
 #include "device.h"
 #include "dev_cs8900.h"
-#include "mips64_jit.h"
 
 extern m_uint32_t jz4740_int_table[JZ4740_INT_INDEX_MAX];
 int dev_jz4740_gpio_init(vm_instance_t * vm, char *name, m_pa_t paddr, m_uint32_t len);
@@ -118,19 +117,14 @@ static int pavo_init_platform(pavo_t * pavo)
 
    vm_init_vtty(vm);
 
-
-   /* Create a CPU group */
-   vm->cpu_group = cpu_group_create("System CPU");
-
    /* Initialize the virtual MIPS processor */
    if (!(cpu0 = cpu_create(vm, CPU_TYPE_MIPS32, 0)))
    {
       vm_error(vm, "unable to create CPU0!\n");
       return (-1);
    }
-   /* Add this CPU to the system CPU group */
-   cpu_group_add(vm->cpu_group, cpu0);
-   vm->boot_cpu = cpu0;
+
+   vm->cpu = cpu0;
 
 
    cpu_run_fn = (void *) mips64_exec_run_cpu;
@@ -170,9 +164,6 @@ static int pavo_init_platform(pavo_t * pavo)
    if (dev_jz4740_dma_init(vm, "JZ4740 DMA", JZ4740_DMA_BASE, JZ4740_DMA_SIZE) == -1)
       return (-1);
 
-
-
-
    if (pavo->cs8900_enable == 1)
    {
       if (pavo_init_cs8900(pavo, "CS8900A", CS8900_IO_BASE, CS8900_SIZE, CS8900_DEFAULT_IRQ) == -1)
@@ -183,7 +174,6 @@ static int pavo_init_platform(pavo_t * pavo)
 #ifdef SIM_LCD
 if (dev_jz4740_lcd_init(vm, "JZ4740 LCD", JZ4740_LCD_BASE, JZ4740_LCD_SIZE) == -1)
       return (-1);
-
 #endif
 
 
@@ -194,7 +184,7 @@ static int pavo_boot(pavo_t * pavo)
 {
    vm_instance_t *vm = pavo->vm;
 
-   if (!vm->boot_cpu)
+   if (!vm->cpu)
       return (-1);
 
    return jz4740_reset(vm);
@@ -280,8 +270,8 @@ void pavo_set_irq(vm_instance_t * vm, u_int irq)
       jz4740_int_table[INTC_IPR / 4] = irq_mask;
 
 
-      mips64_set_irq(vm->boot_cpu, JZ4740_INT_TO_MIPS);
-      mips64_update_irq_flag(vm->boot_cpu);
+      mips64_set_irq(vm->cpu, JZ4740_INT_TO_MIPS);
+      mips64_update_irq_flag(vm->cpu);
    }
 }
 
@@ -309,7 +299,6 @@ static void pavo_parse_configure(pavo_t * pavo)
           /*add other configure information here */
           CFG_SIMPLE_INT("cs8900_enable", &(pavo->cs8900_enable)),
       CFG_SIMPLE_STR("cs8900_iotype", &(pavo->cs8900_iotype)),
-      CFG_SIMPLE_INT("jit_use", &(vm->jit_use)),
       
       CFG_END()
    };
@@ -330,10 +319,6 @@ static void pavo_parse_configure(pavo_t * pavo)
    {
       ASSERT(pavo->cs8900_iotype != NULL, "You must set cs8900_enable \n");
    }
-   if (vm->jit_use==1)
-   	{
-   		ASSERT(JIT_SUPPORT==1, "You must compile with JIT Support to use jit. \n"); 
-   	}
 
    /*Print the configure information */
    printf_configure(pavo);
@@ -347,7 +332,7 @@ vm_instance_t *create_instance(char *configure_filename)
    char *name;
    if (!(pavo = malloc(sizeof(*pavo))))
    {
-      fprintf(stderr, "ADM5120': Unable to create new instance!\n");
+      fprintf(stderr, "PAVO': Unable to create new instance!\n");
       return NULL;
    }
 
