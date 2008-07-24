@@ -123,19 +123,6 @@ static forced_inline int mips64_exec_single_instruction(cpu_mips_t * cpu, mips_i
 }
 
 
-/* Single-step execution */
-void fastcall mips64_exec_single_step(cpu_mips_t * cpu, mips_insn_t instruction)
-{
-    int res;
-
-    res = mips64_exec_single_instruction(cpu, instruction);
-    /* Normal flow ? */
-    if (likely(!res))
-        cpu->pc += 4;
-}
-
-
-
   /*MIPS64 fetch->decode->dispatch main loop */
 void *mips64_cpu_fdd(cpu_mips_t * cpu)
 {

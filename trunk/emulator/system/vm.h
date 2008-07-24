@@ -49,6 +49,16 @@ enum
 };
 
 
+typedef struct configure
+{
+   u_int ram_size;              /* RAM   size in Mb */
+
+   u_int flash_type;            /*NAND Flash OR NOR FLASH */
+   u_int flash_size;            /*   FLASH size in Mb */
+   char *flash_filename;        /* FLASH filename */
+   m_pa_t flash_address;        /*FLASH phy address */
+
+}configure_t;
 
 /* VM instance */
 struct vm_instance
@@ -59,21 +69,13 @@ struct vm_instance
 
    char *log_file;              /* Log filename */
    int log_file_enabled;        /* Logging enabled */
-   u_int ram_size;              /* RAM   size in Mb */
+   FILE *log_fd;      /* Lock/Log file descriptors */
 
-   u_int flash_size;            /*   FLASH size in Mb */
-   char *flash_filename;        /* FLASH filename */
-   m_pa_t flash_address;        /*FLASH phy address */
-   u_int flash_type;            /*NAND Flash OR NOR FLASH */
 
-   u_int boot_method;           /*binary or elf */
-   char *kernel_filename;
-   u_int boot_from;
-
+	configure_t *configure;
    char *configure_filename;
 
 
-   FILE *log_fd;      /* Lock/Log file descriptors */
 
    cpu_mips_t *cpu;
 
@@ -90,11 +92,12 @@ struct vm_instance
    int vtty_con1_type, vtty_con2_type;
    int vtty_con1_tcp_port, vtty_con2_tcp_port;
    vtty_serial_option_t vtty_con1_serial_option, vtty_con2_serial_option;
-   /* Virtual TTY for Console and AUX ports */
    vtty_t *vtty_con1, *vtty_con2;
+
 
    /* Specific hardware data */
    void *hw_data;
+
 
    /*gdb interface for simos*/
    m_uint32_t gdb_debug, gdb_port;

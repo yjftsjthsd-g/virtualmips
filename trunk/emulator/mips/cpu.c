@@ -84,11 +84,21 @@ cpu_mips_t *cpu_create(vm_instance_t * vm, u_int type, u_int id)
    cpu->type = type;
    cpu->state = CPU_STATE_SUSPENDED;
    cpu->vm = vm;
-   mips64_init(cpu);
    return cpu;
 
 }
 
+int cpu_register (cpu_mips_t *cpu, const mips_def_t *def)
+{
+	ASSERT(def!=NULL,"def can not be NULL\n");
+	memcpy(&cpu->def,def,sizeof(*def));
+	return (0);
+}
+int cpu_init (cpu_mips_t *cpu)
+{
+	mips64_init( cpu);
+	return (0);
+}
 
 /* Delete a CPU */
 void cpu_delete(cpu_mips_t * cpu)
