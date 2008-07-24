@@ -43,6 +43,8 @@ void cpu_start(cpu_mips_t * cpu);
 void cpu_stop(cpu_mips_t * cpu);
 void cpu_restart(cpu_mips_t * cpu);
 cpu_mips_t *cpu_create(vm_instance_t * vm, u_int type, u_int id);
+int cpu_register (cpu_mips_t *cpu, const mips_def_t *def);
+int cpu_init (cpu_mips_t *cpu);
 void cpu_delete(cpu_mips_t * cpu);
 
 

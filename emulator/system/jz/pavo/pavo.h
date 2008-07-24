@@ -16,11 +16,8 @@
 #include "vp_sdl.h"
 #endif
 
+
 #define PAVO_DEFAULT_CONFIG_FILE     "pavo.conf"
-#define PAVO_DEFAULT_RAM_SIZE           16
-#define PAVO_DEFAULT_BOOT_METHOD     BOOT_BINARY
-#define PAVO_DEFAULT_KERNEL_FILENAME     "vmlinux"
-#define PAVO_ADDR_BUS_MASK   0xffffffff /*32bit phy address */
 
 
 

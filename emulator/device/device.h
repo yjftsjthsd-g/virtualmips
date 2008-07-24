@@ -51,7 +51,6 @@ struct vdevice
    int fd;
    dev_handler_t handler;
    dev_reset_handler_t reset_handler;
-   //m_iptr_t *sparse_map;
    struct vdevice *next, **pprev;
 };
 

@@ -184,9 +184,14 @@ vm_instance_t *vm_create(char *name, int machine_type)
    if (vm_create_log(vm) == -1)
       goto err_log;
 
+   /*create configure*/
+   if (!(vm->configure= malloc(sizeof(*vm->configure))))
+		goto err_configure;
+   memset(vm->configure,0,sizeof(*vm->configure));
 
    return vm;
-
+err_configure:
+	vm_close_log(vm);
  err_log:
    free(vm->name);
  err_name:
@@ -286,7 +291,7 @@ int vm_ram_init(vm_instance_t * vm, m_pa_t paddr)
 {
    m_uint32_t len;
 
-   len = vm->ram_size * 1048576;
+   len = vm->configure->ram_size * 1048576;
 #ifdef SIM_PAVO
 /*
 Why plus 0x2000 (8k) for PAVO??

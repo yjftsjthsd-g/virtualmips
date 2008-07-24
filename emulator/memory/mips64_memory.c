@@ -1193,7 +1193,7 @@ static no_inline mts32_entry_t *mips_mts32_map(cpu_mips_t * cpu, u_int op_type, 
 }
 
 /* MTS lookup */
-static fastcall void *mips_mts32_lookup(cpu_mips_t * cpu, m_va_t vaddr)
+static  void *mips_mts32_lookup(cpu_mips_t * cpu, m_va_t vaddr)
 {
     m_reg_t data;
     u_int exc;
@@ -1221,7 +1221,7 @@ u_int mips_mts32_gdb_lb(cpu_mips_t * cpu, m_va_t vaddr, void *cur)
 }
 
 /* LB: Load Byte */
-u_int fastcall mips_mts32_lb(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
+u_int  mips_mts32_lb(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 {
     m_reg_t data;
     void *haddr;
@@ -1246,7 +1246,7 @@ u_int fastcall mips_mts32_lb(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 }
 
 /* LBU: Load Byte Unsigned */
-u_int fastcall mips_mts32_lbu(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
+u_int  mips_mts32_lbu(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 {
     m_reg_t data;
     void *haddr;
@@ -1268,7 +1268,7 @@ u_int fastcall mips_mts32_lbu(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 }
 
 /* LH: Load Half-Word */
-u_int fastcall mips_mts32_lh(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
+u_int  mips_mts32_lh(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 {
     m_reg_t data;
     void *haddr;
@@ -1290,7 +1290,7 @@ u_int fastcall mips_mts32_lh(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 }
 
 /* LHU: Load Half-Word Unsigned */
-u_int fastcall mips_mts32_lhu(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
+u_int  mips_mts32_lhu(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 {
     m_reg_t data;
     void *haddr;
@@ -1313,7 +1313,7 @@ u_int fastcall mips_mts32_lhu(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 }
 
 /* LW: Load Word */
-u_int fastcall mips_mts32_lw(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
+u_int  mips_mts32_lw(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 {
     m_reg_t data;
     void *haddr;
@@ -1337,7 +1337,7 @@ u_int fastcall mips_mts32_lw(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 }
 
 /* LWU: Load Word Unsigned */
-u_int fastcall mips_mts32_lwu(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
+u_int  mips_mts32_lwu(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 {
     m_reg_t data;
     void *haddr;
@@ -1360,7 +1360,7 @@ u_int fastcall mips_mts32_lwu(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 }
 
 /* LD: Load Double-Word */
-u_int fastcall mips_mts32_ld(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
+u_int  mips_mts32_ld(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 {
     m_reg_t data;
     void *haddr;
@@ -1383,7 +1383,7 @@ u_int fastcall mips_mts32_ld(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 }
 
 /* SB: Store Byte */
-u_int fastcall mips_mts32_sb(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
+u_int  mips_mts32_sb(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 {
     m_reg_t data;
     void *haddr = NULL;
@@ -1409,7 +1409,7 @@ u_int fastcall mips_mts32_sb(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 }
 
 /* SH: Store Half-Word */
-u_int fastcall mips_mts32_sh(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
+u_int  mips_mts32_sh(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 {
     m_reg_t data;
     void *haddr;
@@ -1435,7 +1435,7 @@ u_int fastcall mips_mts32_sh(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 }
 
 /* SW: Store Word */
-u_int fastcall mips_mts32_sw(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
+u_int  mips_mts32_sw(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 {
     m_reg_t data;
     void *haddr;
@@ -1464,7 +1464,7 @@ u_int fastcall mips_mts32_sw(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 }
 
 /* SD: Store Double-Word */
-u_int fastcall mips_mts32_sd(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
+u_int  mips_mts32_sd(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 {
     m_reg_t data;
     void *haddr;
@@ -1486,7 +1486,7 @@ u_int fastcall mips_mts32_sd(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 }
 
 /* LDC1: Load Double-Word To Coprocessor 1 */
-u_int fastcall mips_mts32_ldc1(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
+u_int  mips_mts32_ldc1(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 {
     printf("mips_mts32_ldc1 pc %x\n", cpu->pc);
     exit(-1);
@@ -1494,7 +1494,7 @@ u_int fastcall mips_mts32_ldc1(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 }
 
 
-u_int fastcall mips_mts32_lwl(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
+u_int  mips_mts32_lwl(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 {
     void *haddr = NULL;
     u_int exc;
@@ -1565,7 +1565,7 @@ u_int fastcall mips_mts32_lwl(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
     return 0;
 }
 
-u_int fastcall mips_mts32_lwr(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
+u_int  mips_mts32_lwr(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 {
     void *haddr = NULL;
     u_int exc;
@@ -1643,7 +1643,7 @@ u_int fastcall mips_mts32_lwr(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 
 
 /* LDL: Load Double-Word Left */
-u_int fastcall mips_mts32_ldl(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
+u_int  mips_mts32_ldl(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 {
     m_reg_t r_mask, naddr;
     m_reg_t data;
@@ -1678,7 +1678,7 @@ u_int fastcall mips_mts32_ldl(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 }
 
 /* LDR: Load Double-Word Right */
-u_int fastcall mips_mts32_ldr(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
+u_int  mips_mts32_ldr(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 {
     m_reg_t r_mask, naddr;
     m_reg_t data;
@@ -1713,15 +1713,12 @@ u_int fastcall mips_mts32_ldr(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 }
 
 
-u_int fastcall mips_mts32_swl(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
+u_int  mips_mts32_swl(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 {
     void *haddr = NULL;
     u_int exc;
     m_uint32_t data, naddr, temp, mask1 = 0, mask2 = 0, shift = 0;
     m_uint8_t has_set_value = FALSE;
-
-
-
 
     naddr = vaddr & ~(0x03ULL);
     data = cpu->gpr[reg] & 0xffffffff;
@@ -1790,7 +1787,7 @@ u_int fastcall mips_mts32_swl(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 }
 
 
-u_int fastcall mips_mts32_swr(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
+u_int  mips_mts32_swr(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 {
     void *haddr = NULL;
     u_int exc;
@@ -1866,7 +1863,7 @@ u_int fastcall mips_mts32_swr(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 
 
 /* SDL: Store Double-Word Left */
-u_int fastcall mips_mts32_sdl(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
+u_int  mips_mts32_sdl(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 {
     m_reg_t d_mask, naddr;
     m_reg_t data;
@@ -1907,7 +1904,7 @@ u_int fastcall mips_mts32_sdl(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 }
 
 /* SDR: Store Double-Word Right */
-u_int fastcall mips_mts32_sdr(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
+u_int  mips_mts32_sdr(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 {
     m_reg_t d_mask, naddr;
     m_reg_t data;
@@ -1948,7 +1945,7 @@ u_int fastcall mips_mts32_sdr(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 }
 
 /* LL: Load Linked */
-u_int fastcall mips_mts32_ll(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
+u_int  mips_mts32_ll(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 {
     m_reg_t data;
     void *haddr;
@@ -1976,7 +1973,7 @@ u_int fastcall mips_mts32_ll(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 }
 
 /* SC: Store Conditional */
-u_int fastcall mips_mts32_sc(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
+u_int  mips_mts32_sc(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 {
     m_reg_t data;
     void *haddr;
@@ -2004,7 +2001,7 @@ u_int fastcall mips_mts32_sc(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 }
 
 /* SDC1: Store Double-Word from Coprocessor 1 */
-u_int fastcall mips_mts32_sdc1(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
+u_int  mips_mts32_sdc1(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 {
     /* m_uint64_t data;
        void *haddr;
@@ -2027,7 +2024,7 @@ u_int fastcall mips_mts32_sdc1(cpu_mips_t * cpu, m_va_t vaddr, u_int reg)
 }
 
 /* CACHE: Cache operation */
-u_int fastcall mips_mts32_cache(cpu_mips_t * cpu, m_va_t vaddr, u_int op)
+u_int  mips_mts32_cache(cpu_mips_t * cpu, m_va_t vaddr, u_int op)
 {
 #if 0
     mips64_jit_tcb_t *block;
